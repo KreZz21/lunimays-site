@@ -4,6 +4,11 @@
     <title>✨ LuniMays — мессенджер</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- Мета-теги для WebView -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob: wss: https: http:;">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="referrer" content="no-referrer">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- EmailJS -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -2046,6 +2051,84 @@
             border-radius: 12px;
             border: 1px solid var(--border-color);
         }
+
+        /* Стили для WebView */
+        .webview-warning {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #ff9800;
+            color: white;
+            padding: 15px;
+            border-radius: 16px;
+            z-index: 10000;
+            text-align: center;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        .webview-warning button {
+            margin-top: 10px;
+            padding: 8px 20px;
+            background: white;
+            border: none;
+            border-radius: 20px;
+            color: #ff9800;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .firebase-offline #input-area {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .firebase-offline #input-area::after {
+            content: "⚠️ Нет соединения с сервером";
+            position: absolute;
+            bottom: 70px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255,68,68,0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 14px;
+            z-index: 100;
+        }
+
+        @supports (-webkit-overflow-scrolling: touch) {
+            .modal-content {
+                max-height: 80vh;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            
+            #messages {
+                -webkit-overflow-scrolling: touch !important;
+            }
+            
+            .chat-item, 
+            .search-item,
+            .auth-tab,
+            button {
+                min-height: 44px;
+            }
+        }
     </style>
 </head>
 <body class="light-theme">
@@ -2407,22 +2490,24 @@
         </div>
     </div>
 
+    <!-- Firebase скрипты -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
+    <!-- EmailJS -->
     <script>
-        // ========== ИНИЦИАЛИЗАЦИЯ EMAILJS ==========
         (function() {
             try {
                 emailjs.init("ugqWnQIZoP2IkjRKI");
-                console.log("✅ EmailJS инициализирован");
-            } catch (e) {
-                console.error("❌ Ошибка инициализации EmailJS:", e);
-            }
+                console.log("✅ EmailJS готов");
+            } catch (e) {}
         })();
+    </script>
 
-        // ========== FIREBASE КОНФИГ ==========
+    <!-- ОСНОВНОЙ КОД -->
+    <script>
+        // ========== Firebase конфиг ==========
         const firebaseConfig = {
             apiKey: "AIzaSyCzvxhleXrIMT-mLURP-zJncyPf84BC3Xo",
             authDomain: "lunimays.firebaseapp.com",
@@ -2437,6 +2522,7 @@
         const auth = firebase.auth();
         const db = firebase.database();
 
+        // ========== Константы ==========
         const BOT_UID = 'lunimays_bot_official';
         const BOT_USERNAME = 'lunimays';
         const OWNER_UID = 'adcmS4CUXhMYU6O1n7C0WpEzN6o2';
@@ -2447,6 +2533,7 @@
             'Gr8qTIJLqSUky7R29oPjk33C0t23'
         ];
 
+        // ========== Глобальные переменные ==========
         let currentUser = null;
         let currentChatWith = null;
         let messageListener = null;
@@ -2466,7 +2553,8 @@
         let intervals = [];
         let lastMessageTime = 0;
         let updateChatsTimeout = null;
-        let chatListeners = []; // Для отслеживания слушателей чатов
+        let chatListeners = [];
+        let connectionCheckInterval = null;
         
         // Переменные для верификации email
         let pendingUserData = null;
@@ -2477,10 +2565,16 @@
         // Флаг для политики конфиденциальности
         let policyAccepted = false;
 
+        // ========== Детектор окружения ==========
+        const isAppsGeyser = /AppsGeyser/i.test(navigator.userAgent);
+        const isTelegram = /Telegram/i.test(navigator.userAgent);
+        const isWebView = /wv|Android.*AppleWebKit|WebView/i.test(navigator.userAgent) || isAppsGeyser || isTelegram;
+        
+        console.log('📱 Среда выполнения:', { isAppsGeyser, isTelegram, isWebView });
+
         // ========== ПОЛИТИКА КОНФИДЕНЦИАЛЬНОСТИ ==========
         function showPrivacyPolicy() {
             document.getElementById('privacy-modal').style.display = 'flex';
-            // Сбрасываем флаг при открытии
             policyAccepted = false;
             document.getElementById('acceptPolicyBtn').disabled = false;
         }
@@ -2493,16 +2587,13 @@
             policyAccepted = true;
             document.getElementById('acceptPolicyBtn').disabled = true;
             
-            // Если есть ожидающие данные регистрации, отмечаем чекбокс
             const agreeCheckbox = document.getElementById('agreeToPolicy');
             if (agreeCheckbox) {
                 agreeCheckbox.checked = true;
             }
             
-            // Показываем сообщение
             alert('✅ Спасибо! Согласие принято.');
             
-            // Закрываем модалку через секунду
             setTimeout(() => {
                 closePrivacyModal();
             }, 500);
@@ -3132,6 +3223,7 @@
                     const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     const dateStr = date.toLocaleDateString();
                     
+                    const query = document.getElementById('search-input').value;
                     const highlightedText = highlightText(item.message.text, query);
                     
                     div.innerHTML = `
@@ -3747,7 +3839,6 @@
             messageElements.clear();
             clearAllIntervals();
             
-            // Очищаем все слушатели чатов
             if (chatListeners.length > 0) {
                 chatListeners.forEach(listener => listener.off());
                 chatListeners = [];
@@ -3755,10 +3846,27 @@
             
             if (messageListener) messageListener.off();
             if (onlineStatusRef) onlineStatusRef.off();
+            if (connectionCheckInterval) clearInterval(connectionCheckInterval);
             
             auth.signOut();
             closeSettingsModal();
             closePasswordModal();
+        }
+
+        // ========== проверка соединения Firebase ==========
+        function checkFirebaseConnection() {
+            if (!currentUser) return;
+            
+            const connectedRef = db.ref('.info/connected');
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    console.log('🔥 Firebase онлайн');
+                    document.body.classList.remove('firebase-offline');
+                } else {
+                    console.warn('🔥 Firebase офлайн');
+                    document.body.classList.add('firebase-offline');
+                }
+            });
         }
 
         // ========== НАВИГАЦИЯ НА ТЕЛЕФОНЕ ==========
@@ -3768,7 +3876,12 @@
             }
         }
 
-        // ========== ЧАТЫ (ИСПРАВЛЕНО ДУБЛИРОВАНИЕ) ==========
+        // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+        function getChatId(uid1, uid2) { 
+            return uid1 < uid2 ? uid1 + '_' + uid2 : uid2 + '_' + uid1; 
+        }
+
+        // ========== ЧАТЫ ==========
         function startNewChat(uid, username) {
             if (!currentUser) return;
             
@@ -3859,14 +3972,12 @@
                 const container = document.getElementById('chats-container');
                 const emptyChats = document.getElementById('empty-chats');
                 
-                // Полностью очищаем контейнер перед обновлением
                 container.innerHTML = '';
                 
                 const chatsArray = [];
-                const processedIds = new Set(); // Временный Set для этого обновления
+                const processedIds = new Set();
                 
                 for (let key in chats) {
-                    // Используем ID чата как уникальный ключ
                     if (!processedIds.has(key)) {
                         processedIds.add(key);
                         chatsArray.push({ id: key, ...chats[key] });
@@ -3881,7 +3992,6 @@
                 emptyChats.style.display = 'none';
                 chatsArray.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
                 
-                // Загружаем все данные параллельно
                 const promises = chatsArray.map(chat => 
                     Promise.all([
                         db.ref('users/' + chat.withUid).once('value'),
@@ -3894,7 +4004,6 @@
                 );
                 
                 Promise.all(promises).then(results => {
-                    // Очищаем еще раз перед добавлением (на всякий случай)
                     container.innerHTML = '';
                     
                     results.forEach(({ chat, userData, status }) => {
@@ -3949,16 +4058,13 @@
         function loadChats() {
             if (!currentUser) return;
             
-            // Очищаем старые слушатели
             if (chatListeners.length > 0) {
                 chatListeners.forEach(listener => listener.off());
                 chatListeners = [];
             }
             
-            // Первоначальная загрузка
             updateChatsList();
             
-            // Добавляем новые слушатели
             const chatRef = db.ref('userChats/' + currentUser.uid);
             
             const childAddedListener = chatRef.on('child_added', (snapshot) => {
@@ -3973,7 +4079,6 @@
                 debouncedUpdateChats();
             });
             
-            // Сохраняем слушатели для возможности отключения
             chatListeners.push({
                 off: () => chatRef.off('child_added', childAddedListener)
             });
@@ -3991,7 +4096,12 @@
             if (currentChatWith) {
                 db.ref('typing/' + currentChatWith.uid).off();
             }
-            if (messageListener) messageListener.off();
+            
+            // ========== ИСПРАВЛЕНО: очищаем старый слушатель ==========
+            if (messageListener) {
+                messageListener.off();
+                messageListener = null;
+            }
             
             const chatId = getChatId(currentUser.uid, uid);
             resetUnread(chatId);
@@ -4009,6 +4119,10 @@
             }
             
             cancelReply();
+            
+            // ========== ВАЖНО: ОЧИЩАЕМ СООБЩЕНИЯ ==========
+            const messagesContainer = document.getElementById('messages');
+            messagesContainer.innerHTML = '';
             messageElements.clear();
             
             if (uid !== currentUser.uid) {
@@ -4039,8 +4153,6 @@
                 }
             });
             
-            document.getElementById('messages').innerHTML = '';
-            
             db.ref('status/' + uid).on('value', snapshot => {
                 const status = snapshot.val() || {};
                 const isOnline = status.online || false;
@@ -4065,20 +4177,32 @@
             loadMessages(uid);
         }
 
+        // ========== ИСПРАВЛЕНО: ЗАГРУЗКА СООБЩЕНИЙ ==========
         function loadMessages(otherUid) {
             if (!currentUser) return;
             
             const chatId = getChatId(currentUser.uid, otherUid);
+            console.log('📁 Загружаю чат:', chatId, 'с пользователем:', otherUid);
+            
             const messagesRef = db.ref('chats/' + chatId + '/messages');
-            
-            if (messageListener) messageListener.off();
-            
             messageListener = messagesRef.limitToLast(50);
+            
             messageListener.on('child_added', snapshot => {
                 const msg = snapshot.val();
                 const msgId = snapshot.key;
                 
-                if (!currentUser) return;
+                // Проверяем, что сообщение принадлежит текущему чату
+                if (!currentChatWith || currentChatWith.uid !== otherUid) {
+                    console.log('⏭️ Пропускаю сообщение - не тот чат');
+                    return;
+                }
+                
+                // Проверяем дубликаты
+                if (messageElements.has(msgId)) {
+                    return;
+                }
+                
+                console.log('📨 Новое сообщение в чате', chatId);
                 
                 if (msg.sender !== currentUser.uid) {
                     if (!currentChatWith || currentChatWith.uid !== msg.sender) {
@@ -4099,10 +4223,6 @@
             if (Notification.permission === 'granted') {
                 new Notification('Новое сообщение от @' + sender, { body: text });
             }
-        }
-
-        function getChatId(uid1, uid2) { 
-            return uid1 < uid2 ? uid1 + '_' + uid2 : uid2 + '_' + uid1; 
         }
 
         // ========== ОТВЕТЫ НА СООБЩЕНИЯ ==========
@@ -4229,10 +4349,11 @@
             if (msg.type === 'photo') {
                 const photoDiv = document.createElement('div');
                 photoDiv.className = 'message-photo';
+                // ========== ИСПРАВЛЕНО: фото открывается в модалке ==========
                 photoDiv.innerHTML = `
                     <img src="${msg.photo}" 
                          style="max-width:200px;max-height:200px;border-radius:12px;cursor:pointer;" 
-                         onclick="window.open('${msg.photo}', '_blank')"
+                         onclick="openPhotoModal('${msg.photo}')"
                          title="Нажмите для увеличения">
                 `;
                 bubble.appendChild(photoDiv);
@@ -4254,6 +4375,78 @@
             div.appendChild(bubble);
             document.getElementById('messages').appendChild(div);
             document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        }
+
+        // ========== ДОБАВЛЕНО: ПРОСМОТР ФОТО ==========
+        function openPhotoModal(photoUrl) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.95);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            `;
+            
+            const img = document.createElement('img');
+            img.src = photoUrl;
+            img.style.cssText = `
+                max-width: 90%;
+                max-height: 90%;
+                object-fit: contain;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            `;
+            
+            const closeBtn = document.createElement('div');
+            closeBtn.innerHTML = '✕';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                width: 44px;
+                height: 44px;
+                background: rgba(255,255,255,0.2);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 24px;
+                cursor: pointer;
+                backdrop-filter: blur(5px);
+                border: 1px solid rgba(255,255,255,0.3);
+            `;
+            
+            modal.appendChild(img);
+            modal.appendChild(closeBtn);
+            document.body.appendChild(modal);
+            
+            const closeModal = () => {
+                if (modal.parentNode) {
+                    document.body.removeChild(modal);
+                }
+            };
+            
+            modal.onclick = function(e) {
+                if (e.target === modal || e.target === closeBtn) {
+                    closeModal();
+                }
+            };
+            
+            const escHandler = function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                    document.removeEventListener('keydown', escHandler);
+                }
+            };
+            document.addEventListener('keydown', escHandler);
         }
 
         // ========== ОТПРАВКА СООБЩЕНИЙ ==========
@@ -4535,6 +4728,8 @@
                 onlineStatusRef = db.ref('status/' + user.uid);
                 onlineStatusRef.set({ online: true, lastSeen: Date.now() });
                 
+                checkFirebaseConnection();
+                
                 db.ref('users/' + user.uid).once('value', snapshot => {
                     const userData = snapshot.val();
                     if (userData) {
@@ -4618,11 +4813,12 @@
                 messageElements.clear();
                 clearAllIntervals();
                 
-                // Очищаем слушатели чатов
                 if (chatListeners.length > 0) {
                     chatListeners.forEach(listener => listener.off());
                     chatListeners = [];
                 }
+                
+                if (connectionCheckInterval) clearInterval(connectionCheckInterval);
                 
                 pendingUserData = null;
                 verificationCode = null;
@@ -4655,7 +4851,6 @@
         window.openProfileByUsername = openProfileByUsername;
         window.closeProfileModal = closeProfileModal;
         window.startChatFromProfile = startChatFromProfile;
-        window.showSignUpModal = showSignUpModal;
         window.startEmailVerification = startEmailVerification;
         window.verifyEmailCode = verifyEmailCode;
         window.resendVerificationCode = resendVerificationCode;
@@ -4680,86 +4875,7 @@
         window.showPrivacyPolicy = showPrivacyPolicy;
         window.closePrivacyModal = closePrivacyModal;
         window.acceptPrivacyPolicy = acceptPrivacyPolicy;
-
-// ========== ПРОКСИ НАСТРОЙКИ ==========
-const PROXY_URL = 'https://lunimays-proxy.onrender.com';
-const USE_PROXY = true;
-
-// Перехватываем отправку сообщений
-const originalSendMessage = window.sendMessage;
-window.sendMessage = async function() {
-    if (!currentUser || !currentChatWith) {
-        alert('Сначала выберите чат');
-        return;
-    }
-    
-    const input = document.getElementById('messageInput');
-    const text = input.value.trim();
-    if (!text) return;
-    
-    if (USE_PROXY) {
-        const chatId = getChatId(currentUser.uid, currentChatWith.uid);
-        
-        try {
-            const response = await fetch(`${PROXY_URL}/api/messages/${chatId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    sender: currentUser.uid,
-                    senderUsername: currentUser.username,
-                    type: 'text',
-                    text: text,
-                    replyTo: replyToMessage
-                })
-            });
-            
-            if (response.ok) {
-                input.value = '';
-                if (replyToMessage) cancelReply();
-                
-                // Обновляем UI
-                const data = await response.json();
-                displayMessage({
-                    ...data,
-                    sender: currentUser.uid,
-                    senderUsername: currentUser.username
-                }, true, data.id);
-            }
-        } catch (error) {
-            console.error('Ошибка прокси, использую Firebase:', error);
-            originalSendMessage();
-        }
-    } else {
-        originalSendMessage();
-    }
-};
-
-// Перехватываем загрузку сообщений
-const originalLoadMessages = window.loadMessages;
-window.loadMessages = async function(otherUid) {
-    if (USE_PROXY && currentUser) {
-        const chatId = getChatId(currentUser.uid, otherUid);
-        
-        try {
-            const response = await fetch(`${PROXY_URL}/api/messages/${chatId}`);
-            const messages = await response.json();
-            
-            document.getElementById('messages').innerHTML = '';
-            
-            if (Array.isArray(messages)) {
-                messages.forEach(msg => {
-                    displayMessage(msg, msg.sender === currentUser.uid, msg.id);
-                });
-            }
-        } catch (error) {
-            console.error('Ошибка прокси, использую Firebase:', error);
-            originalLoadMessages(otherUid);
-        }
-    } else {
-        originalLoadMessages(otherUid);
-    }
-};
-
+        window.openPhotoModal = openPhotoModal; // ДОБАВЛЕНО
     </script>
 </body>
 </html>
