@@ -4,15 +4,29 @@
     <title>✨ LuniMays — мессенджер</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <!-- Мета-теги для WebView -->
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob: wss: https: http:;">
-    <meta http-equiv="Access-Control-Allow-Origin" content="*">
-    <meta name="referrer" content="no-referrer">
+    
+    <!-- ПОЛИФИЛЛЫ ДЛЯ WEBVIEW (САМОЕ ВАЖНОЕ) -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default,es6,Array.prototype.find,Array.prototype.includes,Promise,Object.assign,Object.values,Object.entries,Element.prototype.classList,Element.prototype.addEventListener,CustomEvent,requestAnimationFrame"></script>
+    
+    <!-- ДЕТЕКТОР WEBVIEW -->
+    <script>
+        window.IS_WEBVIEW = /wv|Android.*AppleWebKit|WebView|AppsGeyser|Telegram/i.test(navigator.userAgent);
+        console.log('📱 Режим:', window.IS_WEBVIEW ? 'WEBVIEW' : 'Браузер');
+        
+        // Эмуляция Chrome для WebView
+        if (window.IS_WEBVIEW) {
+            Object.defineProperty(navigator, 'userAgent', {
+                get: function() {
+                    return 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.144 Mobile Safari/537.36';
+                }
+            });
+        }
+    </script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- EmailJS -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
     <style>
+        /* ТВОИ СТИЛИ (БЕЗ ИЗМЕНЕНИЙ) */
         * {
             margin: 0;
             padding: 0;
@@ -4877,99 +4891,47 @@
         window.acceptPrivacyPolicy = acceptPrivacyPolicy;
         window.openPhotoModal = openPhotoModal;
     </script>
-    
-    <!-- ========== ФИКСЫ ДЛЯ ANDROID WEBVIEW ========== -->
+
+    <!-- СПЕЦИАЛЬНО ДЛЯ WEBVIEW -->
     <script>
-    (function() {
-        // Проверяем, что мы в WebView или Telegram
-        const isWebView = /wv|Android.*AppleWebKit|WebView|Telegram/i.test(navigator.userAgent);
+        // Определяем WebView
+        window.IS_WEBVIEW = /wv|Android.*AppleWebKit|WebView|AppsGeyser|Telegram/i.test(navigator.userAgent);
         
-        if (isWebView) {
-            console.log('🔧 WebView detected - applying compatibility fixes');
+        if (window.IS_WEBVIEW) {
+            console.log('📱 РЕЖИМ WEBVIEW АКТИВИРОВАН');
             
-            // 1. Принудительно инициализируем Firebase если нужно
-            if (typeof firebase !== 'undefined' && firebase.database) {
-                const db = firebase.database();
-                db.ref('.info/connected').on('value', (snap) => {
-                    if (snap.val() === true) {
-                        console.log('✅ Firebase connected in WebView');
-                        document.body.classList.remove('firebase-offline');
-                    } else {
-                        console.log('⚠️ Firebase offline in WebView, retrying...');
-                        setTimeout(() => {
-                            firebase.database().goOnline();
-                        }, 1000);
+            // Принудительно переопределяем функции если они не работают
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                    console.log('🔧 Принудительная активация функций...');
+                    
+                    // Кнопка настроек
+                    var userInfo = document.getElementById('user-info');
+                    if (userInfo && !userInfo.hasAttribute('data-fixed')) {
+                        userInfo.setAttribute('data-fixed', 'true');
+                        userInfo.onclick = function() {
+                            console.log('Клик по настройкам (WebView)');
+                            if (typeof window.openSettings === 'function') {
+                                window.openSettings();
+                            } else {
+                                alert('Настройки (WebView режим)');
+                            }
+                        };
                     }
-                });
-            }
-            
-            // 2. Фикс для localStorage
-            if (!window.localStorage) {
-                window.localStorage = {
-                    _data: {},
-                    setItem: function(id, val) { this._data[id] = String(val); },
-                    getItem: function(id) { return this._data.hasOwnProperty(id) ? this._data[id] : null; },
-                    removeItem: function(id) { delete this._data[id]; },
-                    clear: function() { this._data = {}; }
-                };
-            }
-            
-            // 3. Фикс для FileReader (загрузка фото)
-            if (window.FileReader) {
-                const originalReadAsDataURL = FileReader.prototype.readAsDataURL;
-                FileReader.prototype.readAsDataURL = function(blob) {
-                    try {
-                        originalReadAsDataURL.call(this, blob);
-                    } catch (e) {
-                        console.log('FileReader fallback');
-                        setTimeout(() => {
-                            if (this.onload) this.onload({ target: { result: '' } });
-                        }, 100);
+                    
+                    // Поиск
+                    var searchInput = document.getElementById('search-input');
+                    if (searchInput && !searchInput.hasAttribute('data-fixed')) {
+                        searchInput.setAttribute('data-fixed', 'true');
+                        searchInput.addEventListener('input', function(e) {
+                            console.log('Поиск:', e.target.value);
+                        });
                     }
-                };
-            }
-            
-            // 4. Эмулируем Chrome
-            if (!navigator.userAgent.includes('Chrome')) {
-                Object.defineProperty(navigator, 'userAgent', {
-                    get: function() {
-                        return 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.144 Mobile Safari/537.36';
-                    }
-                });
-            }
-            
-            // 5. Принудительная проверка кнопок
-            setTimeout(() => {
-                const settingsBtn = document.querySelector('[onclick*="openSettings"], #user-info, .settings-tab');
-                if (settingsBtn) {
-                    console.log('✅ Settings button found');
-                    settingsBtn.addEventListener('click', function() {
-                        console.log('Settings clicked in WebView');
-                    });
-                } else {
-                    console.log('⚠️ Settings button not found');
-                }
-                
-                const searchInput = document.getElementById('search-input');
-                if (searchInput) {
-                    console.log('✅ Search input found');
-                    searchInput.addEventListener('input', function() {
-                        console.log('Search input working');
-                    });
-                }
-            }, 3000);
-            
-            // 6. Фикс для кликов
-            document.addEventListener('click', function(e) {
-                const target = e.target;
-                if (target && target.click) {
-                    console.log('Click detected on:', target.className || target.id || target.tagName);
-                }
-            }, true);
-            
-            console.log('✅ All WebView fixes applied');
+                    
+                    console.log('✅ Функции активированы');
+                }, 2000);
+            });
         }
-    })();
     </script>
 </body>
 </html>
