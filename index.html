@@ -1798,11 +1798,6 @@
             color: white;
         }
 
-        .modal .warning {
-            background: #ffaa00;
-            color: white;
-        }
-
         #auth, #verify-email, #forgot-password {
             width: 100%;
             max-width: 400px;
@@ -2591,10 +2586,7 @@
             <div id="settings-account-tab" style="display: none;">
                 <button class="primary" onclick="showPasswordModal()">Сменить пароль</button>
                 <button class="danger" onclick="signOut()">Выйти</button>
-                <button class="warning" onclick="cleanupUndefinedChats()" style="background: #ffaa00; color: white; margin-top: 10px;">
-                    🧹 Очистить проблемные чаты
-                </button>
-                <button class="danger" onclick="confirmDeleteAccount()" style="margin-top: 10px;">Удалить аккаунт</button>
+                <button class="danger" onclick="confirmDeleteAccount()">Удалить аккаунт</button>
             </div>
             
             <button class="danger" onclick="closeSettingsModal()">Закрыть</button>
@@ -3130,7 +3122,6 @@
             exitSelectionMode();
         }
 
-        // ========== ИСПРАВЛЕННАЯ ФУНКЦИЯ УДАЛЕНИЯ ==========
         async function deleteSelectedChats() {
             if (selectedChats.size === 0) return;
             
@@ -3143,152 +3134,29 @@
                     for (const uid of selectedChats) {
                         try {
                             const chatId = getChatId(currentUser.uid, uid);
+                            const exists = await userExists(uid);
                             
-                            console.log('Удаляем чат:', chatId);
+                            await db.ref('chats/' + chatId).remove();
+                            await db.ref('userChats/' + currentUser.uid + '/' + chatId).remove();
                             
-                            // 1. Удаляем ВСЕ сообщения в чате
-                            await db.ref('chats/' + chatId).set(null);
-                            
-                            // 2. Удаляем чат у текущего пользователя
-                            await db.ref('userChats/' + currentUser.uid + '/' + chatId).set(null);
-                            
-                            // 3. Пробуем удалить у собеседника
-                            try {
-                                await db.ref('userChats/' + uid + '/' + chatId).set(null);
-                            } catch (e) {}
-                            
-                            // 4. Ищем и удаляем этот чат у всех пользователей
-                            const allUserChats = await db.ref('userChats').once('value');
-                            const allUsers = allUserChats.val() || {};
-                            
-                            for (const someUid in allUsers) {
-                                if (allUsers[someUid] && allUsers[someUid][chatId]) {
-                                    await db.ref('userChats/' + someUid + '/' + chatId).set(null);
-                                }
-                            }
-                            
-                            // 5. Специально для бота - удаляем все возможные варианты
-                            if (uid === BOT_UID || uid === 'lunimays' || chatId.includes('lunimays')) {
-                                const botChatId1 = getChatId(currentUser.uid, BOT_UID);
-                                const botChatId2 = getChatId(currentUser.uid, 'lunimays');
-                                
-                                await db.ref('chats/' + botChatId1).set(null);
-                                await db.ref('chats/' + botChatId2).set(null);
-                                await db.ref('userChats/' + currentUser.uid + '/' + botChatId1).set(null);
-                                await db.ref('userChats/' + currentUser.uid + '/' + botChatId2).set(null);
+                            if (exists) {
+                                await db.ref('userChats/' + uid + '/' + chatId).remove();
                             }
                             
                             deletedCount++;
-                            
-                            // Удаляем из UI
-                            const chatElement = document.getElementById(`chat-${uid}`);
-                            if (chatElement) {
-                                chatElement.remove();
-                            }
-                            
                         } catch (e) {
-                            console.error('Ошибка при удалении:', e);
+                            console.log('Ошибка при удалении чата с ' + uid, e);
                         }
                     }
                     
-                    // Выходим из режима выделения
                     exitSelectionMode();
                     
-                    // Если текущий чат был среди удаленных - закрываем его
                     if (currentChatWith && selectedChats.has(currentChatWith.uid)) {
                         currentChatWith = null;
                         document.getElementById('chat-panel').classList.remove('active');
-                        document.getElementById('messages').innerHTML = '';
-                        toggleFabButton(true);
                     }
-                    
-                    // Полностью перезагружаем список чатов
-                    setTimeout(() => {
-                        if (currentUser) {
-                            db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
-                                const chats = snap.val() || {};
-                                updateChatsList(chats);
-                            });
-                        }
-                    }, 1000);
                     
                     showToast(`✅ ${deletedCount} чат(ов) удалено`, 'success');
-                }
-            );
-        }
-
-        // ========== ФУНКЦИЯ ОЧИСТКИ ПРОБЛЕМНЫХ ЧАТОВ ==========
-        async function cleanupUndefinedChats() {
-            if (!currentUser) return;
-            
-            showConfirm(
-                'Очистка чатов',
-                'Удалить все проблемные чаты (undefined, null)?',
-                async () => {
-                    try {
-                        let deletedCount = 0;
-                        
-                        // Получаем все чаты пользователя
-                        const userChats = await db.ref('userChats/' + currentUser.uid).once('value');
-                        const chats = userChats.val() || {};
-                        
-                        // Проходим по всем чатам
-                        for (const [chatId, chatData] of Object.entries(chats)) {
-                            const isProblematic = 
-                                !chatData.withUid || 
-                                chatData.withUid === 'undefined' || 
-                                chatData.withUid === 'null' ||
-                                chatData.withUsername === 'undefined' ||
-                                chatData.withUsername === 'null' ||
-                                chatId.includes('undefined') ||
-                                chatId.includes('null') ||
-                                (chatData.withUid && chatData.withUid.length < 5);
-                            
-                            if (isProblematic) {
-                                console.log('Найден проблемный чат:', chatId, chatData);
-                                
-                                // Жестко удаляем всё
-                                await db.ref('chats/' + chatId).set(null);
-                                await db.ref('userChats/' + currentUser.uid + '/' + chatId).set(null);
-                                
-                                if (chatData.withUid && chatData.withUid !== 'undefined' && chatData.withUid !== 'null') {
-                                    try {
-                                        await db.ref('userChats/' + chatData.withUid + '/' + chatId).set(null);
-                                    } catch (e) {}
-                                }
-                                
-                                deletedCount++;
-                            }
-                        }
-                        
-                        // Проверяем также чаты в messages
-                        const allChats = await db.ref('chats').once('value');
-                        const chatsList = allChats.val() || {};
-                        
-                        for (const chatId in chatsList) {
-                            if (chatId.includes('undefined') || chatId.includes('null')) {
-                                console.log('Найден проблемный чат в сообщениях:', chatId);
-                                await db.ref('chats/' + chatId).set(null);
-                                deletedCount++;
-                            }
-                        }
-                        
-                        if (deletedCount > 0) {
-                            showToast(`✅ Удалено ${deletedCount} проблемных чатов`, 'success');
-                            
-                            setTimeout(() => {
-                                db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
-                                    updateChatsList(snap.val() || {});
-                                });
-                            }, 1000);
-                        } else {
-                            showToast('✅ Проблемных чатов не найдено', 'info');
-                        }
-                        
-                    } catch (e) {
-                        console.error('Ошибка при очистке:', e);
-                        showToast('❌ Ошибка при очистке', 'error');
-                    }
                 }
             );
         }
@@ -4858,23 +4726,6 @@
                                         createBotChat();
                                     }
                                 });
-                                
-                                // Автоматическая проверка проблемных чатов
-                                db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
-                                    const chats = snap.val() || {};
-                                    let hasProblems = false;
-                                    
-                                    for (const [chatId, chatData] of Object.entries(chats)) {
-                                        if (!chatData.withUid || chatData.withUid === 'undefined' || chatId.includes('undefined')) {
-                                            hasProblems = true;
-                                            break;
-                                        }
-                                    }
-                                    
-                                    if (hasProblems) {
-                                        showToast('🔍 Найдены проблемные чаты. Нажмите "Очистить" в настройках', 'warning', 5000);
-                                    }
-                                });
                             }
                         }, 2000);
                     });
@@ -5140,7 +4991,6 @@
         window.goBackToForgotStep1 = goBackToForgotStep1;
         window.sendPasswordResetCode = sendPasswordResetCode;
         window.resetPassword = resetPassword;
-        window.cleanupUndefinedChats = cleanupUndefinedChats;
     </script>
 </body>
 </html>
