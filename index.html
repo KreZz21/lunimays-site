@@ -114,6 +114,53 @@
             --reply-hover: rgba(157, 78, 221, 0.3);
         }
 
+        /* ========== SAFE AREA ДЛЯ ТЕЛЕФОНА ========== */
+        :root {
+            --sat: env(safe-area-inset-top);
+            --sar: env(safe-area-inset-right);
+            --sab: env(safe-area-inset-bottom);
+            --sal: env(safe-area-inset-left);
+        }
+
+        /* Отступы для статус-бара */
+        .safe-top {
+            padding-top: max(16px, var(--sat));
+        }
+
+        .safe-bottom {
+            padding-bottom: max(16px, var(--sab));
+        }
+
+        /* Шапка с отступом под статус-бар */
+        .messenger-header {
+            padding: max(16px, var(--sat)) 20px 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* Нижняя навигация с отступом под домашнюю полоску */
+        .bottom-nav {
+            display: flex;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            padding: 8px 0 max(8px, var(--sab)) 0;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* Фикс для чата */
+        #chat-panel {
+            padding-top: var(--sat);
+            padding-bottom: var(--sab);
+        }
+
         /* Фильтры для иконок в темной теме */
         body.dark-theme .search-icon img,
         body.dark-theme .nav-icon img,
@@ -904,7 +951,7 @@
         }
 
         .chat-header-detail {
-            padding: 16px 20px;
+            padding: max(16px, var(--sat)) 20px 16px 20px;
             border-bottom: 1px solid var(--border-color);
             background: var(--bg-primary);
             display: flex;
@@ -1040,6 +1087,23 @@
             will-change: scroll-position;
             transform: translateZ(0);
             overscroll-behavior: contain;
+        }
+
+        .loading-messages {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px;
+            font-size: 14px;
+        }
+
+        .loading-messages i {
+            margin-right: 8px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         #messages.is-scrolling .message-wrapper {
@@ -1421,7 +1485,7 @@
         }
 
         #input-area {
-            padding: 16px 20px;
+            padding: 16px 20px max(16px, var(--sab)) 20px;
             background: var(--bg-primary);
             border-top: 1px solid var(--border-color);
             position: relative;
@@ -1547,7 +1611,7 @@
         /* ========== УВЕДОМЛЕНИЯ ========== */
         .toast-container {
             position: fixed;
-            bottom: 30px;
+            bottom: max(30px, var(--sab));
             left: 50%;
             transform: translateX(-50%);
             z-index: 10000;
@@ -1689,7 +1753,7 @@
 
         .fab-button {
             position: absolute;
-            bottom: 20px;
+            bottom: max(20px, var(--sab));
             right: 20px;
             width: 56px;
             height: 56px;
@@ -1709,7 +1773,7 @@
         }
 
         .fab-button.selection-active {
-            bottom: 90px;
+            bottom: max(90px, calc(var(--sab) + 70px));
         }
 
         .fab-button:hover {
@@ -1808,7 +1872,7 @@
             max-width: 400px;
             background: var(--bg-primary);
             border-radius: 30px;
-            padding: 40px 30px;
+            padding: max(40px, var(--sat)) 30px max(40px, var(--sab)) 30px;
             box-shadow: var(--shadow);
             margin: 20px;
             position: relative;
@@ -2275,7 +2339,7 @@
             animation: modalFadeIn 0.3s ease;
         }
 
-        /* ========== ОПТИМИЗАЦИЯ ДЛЯ ANDROID STUDIO ========== */
+        /* ========== ОПТИМИЗАЦИЯ ДЛЯ ТЕЛЕФОНОВ ========== */
         @media (max-width: 480px) {
             #appContainer {
                 max-width: 100%;
@@ -2288,7 +2352,7 @@
             }
             
             .bottom-nav {
-                padding-bottom: env(safe-area-inset-bottom, 0);
+                padding-bottom: max(8px, env(safe-area-inset-bottom, 0));
                 background: var(--bg-primary);
                 position: relative;
                 z-index: 1000;
@@ -2299,6 +2363,11 @@
             #input-area {
                 padding-left: max(20px, env(safe-area-inset-left));
                 padding-right: max(20px, env(safe-area-inset-right));
+            }
+
+            .chat-header-detail {
+                padding-top: max(16px, env(safe-area-inset-top, 0));
+                padding-bottom: 16px;
             }
             
             #chat-panel {
@@ -2341,6 +2410,7 @@
             }
         }
 
+        /* ========== ДОПОЛНИТЕЛЬНЫЕ ОПТИМИЗАЦИИ ========== */
         .android-webview {
             -webkit-text-size-adjust: 100%;
             touch-action: pan-y pinch-zoom;
@@ -3912,6 +3982,7 @@
             });
         }
 
+        // ========== ОПТИМИЗИРОВАННАЯ ФУНКЦИЯ ЗАГРУЗКИ СООБЩЕНИЙ ==========
         function loadMessages(uid) {
             const chatId = getChatId(currentUser.uid, uid);
             
@@ -3925,8 +3996,19 @@
                 messageListener.off();
             }
             
-            db.ref('chats/' + chatId + '/messages').once('value', snapshot => {
+            // ПОКАЗЫВАЕМ ЗАГРУЗКУ
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading-messages';
+            loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка сообщений...';
+            document.getElementById('messages').appendChild(loadingDiv);
+            
+            // Загружаем последние 50 сообщений для скорости
+            db.ref('chats/' + chatId + '/messages').orderByChild('timestamp').limitToLast(50).once('value', snapshot => {
                 const messages = snapshot.val();
+                
+                // Убираем загрузку
+                loadingDiv.remove();
+                
                 const hasMessages = messages && Object.keys(messages).length > 0;
                 
                 if (hasMessages) {
@@ -3934,6 +4016,7 @@
                         .map(([id, msg]) => ({ id, ...msg }))
                         .sort((a, b) => a.timestamp - b.timestamp);
                     
+                    // Загружаем данные отправителей
                     const senderIds = [...new Set(messagesArray.map(msg => msg.sender))];
                     Promise.all(senderIds.map(id => 
                         db.ref('users/' + id).once('value').then(snap => {
@@ -3966,6 +4049,7 @@
                 }
             });
             
+            // Слушаем новые сообщения
             messageListener = db.ref('chats/' + chatId + '/messages').orderByChild('timestamp').limitToLast(1);
             
             messageListener.on('child_added', snap => {
@@ -3975,6 +4059,7 @@
                 if (!currentChatWith || currentChatWith.uid !== uid) return;
                 if (messageElements.has(msgId)) return;
                 
+                // Обновляем lastMessage в списке чатов
                 if (msg.sender !== currentUser.uid) {
                     const lastMsg = msg.type === 'photo' ? '📸 Фото' : (msg.text.substring(0, 50) + (msg.text.length > 50 ? '...' : ''));
                     
@@ -5155,175 +5240,33 @@
             initFirebase();
         });
 
-        // ========== ОПТИМИЗАЦИЯ ДЛЯ ANDROID STUDIO ==========
-        (function detectAndroidWebView() {
-            const isAndroid = /Android/i.test(navigator.userAgent);
-            const isWebView = /wv|WebView/i.test(navigator.userAgent);
+        // ========== ОПТИМИЗАЦИЯ ДЛЯ ТЕЛЕФОНОВ ==========
+        (function detectMobile() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
-            if (isAndroid && isWebView) {
-                document.body.classList.add('android-webview');
+            if (isMobile) {
+                document.body.classList.add('mobile-device');
                 
-                let originalHeight = window.innerHeight;
-                
-                window.addEventListener('resize', () => {
-                    const newHeight = window.innerHeight;
-                    
-                    if (originalHeight - newHeight > 100) {
-                        document.body.classList.add('keyboard-open');
-                        
-                        const messagesDiv = document.getElementById('messages');
-                        if (messagesDiv) {
-                            setTimeout(() => {
-                                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                            }, 100);
-                        }
-                    } 
-                    else if (newHeight - originalHeight > 100) {
-                        document.body.classList.remove('keyboard-open');
+                // Добавляем отступы для safe areas
+                const style = document.createElement('style');
+                style.textContent = `
+                    .messenger-header {
+                        padding-top: max(16px, env(safe-area-inset-top)) !important;
                     }
-                    
-                    originalHeight = newHeight;
-                });
-                
-                document.body.addEventListener('touchmove', (e) => {
-                    if (e.target.closest('#messages') || e.target.closest('.chats-list')) {
-                        return;
+                    .bottom-nav {
+                        padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
                     }
-                    if (e.target === document.body) {
-                        e.preventDefault();
+                    #chat-panel .chat-header-detail {
+                        padding-top: max(16px, env(safe-area-inset-top)) !important;
                     }
-                }, { passive: false });
+                    #input-area {
+                        padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
+                    }
+                `;
+                document.head.appendChild(style);
                 
-                let touchTimeout;
-                document.addEventListener('touchstart', (e) => {
-                    touchTimeout = setTimeout(() => {
-                        if (e.target.closest('.message-wrapper')) {
-                        }
-                    }, 500);
-                }, { passive: true });
-                
-                document.addEventListener('touchend', () => {
-                    clearTimeout(touchTimeout);
-                });
-                
-                document.addEventListener('touchcancel', () => {
-                    clearTimeout(touchTimeout);
-                });
-                
-                console.log('📱 Оптимизация для Android WebView активирована');
+                console.log('📱 Мобильная оптимизация активирована');
             }
-        })();
-
-        document.addEventListener('backbutton', (e) => {
-            e.preventDefault();
-            if (document.getElementById('chat-panel').classList.contains('active')) {
-                goToSidebar();
-            } else if (document.getElementById('settings-modal').style.display === 'flex') {
-                closeSettingsModal();
-            } else {
-                if (confirm('Выйти из приложения?')) {
-                    if (typeof Android !== 'undefined' && Android.closeApp) {
-                        Android.closeApp();
-                    }
-                }
-            }
-        }, false);
-
-        const messageInput = document.getElementById('messageInput');
-        if (messageInput) {
-            messageInput.addEventListener('focus', () => {
-                setTimeout(() => {
-                    const messagesDiv = document.getElementById('messages');
-                    if (messagesDiv) {
-                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                    }
-                }, 300);
-            });
-        }
-
-        // ========== ФИНАЛЬНЫЕ ОПТИМИЗАЦИИ ПРОИЗВОДИТЕЛЬНОСТИ ==========
-        (function setupLazyLoading() {
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
-                            img.removeAttribute('data-src');
-                        }
-                        observer.unobserve(img);
-                    }
-                });
-            }, {
-                rootMargin: '50px'
-            });
-
-            document.addEventListener('DOMContentLoaded', () => {
-                document.querySelectorAll('.avatar img, .message-avatar img, .profile-avatar img').forEach(img => {
-                    if (img.src && !img.complete) {
-                        img.dataset.src = img.src;
-                        img.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 40 40\'%3E%3Crect width=\'40\' height=\'40\' fill=\'%23667eea\' opacity=\'0.2\'/%3E%3C/svg%3E';
-                        imageObserver.observe(img);
-                    }
-                });
-            });
-        })();
-
-        (function optimizeScrolling() {
-            let isScrolling = false;
-            let scrollEndTimer;
-            
-            const messagesContainer = document.getElementById('messages');
-            if (messagesContainer) {
-                messagesContainer.addEventListener('scroll', () => {
-                    if (!isScrolling) {
-                        isScrolling = true;
-                        messagesContainer.classList.add('is-scrolling');
-                    }
-                    
-                    clearTimeout(scrollEndTimer);
-                    scrollEndTimer = setTimeout(() => {
-                        isScrolling = false;
-                        messagesContainer.classList.remove('is-scrolling');
-                    }, 150);
-                }, { passive: true });
-            }
-        })();
-
-        (function optimizeInput() {
-            const messageInput = document.getElementById('messageInput');
-            if (messageInput) {
-                let composition = false;
-                
-                messageInput.addEventListener('compositionstart', () => {
-                    composition = true;
-                });
-                
-                messageInput.addEventListener('compositionend', () => {
-                    composition = false;
-                });
-                
-                const originalHandleTyping = window.handleTyping;
-                window.handleTyping = () => {
-                    if (!composition) {
-                        originalHandleTyping();
-                    }
-                };
-            }
-        })();
-
-        (function optimizeResize() {
-            let resizeTimeout;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    const messagesContainer = document.getElementById('messages');
-                    if (messagesContainer) {
-                        messagesContainer.style.height = 'auto';
-                        messagesContainer.style.height = messagesContainer.clientHeight + 'px';
-                    }
-                }, 100);
-            }, { passive: true });
         })();
 
         // ========== ПРЕДЗАГРУЗКА ПОЛЬЗОВАТЕЛЕЙ ==========
@@ -5334,7 +5277,7 @@
                 if (preloaded || !currentUser) return;
                 preloaded = true;
                 
-                db.ref('users').once('value', snap => {
+                db.ref('users').limitToFirst(50).once('value', snap => {
                     const users = snap.val() || {};
                     Object.entries(users).forEach(([uid, data]) => {
                         if (!userCache.has(uid)) {
@@ -5345,13 +5288,7 @@
                 });
             };
             
-            document.addEventListener('mouseover', (e) => {
-                if (e.target.closest('.chat-item, .search-result-item')) {
-                    preloadUserData();
-                }
-            }, { passive: true });
-            
-            setTimeout(preloadUserData, 5000);
+            setTimeout(preloadUserData, 3000);
         })();
 
         console.log('✨ LuniMays полностью загружен и оптимизирован!');
