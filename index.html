@@ -2628,7 +2628,7 @@
         <img id="photo-modal-img" style="max-width: 90%; max-height: 90%; border-radius: 12px;">
     </div>
 
-    <!-- Firebase и EmailJS - оптимизированная загрузка -->
+    <!-- Firebase и EmailJS -->
     <script>
         (function loadScripts() {
             const scripts = [
@@ -3381,50 +3381,33 @@
             if (!currentUser) return;
             
             const chatId = getChatId(currentUser.uid, BOT_UID);
-            const timestamp = Date.now();
-            const welcomeMessage = '👋 Привет! Я официальный бот LuniMays. Здесь будут новости и обновления!';
-            
             const existingChat = await db.ref('userChats/' + currentUser.uid + '/' + chatId).once('value');
             
             if (!existingChat.exists()) {
                 await db.ref('userChats/' + currentUser.uid + '/' + chatId).set({
                     withUid: BOT_UID,
                     withUsername: BOT_USERNAME,
-                    lastMessage: welcomeMessage.substring(0, 50) + '...',
-                    lastMessageTime: timestamp,
-                    lastMessageSender: BOT_UID,
-                    lastMessageText: welcomeMessage
+                    lastMessage: '👋 Привет! Я официальный бот LuniMays',
+                    lastMessageTime: Date.now()
                 });
-                
-                const userSnap = await db.ref('users/' + currentUser.uid + '/username').once('value');
-                const userUsername = userSnap.val();
                 
                 await db.ref('userChats/' + BOT_UID + '/' + chatId).set({
                     withUid: currentUser.uid,
-                    withUsername: userUsername,
-                    lastMessage: welcomeMessage.substring(0, 50) + '...',
-                    lastMessageTime: timestamp,
-                    lastMessageSender: BOT_UID,
-                    lastMessageText: welcomeMessage
+                    withUsername: (await db.ref('users/' + currentUser.uid + '/username').once('value')).val(),
+                    lastMessage: '👋 Привет! Я официальный бот LuniMays',
+                    lastMessageTime: Date.now()
                 });
                 
                 await db.ref('chats/' + chatId + '/messages').push({
                     sender: BOT_UID,
                     senderUsername: BOT_USERNAME,
                     type: 'text',
-                    text: welcomeMessage,
-                    timestamp: timestamp,
+                    text: '👋 Привет! Я официальный бот LuniMays. Здесь будут новости и обновления!',
+                    timestamp: Date.now(),
                     readBy: {}
                 });
                 
                 showToast('✅ Чат с ботом создан!', 'success');
-                
-                setTimeout(() => {
-                    db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
-                        updateChatsList(snap.val() || {});
-                    });
-                }, 1000);
-                
                 openChat(BOT_UID, BOT_USERNAME);
             }
         }
@@ -3438,7 +3421,6 @@
             });
         }
 
-        // ========== ОПТИМИЗИРОВАННАЯ ФУНКЦИЯ ОБНОВЛЕНИЯ СПИСКА ЧАТОВ ==========
         function updateChatsList(chats) {
             const container = document.getElementById('chats-container');
             const welcome = document.getElementById('welcome-screen');
@@ -3466,7 +3448,6 @@
             
             chatsArray.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
             
-            // Предзагружаем всех пользователей одним запросом
             db.ref('users').once('value', usersSnap => {
                 const allUsers = usersSnap.val() || {};
                 
@@ -3494,29 +3475,16 @@
                     div.id = `chat-${chat.withUid}`;
                     div.setAttribute('data-uid', chat.withUid);
                     
-                    // Определяем последнее сообщение
-                    let lastMessageText = '';
-                    if (chat.lastMessageText) {
-                        lastMessageText = chat.lastMessageText;
-                    } else if (chat.lastMessage) {
-                        lastMessageText = chat.lastMessage;
-                    } else {
-                        lastMessageText = 'Нет сообщений';
-                    }
-                    
-                    if (lastMessageText.length > 40) {
-                        lastMessageText = lastMessageText.substring(0, 40) + '...';
-                    }
-                    
-                    if (chat.lastMessage === '📸 Фото' || lastMessageText === '[Фото]') {
-                        lastMessageText = '📸 Фото';
+                    let lastMessageText = sanitizeInput(chat.lastMessage || 'Нет сообщений');
+                    if (lastMessageText.length > 30) {
+                        lastMessageText = lastMessageText.substring(0, 30) + '...';
                     }
                     
                     const unreadCount = unreadCounts.get(chat.withUid) || 0;
                     const unreadBadge = unreadCount > 0 ? `<span class="unread-badge">${unreadCount > 99 ? '99+' : unreadCount}</span>` : '';
                     
                     const avatarHtml = user.avatar 
-                        ? `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` 
+                        ? `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;">` 
                         : getInitial(user.name);
                     
                     div.innerHTML = `
@@ -3534,7 +3502,7 @@
                                 <span class="chat-time">${chat.lastMessageTime ? new Date(chat.lastMessageTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''}${unreadBadge}</span>
                             </div>
                             <div class="chat-message">
-                                <span>${sanitizeInput(lastMessageText)}</span>
+                                <span>${lastMessageText}</span>
                             </div>
                         </div>
                     `;
@@ -3561,33 +3529,9 @@
                     const chatId = getChatId(currentUser.uid, chat.withUid);
                     updateUnreadCount(chatId, chat.withUid);
                     
-                    // Слушаем новые сообщения для обновления списка
                     const messagesRef = db.ref('chats/' + chatId + '/messages');
-                    messagesRef.limitToLast(1).on('child_added', (snap) => {
-                        const msg = snap.val();
-                        if (msg && msg.sender !== currentUser.uid) {
-                            updateUnreadCount(chatId, chat.withUid);
-                            
-                            const lastMsg = msg.type === 'photo' ? '📸 Фото' : (msg.text.substring(0, 50) + (msg.text.length > 50 ? '...' : ''));
-                            
-                            db.ref('userChats/' + currentUser.uid + '/' + chatId).update({
-                                lastMessage: lastMsg,
-                                lastMessageTime: msg.timestamp,
-                                lastMessageSender: msg.sender,
-                                lastMessageText: msg.text || '[Фото]'
-                            });
-                            
-                            const chatDiv = document.getElementById(`chat-${chat.withUid}`);
-                            if (chatDiv) {
-                                const messageSpan = chatDiv.querySelector('.chat-message span');
-                                const timeSpan = chatDiv.querySelector('.chat-time');
-                                if (messageSpan) messageSpan.textContent = lastMsg;
-                                if (timeSpan) {
-                                    const timeText = new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-                                    timeSpan.innerHTML = timeText + (unreadCounts.get(chat.withUid) > 0 ? `<span class="unread-badge">${unreadCounts.get(chat.withUid) > 99 ? '99+' : unreadCounts.get(chat.withUid)}</span>` : '');
-                                }
-                            }
-                        }
+                    messagesRef.limitToLast(1).on('child_added', () => {
+                        updateUnreadCount(chatId, chat.withUid);
                     });
                     
                     const statusListener = db.ref('status/' + chat.withUid).on('value', statusSnap => {
@@ -3620,18 +3564,14 @@
                             withUid: uid,
                             withUsername: username,
                             lastMessage: '',
-                            lastMessageTime: Date.now(),
-                            lastMessageSender: null,
-                            lastMessageText: ''
+                            lastMessageTime: Date.now()
                         });
                         
                         db.ref('userChats/' + uid + '/' + chatId).set({
                             withUid: currentUser.uid,
                             withUsername: myData?.username,
                             lastMessage: '',
-                            lastMessageTime: Date.now(),
-                            lastMessageSender: null,
-                            lastMessageText: ''
+                            lastMessageTime: Date.now()
                         });
                         showToast('Чат создан', 'success');
                     }
@@ -3678,7 +3618,6 @@
             
             toggleFabButton(false);
             
-            // Оптимизация: предзагружаем данные пользователя
             if (userCache.has(uid)) {
                 const user = userCache.get(uid);
                 updateChatHeader(uid, user);
@@ -3704,7 +3643,6 @@
                 const img = document.createElement('img');
                 img.src = user.avatar;
                 img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;border-radius:50%;';
-                img.loading = 'lazy';
                 avatar.appendChild(img);
             } else {
                 avatar.textContent = getInitial(user.name);
@@ -3753,7 +3691,6 @@
             if (!currentUser || !currentChatWith || isSendingEmoji) return;
             
             const chatId = getChatId(currentUser.uid, currentChatWith.uid);
-            const timestamp = Date.now();
             
             const welcomeDiv = document.getElementById('welcome-chat-message');
             if (welcomeDiv) {
@@ -3774,35 +3711,24 @@
                     senderUsername: user.username,
                     type: 'text',
                     text: emoji,
-                    timestamp: timestamp,
+                    timestamp: Date.now(),
                     readBy: {}
                 };
                 
                 db.ref('chats/' + chatId + '/messages').push(msg)
                     .then(() => {
+                        const lastMsg = emoji;
+                        
                         return Promise.all([
                             db.ref('userChats/' + currentUser.uid + '/' + chatId).update({
-                                lastMessage: emoji,
-                                lastMessageTime: timestamp,
-                                lastMessageSender: currentUser.uid,
-                                lastMessageText: emoji
+                                lastMessage: lastMsg,
+                                lastMessageTime: Date.now()
                             }),
                             db.ref('userChats/' + currentChatWith.uid + '/' + chatId).update({
-                                lastMessage: emoji,
-                                lastMessageTime: timestamp,
-                                lastMessageSender: currentUser.uid,
-                                lastMessageText: emoji
+                                lastMessage: lastMsg,
+                                lastMessageTime: Date.now()
                             })
                         ]);
-                    })
-                    .then(() => {
-                        setTimeout(() => {
-                            if (currentUser) {
-                                db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
-                                    updateChatsList(snap.val() || {});
-                                });
-                            }
-                        }, 500);
                     })
                     .catch(error => {
                         console.error('Ошибка при отправке эмодзи:', error);
@@ -3814,7 +3740,6 @@
             });
         }
 
-        // ========== ОПТИМИЗИРОВАННАЯ ФУНКЦИЯ ЗАГРУЗКИ СООБЩЕНИЙ ==========
         function loadMessages(uid) {
             const chatId = getChatId(currentUser.uid, uid);
             
@@ -3828,7 +3753,6 @@
                 messageListener.off();
             }
             
-            // Загружаем все сообщения сразу
             db.ref('chats/' + chatId + '/messages').once('value', snapshot => {
                 const messages = snapshot.val();
                 const hasMessages = messages && Object.keys(messages).length > 0;
@@ -3838,7 +3762,6 @@
                         .map(([id, msg]) => ({ id, ...msg }))
                         .sort((a, b) => a.timestamp - b.timestamp);
                     
-                    // Группируем загрузку данных отправителей
                     const senderIds = [...new Set(messagesArray.map(msg => msg.sender))];
                     Promise.all(senderIds.map(id => 
                         db.ref('users/' + id).once('value').then(snap => {
@@ -3871,8 +3794,7 @@
                 }
             });
             
-            // Слушаем новые сообщения
-            messageListener = db.ref('chats/' + chatId + '/messages').orderByChild('timestamp').limitToLast(1);
+            messageListener = db.ref('chats/' + chatId + '/messages').limitToLast(1);
             
             messageListener.on('child_added', snap => {
                 const msg = snap.val();
@@ -3880,22 +3802,6 @@
                 
                 if (!currentChatWith || currentChatWith.uid !== uid) return;
                 if (messageElements.has(msgId)) return;
-                
-                // Обновляем lastMessage в списке чатов
-                if (msg.sender !== currentUser.uid) {
-                    const lastMsg = msg.type === 'photo' ? '📸 Фото' : (msg.text.substring(0, 50) + (msg.text.length > 50 ? '...' : ''));
-                    
-                    db.ref('userChats/' + currentUser.uid + '/' + chatId).update({
-                        lastMessage: lastMsg,
-                        lastMessageTime: msg.timestamp,
-                        lastMessageSender: msg.sender,
-                        lastMessageText: msg.text || '[Фото]'
-                    });
-                    
-                    db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
-                        updateChatsList(snap.val() || {});
-                    });
-                }
                 
                 const msgDate = formatMessageDate(msg.timestamp);
                 
@@ -3950,7 +3856,7 @@
                 
                 const user = userCache.get(msg.sender) || {};
                 if (user?.avatar) {
-                    avatar.innerHTML = `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`;
+                    avatar.innerHTML = `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;">`;
                 } else {
                     avatar.textContent = getInitial(user?.name || msg.senderUsername);
                     avatar.style.display = 'flex';
@@ -4003,7 +3909,7 @@
                 
                 bubble.innerHTML = `
                     <div class="message-photo">
-                        <img src="${msg.photo}" onclick="openPhotoModal('${msg.photo}')" style="cursor:pointer;" loading="lazy">
+                        <img src="${msg.photo}" onclick="openPhotoModal('${msg.photo}')" style="cursor:pointer;">
                         <span class="message-time">${timeStr}</span>
                     </div>
                 `;
@@ -4077,7 +3983,6 @@
             }
         }
 
-        // ========== ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ СООБЩЕНИЯ ==========
         function sendMessage() {
             if (!currentUser) {
                 showToast('Сначала войдите в систему', 'error');
@@ -4118,14 +4023,13 @@
                 }
                 
                 const chatId = getChatId(currentUser.uid, currentChatWith.uid);
-                const timestamp = Date.now();
                 
                 const msg = {
                     sender: currentUser.uid,
                     senderUsername: user.username,
                     type: 'text',
                     text: text,
-                    timestamp: timestamp,
+                    timestamp: Date.now(),
                     readBy: {}
                 };
                 
@@ -4138,21 +4042,17 @@
                 }
                 
                 db.ref('chats/' + chatId + '/messages').push(msg)
-                    .then((newMsgRef) => {
+                    .then(() => {
                         const lastMsg = text.substring(0, 50) + (text.length > 50 ? '...' : '');
                         
                         return Promise.all([
                             db.ref('userChats/' + currentUser.uid + '/' + chatId).update({
                                 lastMessage: lastMsg,
-                                lastMessageTime: timestamp,
-                                lastMessageSender: currentUser.uid,
-                                lastMessageText: text
+                                lastMessageTime: Date.now()
                             }),
                             db.ref('userChats/' + currentChatWith.uid + '/' + chatId).update({
                                 lastMessage: lastMsg,
-                                lastMessageTime: timestamp,
-                                lastMessageSender: currentUser.uid,
-                                lastMessageText: text
+                                lastMessageTime: Date.now()
                             })
                         ]);
                     })
@@ -4162,18 +4062,9 @@
                         
                         if (typingTimeout) clearTimeout(typingTimeout);
                         db.ref('typing/' + chatId).update({ [currentUser.uid]: null });
-                        
-                        setTimeout(() => {
-                            if (currentUser) {
-                                db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
-                                    updateChatsList(snap.val() || {});
-                                });
-                            }
-                        }, 500);
                     })
                     .catch(error => {
                         console.error('Ошибка при отправке:', error);
-                        showToast('❌ Ошибка при отправке', 'error');
                     })
                     .finally(() => {
                         sendButton.textContent = originalText;
@@ -4202,7 +4093,7 @@
                 reader.onload = (e) => {
                     document.getElementById('photo-preview').innerHTML = `
                         <div class="photo-preview-container">
-                            <img src="${e.target.result}" class="photo-preview" loading="lazy">
+                            <img src="${e.target.result}" class="photo-preview">
                             <div class="photo-preview-actions">
                                 <button class="primary" onclick="sendPhoto('${e.target.result}')">Отправить</button>
                                 <button class="danger" onclick="cancelPhoto()">Отмена</button>
@@ -4216,7 +4107,6 @@
             input.click();
         }
 
-        // ========== ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ ФОТО ==========
         function sendPhoto(photoData) {
             if (!currentUser || !currentChatWith || isSendingPhoto) return;
             
@@ -4225,14 +4115,13 @@
             db.ref('users/' + currentUser.uid).once('value', snap => {
                 const user = snap.val();
                 const chatId = getChatId(currentUser.uid, currentChatWith.uid);
-                const timestamp = Date.now();
                 
                 const msg = {
                     sender: currentUser.uid,
                     senderUsername: user?.username,
                     type: 'photo',
                     photo: photoData,
-                    timestamp: timestamp,
+                    timestamp: Date.now(),
                     readBy: {}
                 };
                 
@@ -4246,36 +4135,20 @@
                 
                 db.ref('chats/' + chatId + '/messages').push(msg)
                     .then(() => {
-                        return Promise.all([
-                            db.ref('userChats/' + currentUser.uid + '/' + chatId).update({
-                                lastMessage: '📸 Фото',
-                                lastMessageTime: timestamp,
-                                lastMessageSender: currentUser.uid,
-                                lastMessageText: '[Фото]'
-                            }),
-                            db.ref('userChats/' + currentChatWith.uid + '/' + chatId).update({
-                                lastMessage: '📸 Фото',
-                                lastMessageTime: timestamp,
-                                lastMessageSender: currentUser.uid,
-                                lastMessageText: '[Фото]'
-                            })
-                        ]);
-                    })
-                    .then(() => {
+                        db.ref('userChats/' + currentUser.uid + '/' + chatId).update({
+                            lastMessage: '📸 Фото',
+                            lastMessageTime: Date.now()
+                        });
+                        db.ref('userChats/' + currentChatWith.uid + '/' + chatId).update({
+                            lastMessage: '📸 Фото',
+                            lastMessageTime: Date.now()
+                        });
+                        
                         cancelPhoto();
                         cancelReply();
-                        
-                        setTimeout(() => {
-                            if (currentUser) {
-                                db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
-                                    updateChatsList(snap.val() || {});
-                                });
-                            }
-                        }, 500);
                     })
                     .catch(error => {
                         console.error('Ошибка при отправке фото:', error);
-                        showToast('❌ Ошибка при отправке', 'error');
                     })
                     .finally(() => {
                         isSendingPhoto = false;
@@ -4326,7 +4199,7 @@
                     document.getElementById('profile-content').innerHTML = `
                         <div style="text-align:center">
                             <div class="profile-avatar-large">
-                                ${user.avatar ? `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover" loading="lazy">` : getInitial(user.name)}
+                                ${user.avatar ? `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover">` : getInitial(user.name)}
                             </div>
                             <div class="profile-name-wrapper">
                                 <span class="profile-name">${sanitizeInput(user.name || '')}</span>
@@ -4365,7 +4238,7 @@
                 
                 const avatar = document.getElementById('settings-avatar');
                 if (user.avatar) {
-                    avatar.innerHTML = `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`;
+                    avatar.innerHTML = `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;">`;
                     document.getElementById('settings-avatar-text').style.display = 'none';
                 }
             });
@@ -4405,7 +4278,7 @@
             await db.ref('users/' + currentUser.uid).update(updates);
             
             if (avatar) {
-                document.getElementById('header-avatar').innerHTML = `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`;
+                document.getElementById('header-avatar').innerHTML = `<img src="${avatar}" style="width:100%;height:100%;object-fit:cover;">`;
             }
             
             closeSettingsModal();
@@ -4838,7 +4711,7 @@
                 
                 el.innerHTML = `
                     <div class="search-result-avatar">
-                        ${item.avatar ? `<img src="${item.avatar}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : getInitial(item.name)}
+                        ${item.avatar ? `<img src="${item.avatar}" style="width:100%;height:100%;object-fit:cover;">` : getInitial(item.name)}
                     </div>
                     <div class="search-result-info">
                         <div class="search-result-name">${sanitizeInput(item.name || '')} ${badge}</div>
@@ -4879,7 +4752,7 @@
                 
                 el.innerHTML = `
                     <div class="search-result-avatar">
-                        ${user.avatar ? `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">` : getInitial(user.name)}
+                        ${user.avatar ? `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;">` : getInitial(user.name)}
                     </div>
                     <div class="search-result-info">
                         <div class="search-result-name">${sanitizeInput(user.name || '')} ${badge}</div>
@@ -4960,7 +4833,7 @@
                     db.ref('users/' + user.uid).once('value', snap => {
                         const data = snap.val();
                         if (data?.avatar) {
-                            document.getElementById('header-avatar').innerHTML = `<img src="${data.avatar}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">`;
+                            document.getElementById('header-avatar').innerHTML = `<img src="${data.avatar}" style="width:100%;height:100%;object-fit:cover;">`;
                         } else {
                             document.getElementById('header-avatar').textContent = getInitial(data?.name);
                         }
@@ -4986,6 +4859,7 @@
                                     }
                                 });
                                 
+                                // Автоматическая проверка проблемных чатов
                                 db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
                                     const chats = snap.val() || {};
                                     let hasProblems = false;
@@ -5218,34 +5092,6 @@
                     }
                 }, 100);
             }, { passive: true });
-        })();
-
-        // ========== ПРЕДЗАГРУЗКА ПОЛЬЗОВАТЕЛЕЙ ==========
-        (function preloadUsers() {
-            let preloaded = false;
-            
-            const preloadUserData = () => {
-                if (preloaded || !currentUser) return;
-                preloaded = true;
-                
-                db.ref('users').once('value', snap => {
-                    const users = snap.val() || {};
-                    Object.entries(users).forEach(([uid, data]) => {
-                        if (!userCache.has(uid)) {
-                            userCache.set(uid, data);
-                        }
-                    });
-                    console.log('✅ Пользователи предзагружены в кеш');
-                });
-            };
-            
-            document.addEventListener('mouseover', (e) => {
-                if (e.target.closest('.chat-item, .search-result-item')) {
-                    preloadUserData();
-                }
-            }, { passive: true });
-            
-            setTimeout(preloadUserData, 5000);
         })();
 
         console.log('✨ LuniMays полностью загружен и оптимизирован!');
