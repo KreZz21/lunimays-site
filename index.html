@@ -114,72 +114,6 @@
             --reply-hover: rgba(157, 78, 221, 0.3);
         }
 
-        /* ========== SAFE AREA ДЛЯ ТЕЛЕФОНА ========== */
-        :root {
-            --sat: env(safe-area-inset-top);
-            --sar: env(safe-area-inset-right);
-            --sab: env(safe-area-inset-bottom);
-            --sal: env(safe-area-inset-left);
-        }
-
-        .messenger-header {
-            padding: max(16px, var(--sat)) 20px 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 20;
-        }
-
-        .bottom-nav {
-            display: flex;
-            border-top: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            padding: 8px 0 max(8px, var(--sab)) 0;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 20;
-        }
-
-        .chat-header-detail {
-            padding: max(16px, var(--sat)) 20px 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            z-index: 110;
-        }
-
-        #input-area {
-            padding: 16px 20px max(16px, var(--sab)) 20px;
-            background: var(--bg-primary);
-            border-top: 1px solid var(--border-color);
-            position: relative;
-            z-index: 110;
-        }
-
-        .toast-container {
-            position: fixed;
-            bottom: max(30px, var(--sab));
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10000;
-        }
-
-        .fab-button {
-            bottom: max(20px, var(--sab));
-            right: 20px;
-        }
-
-        .fab-button.selection-active {
-            bottom: max(90px, calc(var(--sab) + 70px));
-        }
-
         /* Фильтры для иконок в темной теме */
         body.dark-theme .search-icon img,
         body.dark-theme .nav-icon img,
@@ -1108,23 +1042,6 @@
             overscroll-behavior: contain;
         }
 
-        .loading-messages {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 40px;
-            font-size: 14px;
-        }
-
-        .loading-messages i {
-            margin-right: 8px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
         #messages.is-scrolling .message-wrapper {
             transition: none !important;
         }
@@ -1891,7 +1808,7 @@
             max-width: 400px;
             background: var(--bg-primary);
             border-radius: 30px;
-            padding: max(40px, var(--sat)) 30px max(40px, var(--sab)) 30px;
+            padding: 40px 30px;
             box-shadow: var(--shadow);
             margin: 20px;
             position: relative;
@@ -2358,7 +2275,7 @@
             animation: modalFadeIn 0.3s ease;
         }
 
-        /* ========== ОПТИМИЗАЦИЯ ДЛЯ ТЕЛЕФОНОВ ========== */
+        /* ========== ОПТИМИЗАЦИЯ ДЛЯ ANDROID STUDIO ========== */
         @media (max-width: 480px) {
             #appContainer {
                 max-width: 100%;
@@ -2371,7 +2288,7 @@
             }
             
             .bottom-nav {
-                padding-bottom: max(8px, env(safe-area-inset-bottom, 0));
+                padding-bottom: env(safe-area-inset-bottom, 0);
                 background: var(--bg-primary);
                 position: relative;
                 z-index: 1000;
@@ -2382,11 +2299,6 @@
             #input-area {
                 padding-left: max(20px, env(safe-area-inset-left));
                 padding-right: max(20px, env(safe-area-inset-right));
-            }
-
-            .chat-header-detail {
-                padding-top: max(16px, env(safe-area-inset-top, 0));
-                padding-bottom: 16px;
             }
             
             #chat-panel {
@@ -2900,11 +2812,6 @@
         let isSendingPhoto = false;
         let isSendingEmoji = false;
 
-        // ========== ФУНКЦИЯ ОПРЕДЕЛЕНИЯ МОБИЛЬНОГО УСТРОЙСТВА ==========
-        function isMobileDevice() {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        }
-
         // ========== ИНИЦИАЛИЗАЦИЯ FIREBASE ==========
         function initFirebase() {
             if (!window.firebase) {
@@ -2920,24 +2827,6 @@
             } catch (e) {}
             
             setupAuthListener();
-            
-            // Инициализация для мобильных устройств
-            if (isMobileDevice()) {
-                document.body.classList.add('android-webview');
-                // Увеличиваем зону нажатия для всех кликабельных элементов
-                const style = document.createElement('style');
-                style.textContent = `
-                    .chat-item, .message-wrapper, .back-button, .send-button, .photo-button, .icon-button {
-                        min-height: 44px;
-                        min-width: 44px;
-                    }
-                    .chat-item {
-                        padding-top: 12px;
-                        padding-bottom: 12px;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
         }
 
         // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
@@ -3591,7 +3480,6 @@
             }
         }
 
-        // ========== БОТ ПИШЕТ, НО НЕ ОТКРЫВАЕТ ЧАТ ==========
         async function createBotChat() {
             if (!currentUser) return;
             
@@ -3602,13 +3490,6 @@
             const existingChat = await db.ref('userChats/' + currentUser.uid + '/' + chatId).once('value');
             
             if (!existingChat.exists()) {
-                console.log('🤖 Создаю чат с ботом (без открытия)');
-                
-                // 1. Получаем username пользователя
-                const userSnap = await db.ref('users/' + currentUser.uid + '/username').once('value');
-                const userUsername = userSnap.val() || 'user';
-                
-                // 2. Создаем запись в userChats у пользователя
                 await db.ref('userChats/' + currentUser.uid + '/' + chatId).set({
                     withUid: BOT_UID,
                     withUsername: BOT_USERNAME,
@@ -3618,7 +3499,9 @@
                     lastMessageText: welcomeMessage
                 });
                 
-                // 3. Создаем запись в userChats у бота
+                const userSnap = await db.ref('users/' + currentUser.uid + '/username').once('value');
+                const userUsername = userSnap.val();
+                
                 await db.ref('userChats/' + BOT_UID + '/' + chatId).set({
                     withUid: currentUser.uid,
                     withUsername: userUsername,
@@ -3628,7 +3511,6 @@
                     lastMessageText: welcomeMessage
                 });
                 
-                // 4. Отправляем приветственное сообщение
                 await db.ref('chats/' + chatId + '/messages').push({
                     sender: BOT_UID,
                     senderUsername: BOT_USERNAME,
@@ -3638,17 +3520,15 @@
                     readBy: {}
                 });
                 
-                // 5. Показываем уведомление (но НЕ открываем чат)
-                showToast('📨 Новое сообщение от бота LuniMays', 'info');
+                showToast('✅ Чат с ботом создан!', 'success');
                 
-                // 6. Обновляем список чатов
                 setTimeout(() => {
-                    if (currentUser) {
-                        db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
-                            updateChatsList(snap.val() || {});
-                        });
-                    }
+                    db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
+                        updateChatsList(snap.val() || {});
+                    });
                 }, 1000);
+                
+                openChat(BOT_UID, BOT_USERNAME);
             }
         }
 
@@ -3759,75 +3639,20 @@
                         </div>
                     `;
                     
-                    // ========== ИСПРАВЛЕННЫЕ ОБРАБОТЧИКИ СОБЫТИЙ ==========
-                    // Убираем отдельные обработчики и делаем один умный
+                    div.addEventListener('mousedown', (e) => startLongPress(chat.withUid, e));
+                    div.addEventListener('mouseup', cancelLongPress);
+                    div.addEventListener('mouseleave', cancelLongPress);
+                    
+                    div.addEventListener('touchstart', (e) => startLongPress(chat.withUid, e), { passive: false });
+                    div.addEventListener('touchend', cancelLongPress);
+                    div.addEventListener('touchcancel', cancelLongPress);
+                    
                     div.addEventListener('click', (e) => {
                         e.stopPropagation();
                         if (isSelectionMode) {
                             toggleChatSelection(chat.withUid);
                         } else {
                             openChat(chat.withUid, chat.withUsername || user.username);
-                        }
-                    });
-
-                    // Для long press используем touchstart с таймером
-                    div.addEventListener('touchstart', (e) => {
-                        e.preventDefault();
-                        if (isSelectionMode) return;
-                        
-                        if (window.longPressTimer) clearTimeout(window.longPressTimer);
-                        
-                        window.longPressTimer = setTimeout(() => {
-                            if (!isSelectionMode) {
-                                enterSelectionMode();
-                                toggleChatSelection(chat.withUid);
-                            }
-                            window.longPressTimer = null;
-                        }, 500);
-                    }, { passive: false });
-
-                    div.addEventListener('touchend', (e) => {
-                        e.preventDefault();
-                        if (window.longPressTimer) {
-                            clearTimeout(window.longPressTimer);
-                            window.longPressTimer = null;
-                        }
-                    });
-
-                    div.addEventListener('touchcancel', (e) => {
-                        e.preventDefault();
-                        if (window.longPressTimer) {
-                            clearTimeout(window.longPressTimer);
-                            window.longPressTimer = null;
-                        }
-                    });
-
-                    // Для мыши на случай если кто-то с мышкой на телефоне
-                    div.addEventListener('mousedown', (e) => {
-                        if (isSelectionMode) return;
-                        
-                        if (window.longPressTimer) clearTimeout(window.longPressTimer);
-                        
-                        window.longPressTimer = setTimeout(() => {
-                            if (!isSelectionMode) {
-                                enterSelectionMode();
-                                toggleChatSelection(chat.withUid);
-                            }
-                            window.longPressTimer = null;
-                        }, 500);
-                    });
-
-                    div.addEventListener('mouseup', (e) => {
-                        if (window.longPressTimer) {
-                            clearTimeout(window.longPressTimer);
-                            window.longPressTimer = null;
-                        }
-                    });
-
-                    div.addEventListener('mouseleave', (e) => {
-                        if (window.longPressTimer) {
-                            clearTimeout(window.longPressTimer);
-                            window.longPressTimer = null;
                         }
                     });
                     
@@ -4087,7 +3912,6 @@
             });
         }
 
-        // ========== ОПТИМИЗИРОВАННАЯ ФУНКЦИЯ ЗАГРУЗКИ СООБЩЕНИЙ ==========
         function loadMessages(uid) {
             const chatId = getChatId(currentUser.uid, uid);
             
@@ -4101,19 +3925,8 @@
                 messageListener.off();
             }
             
-            // ПОКАЗЫВАЕМ ЗАГРУЗКУ
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'loading-messages';
-            loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка сообщений...';
-            document.getElementById('messages').appendChild(loadingDiv);
-            
-            // Загружаем последние 50 сообщений для скорости
-            db.ref('chats/' + chatId + '/messages').orderByChild('timestamp').limitToLast(50).once('value', snapshot => {
+            db.ref('chats/' + chatId + '/messages').once('value', snapshot => {
                 const messages = snapshot.val();
-                
-                // Убираем загрузку
-                loadingDiv.remove();
-                
                 const hasMessages = messages && Object.keys(messages).length > 0;
                 
                 if (hasMessages) {
@@ -4121,7 +3934,6 @@
                         .map(([id, msg]) => ({ id, ...msg }))
                         .sort((a, b) => a.timestamp - b.timestamp);
                     
-                    // Загружаем данные отправителей
                     const senderIds = [...new Set(messagesArray.map(msg => msg.sender))];
                     Promise.all(senderIds.map(id => 
                         db.ref('users/' + id).once('value').then(snap => {
@@ -4154,7 +3966,6 @@
                 }
             });
             
-            // Слушаем новые сообщения
             messageListener = db.ref('chats/' + chatId + '/messages').orderByChild('timestamp').limitToLast(1);
             
             messageListener.on('child_added', snap => {
@@ -4164,7 +3975,6 @@
                 if (!currentChatWith || currentChatWith.uid !== uid) return;
                 if (messageElements.has(msgId)) return;
                 
-                // Обновляем lastMessage в списке чатов
                 if (msg.sender !== currentUser.uid) {
                     const lastMsg = msg.type === 'photo' ? '📸 Фото' : (msg.text.substring(0, 50) + (msg.text.length > 50 ? '...' : ''));
                     
@@ -5252,7 +5062,6 @@
                     Promise.all([createBot(), updateVerifiedUsers()]).then(() => {
                         loadChats();
                         
-                        // ⏰ Ждем 3 секунды пока всё загрузится, потом создаем чат с ботом (НО НЕ ОТКРЫВАЕМ)
                         setTimeout(() => {
                             if (currentUser) {
                                 db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
@@ -5264,11 +5073,10 @@
                                     });
                                     
                                     if (!hasBotChat) {
-                                        createBotChat(); // ← Бот пишет, но не открывает чат
+                                        createBotChat();
                                     }
                                 });
                                 
-                                // Проверяем проблемные чаты
                                 db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
                                     const chats = snap.val() || {};
                                     let hasProblems = false;
@@ -5285,7 +5093,7 @@
                                     }
                                 });
                             }
-                        }, 3000);
+                        }, 2000);
                     });
                     
                 } else {
@@ -5347,33 +5155,175 @@
             initFirebase();
         });
 
-        // ========== ОПТИМИЗАЦИЯ ДЛЯ ТЕЛЕФОНОВ ==========
-        (function detectMobile() {
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        // ========== ОПТИМИЗАЦИЯ ДЛЯ ANDROID STUDIO ==========
+        (function detectAndroidWebView() {
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const isWebView = /wv|WebView/i.test(navigator.userAgent);
             
-            if (isMobile) {
-                document.body.classList.add('mobile-device');
+            if (isAndroid && isWebView) {
+                document.body.classList.add('android-webview');
                 
-                // Добавляем отступы для safe areas
-                const style = document.createElement('style');
-                style.textContent = `
-                    .messenger-header {
-                        padding-top: max(16px, env(safe-area-inset-top)) !important;
-                    }
-                    .bottom-nav {
-                        padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
-                    }
-                    #chat-panel .chat-header-detail {
-                        padding-top: max(16px, env(safe-area-inset-top)) !important;
-                    }
-                    #input-area {
-                        padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
-                    }
-                `;
-                document.head.appendChild(style);
+                let originalHeight = window.innerHeight;
                 
-                console.log('📱 Мобильная оптимизация активирована');
+                window.addEventListener('resize', () => {
+                    const newHeight = window.innerHeight;
+                    
+                    if (originalHeight - newHeight > 100) {
+                        document.body.classList.add('keyboard-open');
+                        
+                        const messagesDiv = document.getElementById('messages');
+                        if (messagesDiv) {
+                            setTimeout(() => {
+                                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                            }, 100);
+                        }
+                    } 
+                    else if (newHeight - originalHeight > 100) {
+                        document.body.classList.remove('keyboard-open');
+                    }
+                    
+                    originalHeight = newHeight;
+                });
+                
+                document.body.addEventListener('touchmove', (e) => {
+                    if (e.target.closest('#messages') || e.target.closest('.chats-list')) {
+                        return;
+                    }
+                    if (e.target === document.body) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                
+                let touchTimeout;
+                document.addEventListener('touchstart', (e) => {
+                    touchTimeout = setTimeout(() => {
+                        if (e.target.closest('.message-wrapper')) {
+                        }
+                    }, 500);
+                }, { passive: true });
+                
+                document.addEventListener('touchend', () => {
+                    clearTimeout(touchTimeout);
+                });
+                
+                document.addEventListener('touchcancel', () => {
+                    clearTimeout(touchTimeout);
+                });
+                
+                console.log('📱 Оптимизация для Android WebView активирована');
             }
+        })();
+
+        document.addEventListener('backbutton', (e) => {
+            e.preventDefault();
+            if (document.getElementById('chat-panel').classList.contains('active')) {
+                goToSidebar();
+            } else if (document.getElementById('settings-modal').style.display === 'flex') {
+                closeSettingsModal();
+            } else {
+                if (confirm('Выйти из приложения?')) {
+                    if (typeof Android !== 'undefined' && Android.closeApp) {
+                        Android.closeApp();
+                    }
+                }
+            }
+        }, false);
+
+        const messageInput = document.getElementById('messageInput');
+        if (messageInput) {
+            messageInput.addEventListener('focus', () => {
+                setTimeout(() => {
+                    const messagesDiv = document.getElementById('messages');
+                    if (messagesDiv) {
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    }
+                }, 300);
+            });
+        }
+
+        // ========== ФИНАЛЬНЫЕ ОПТИМИЗАЦИИ ПРОИЗВОДИТЕЛЬНОСТИ ==========
+        (function setupLazyLoading() {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                        }
+                        observer.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '50px'
+            });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.avatar img, .message-avatar img, .profile-avatar img').forEach(img => {
+                    if (img.src && !img.complete) {
+                        img.dataset.src = img.src;
+                        img.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 40 40\'%3E%3Crect width=\'40\' height=\'40\' fill=\'%23667eea\' opacity=\'0.2\'/%3E%3C/svg%3E';
+                        imageObserver.observe(img);
+                    }
+                });
+            });
+        })();
+
+        (function optimizeScrolling() {
+            let isScrolling = false;
+            let scrollEndTimer;
+            
+            const messagesContainer = document.getElementById('messages');
+            if (messagesContainer) {
+                messagesContainer.addEventListener('scroll', () => {
+                    if (!isScrolling) {
+                        isScrolling = true;
+                        messagesContainer.classList.add('is-scrolling');
+                    }
+                    
+                    clearTimeout(scrollEndTimer);
+                    scrollEndTimer = setTimeout(() => {
+                        isScrolling = false;
+                        messagesContainer.classList.remove('is-scrolling');
+                    }, 150);
+                }, { passive: true });
+            }
+        })();
+
+        (function optimizeInput() {
+            const messageInput = document.getElementById('messageInput');
+            if (messageInput) {
+                let composition = false;
+                
+                messageInput.addEventListener('compositionstart', () => {
+                    composition = true;
+                });
+                
+                messageInput.addEventListener('compositionend', () => {
+                    composition = false;
+                });
+                
+                const originalHandleTyping = window.handleTyping;
+                window.handleTyping = () => {
+                    if (!composition) {
+                        originalHandleTyping();
+                    }
+                };
+            }
+        })();
+
+        (function optimizeResize() {
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const messagesContainer = document.getElementById('messages');
+                    if (messagesContainer) {
+                        messagesContainer.style.height = 'auto';
+                        messagesContainer.style.height = messagesContainer.clientHeight + 'px';
+                    }
+                }, 100);
+            }, { passive: true });
         })();
 
         // ========== ПРЕДЗАГРУЗКА ПОЛЬЗОВАТЕЛЕЙ ==========
@@ -5384,7 +5334,7 @@
                 if (preloaded || !currentUser) return;
                 preloaded = true;
                 
-                db.ref('users').limitToFirst(50).once('value', snap => {
+                db.ref('users').once('value', snap => {
                     const users = snap.val() || {};
                     Object.entries(users).forEach(([uid, data]) => {
                         if (!userCache.has(uid)) {
@@ -5395,7 +5345,13 @@
                 });
             };
             
-            setTimeout(preloadUserData, 3000);
+            document.addEventListener('mouseover', (e) => {
+                if (e.target.closest('.chat-item, .search-result-item')) {
+                    preloadUserData();
+                }
+            }, { passive: true });
+            
+            setTimeout(preloadUserData, 5000);
         })();
 
         console.log('✨ LuniMays полностью загружен и оптимизирован!');
