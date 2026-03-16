@@ -1935,13 +1935,6 @@
             text-align: center;
         }
 
-        .success-message {
-            color: #28a745;
-            font-size: 14px;
-            margin-top: 10px;
-            text-align: center;
-        }
-
         .verification-input {
             letter-spacing: 8px;
             font-size: 32px;
@@ -2161,27 +2154,17 @@
         .legal-links a {
             color: #667eea;
             text-decoration: none;
-            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background: var(--bg-secondary);
         }
 
         .legal-links a:hover {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px -5px #667eea;
+            text-decoration: underline;
         }
 
         .legal-modal {
             max-width: 500px;
             max-height: 80vh;
             overflow-y: auto;
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         .legal-content {
@@ -2189,16 +2172,11 @@
             color: var(--text-primary);
             font-size: 14px;
             line-height: 1.6;
-            max-height: 60vh;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #667eea var(--bg-secondary);
         }
 
         .legal-content h4 {
             margin: 20px 0 10px;
             color: #667eea;
-            font-size: 16px;
         }
 
         .legal-content p {
@@ -2212,67 +2190,6 @@
 
         .legal-content li {
             margin-bottom: 5px;
-        }
-
-        .legal-content::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .legal-content::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-            border-radius: 10px;
-        }
-
-        .legal-content::-webkit-scrollbar-thumb {
-            background: #667eea;
-            border-radius: 10px;
-        }
-
-        .legal-content::-webkit-scrollbar-thumb:hover {
-            background: #764ba2;
-        }
-
-        #legal-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-        }
-
-        .legal-modal button.danger {
-            background: linear-gradient(135deg, #ff4444, #ff6b6b);
-            border: none;
-            padding: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 16px;
-            margin-top: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .legal-modal button.danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px -10px #ff4444;
-        }
-
-        @keyframes modalFadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        .modal .modal-content {
-            animation: modalFadeIn 0.3s ease;
         }
 
         /* ========== ОПТИМИЗАЦИЯ ДЛЯ ANDROID STUDIO ========== */
@@ -2320,24 +2237,6 @@
             
             .fab-button.selection-active {
                 bottom: max(90px, calc(env(safe-area-inset-bottom) + 70px));
-            }
-
-            .legal-links {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .legal-links a {
-                text-align: center;
-            }
-
-            .legal-modal {
-                max-width: 90%;
-                margin: 10px;
-            }
-            
-            .legal-content {
-                padding: 15px;
             }
         }
 
@@ -2544,8 +2443,8 @@
             </div>
             
             <div class="legal-links">
-                <a onclick="showLegalModal('terms')">📋 Пользовательское соглашение</a>
-                <a onclick="showLegalModal('privacy')">🔒 Политика конфиденциальности</a>
+                <a onclick="showLegalModal('terms')">Пользовательское соглашение</a>
+                <a onclick="showLegalModal('privacy')">Политика конфиденциальности</a>
             </div>
         </div>
         
@@ -2963,73 +2862,55 @@
             reader.readAsDataURL(file);
         }
 
-        // ========== ИСПРАВЛЕННЫЕ ФУНКЦИИ ДЛЯ ПОЛЬЗОВАТЕЛЬСКОГО СОГЛАШЕНИЯ ==========
         function showLegalModal(type) {
             const title = document.getElementById('legal-title');
             const content = document.getElementById('legal-content');
-            const modal = document.getElementById('legal-modal');
             
             if (type === 'terms') {
-                title.textContent = '📋 Пользовательское соглашение';
+                title.textContent = 'Пользовательское соглашение';
                 content.innerHTML = `
-                    <div style="padding: 10px;">
-                        <h4 style="color: #667eea; margin: 15px 0 10px;">1. Общие положения</h4>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">1.1. Настоящее Пользовательское соглашение регулирует отношения между администрацией мессенджера LuniMays и пользователем.</p>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">1.2. Используя сервис, вы соглашаетесь с условиями данного соглашения.</p>
-                        
-                        <h4 style="color: #667eea; margin: 20px 0 10px;">2. Права и обязанности пользователя</h4>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">2.1. Пользователь обязуется не нарушать законодательство РФ.</p>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">2.2. Запрещена публикация противоправного контента.</p>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">2.3. Пользователь несет ответственность за сохранность своих данных.</p>
-                        
-                        <h4 style="color: #667eea; margin: 20px 0 10px;">3. Конфиденциальность</h4>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">3.1. Администрация обязуется не передавать персональные данные третьим лицам.</p>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">3.2. Подробнее в Политике конфиденциальности.</p>
-                        
-                        <h4 style="color: #667eea; margin: 20px 0 10px;">4. Заключительные положения</h4>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">4.1. Администрация оставляет за собой право изменять условия соглашения.</p>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">4.2. Актуальная версия всегда доступна по данной ссылке.</p>
-                        
-                        <p style="margin-top: 20px; padding: 10px; background: var(--bg-secondary); border-radius: 10px; font-size: 12px; color: var(--text-muted); text-align: center;">
-                            Последнее обновление: ${new Date().toLocaleDateString()}
-                        </p>
-                    </div>
+                    <h4>1. Общие положения</h4>
+                    <p>1.1. Настоящее Пользовательское соглашение регулирует отношения между администрацией мессенджера LuniMays и пользователем.</p>
+                    <p>1.2. Используя сервис, вы соглашаетесь с условиями данного соглашения.</p>
+                    
+                    <h4>2. Права и обязанности пользователя</h4>
+                    <p>2.1. Пользователь обязуется не нарушать законодательство РФ.</p>
+                    <p>2.2. Запрещена публикация противоправного контента.</p>
+                    <p>2.3. Пользователь несет ответственность за сохранность своих данных.</p>
+                    
+                    <h4>3. Конфиденциальность</h4>
+                    <p>3.1. Администрация обязуется не передавать персональные данные третьим лицам.</p>
+                    <p>3.2. Подробнее в Политике конфиденциальности.</p>
+                    
+                    <h4>4. Заключительные положения</h4>
+                    <p>4.1. Администрация оставляет за собой право изменять условия соглашения.</p>
+                    <p>4.2. Актуальная версия всегда доступна по данной ссылке.</p>
                 `;
             } else {
-                title.textContent = '🔒 Политика конфиденциальности';
+                title.textContent = 'Политика конфиденциальности';
                 content.innerHTML = `
-                    <div style="padding: 10px;">
-                        <h4 style="color: #667eea; margin: 15px 0 10px;">1. Какие данные мы собираем</h4>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">1.1. Email, имя, username, аватар, сообщения.</p>
-                        
-                        <h4 style="color: #667eea; margin: 20px 0 10px;">2. Как мы используем данные</h4>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">2.1. Для обеспечения работы мессенджера.</p>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">2.2. Для улучшения качества сервиса.</p>
-                        
-                        <h4 style="color: #667eea; margin: 20px 0 10px;">3. Защита данных</h4>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">3.1. Все данные хранятся на защищенных серверах.</p>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">3.2. Передача данных осуществляется по шифрованному каналу.</p>
-                        
-                        <h4 style="color: #667eea; margin: 20px 0 10px;">4. Права пользователя</h4>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">4.1. Вы можете запросить удаление всех своих данных.</p>
-                        <p style="margin-bottom: 10px; line-height: 1.5;">4.2. Вы можете экспортировать свои сообщения.</p>
-                        
-                        <p style="margin-top: 20px; padding: 10px; background: var(--bg-secondary); border-radius: 10px; font-size: 12px; color: var(--text-muted); text-align: center;">
-                            Последнее обновление: ${new Date().toLocaleDateString()}
-                        </p>
-                    </div>
+                    <h4>1. Какие данные мы собираем</h4>
+                    <p>1.1. Email, имя, username, аватар, сообщения.</p>
+                    
+                    <h4>2. Как мы используем данные</h4>
+                    <p>2.1. Для обеспечения работы мессенджера.</p>
+                    <p>2.2. Для улучшения качества сервиса.</p>
+                    
+                    <h4>3. Защита данных</h4>
+                    <p>3.1. Все данные хранятся на защищенных серверах.</p>
+                    <p>3.2. Передача данных осуществляется по шифрованному каналу.</p>
+                    
+                    <h4>4. Права пользователя</h4>
+                    <p>4.1. Вы можете запросить удаление всех своих данных.</p>
+                    <p>4.2. Вы можете экспортировать свои сообщения.</p>
                 `;
             }
             
-            modal.style.display = 'flex';
-            modal.style.zIndex = '10002';
-            document.body.style.overflow = 'hidden';
+            document.getElementById('legal-modal').style.display = 'flex';
         }
 
         function closeLegalModal() {
-            const modal = document.getElementById('legal-modal');
-            modal.style.display = 'none';
-            document.body.style.overflow = '';
+            document.getElementById('legal-modal').style.display = 'none';
         }
 
         function applyTheme(theme) {
@@ -3249,6 +3130,7 @@
             exitSelectionMode();
         }
 
+        // ========== ИСПРАВЛЕННАЯ ФУНКЦИЯ УДАЛЕНИЯ ==========
         async function deleteSelectedChats() {
             if (selectedChats.size === 0) return;
             
@@ -3264,13 +3146,18 @@
                             
                             console.log('Удаляем чат:', chatId);
                             
+                            // 1. Удаляем ВСЕ сообщения в чате
                             await db.ref('chats/' + chatId).set(null);
+                            
+                            // 2. Удаляем чат у текущего пользователя
                             await db.ref('userChats/' + currentUser.uid + '/' + chatId).set(null);
                             
+                            // 3. Пробуем удалить у собеседника
                             try {
                                 await db.ref('userChats/' + uid + '/' + chatId).set(null);
                             } catch (e) {}
                             
+                            // 4. Ищем и удаляем этот чат у всех пользователей
                             const allUserChats = await db.ref('userChats').once('value');
                             const allUsers = allUserChats.val() || {};
                             
@@ -3280,6 +3167,7 @@
                                 }
                             }
                             
+                            // 5. Специально для бота - удаляем все возможные варианты
                             if (uid === BOT_UID || uid === 'lunimays' || chatId.includes('lunimays')) {
                                 const botChatId1 = getChatId(currentUser.uid, BOT_UID);
                                 const botChatId2 = getChatId(currentUser.uid, 'lunimays');
@@ -3292,6 +3180,7 @@
                             
                             deletedCount++;
                             
+                            // Удаляем из UI
                             const chatElement = document.getElementById(`chat-${uid}`);
                             if (chatElement) {
                                 chatElement.remove();
@@ -3302,8 +3191,10 @@
                         }
                     }
                     
+                    // Выходим из режима выделения
                     exitSelectionMode();
                     
+                    // Если текущий чат был среди удаленных - закрываем его
                     if (currentChatWith && selectedChats.has(currentChatWith.uid)) {
                         currentChatWith = null;
                         document.getElementById('chat-panel').classList.remove('active');
@@ -3311,6 +3202,7 @@
                         toggleFabButton(true);
                     }
                     
+                    // Полностью перезагружаем список чатов
                     setTimeout(() => {
                         if (currentUser) {
                             db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
@@ -3325,6 +3217,7 @@
             );
         }
 
+        // ========== ФУНКЦИЯ ОЧИСТКИ ПРОБЛЕМНЫХ ЧАТОВ ==========
         async function cleanupUndefinedChats() {
             if (!currentUser) return;
             
@@ -3335,9 +3228,11 @@
                     try {
                         let deletedCount = 0;
                         
+                        // Получаем все чаты пользователя
                         const userChats = await db.ref('userChats/' + currentUser.uid).once('value');
                         const chats = userChats.val() || {};
                         
+                        // Проходим по всем чатам
                         for (const [chatId, chatData] of Object.entries(chats)) {
                             const isProblematic = 
                                 !chatData.withUid || 
@@ -3352,6 +3247,7 @@
                             if (isProblematic) {
                                 console.log('Найден проблемный чат:', chatId, chatData);
                                 
+                                // Жестко удаляем всё
                                 await db.ref('chats/' + chatId).set(null);
                                 await db.ref('userChats/' + currentUser.uid + '/' + chatId).set(null);
                                 
@@ -3365,6 +3261,7 @@
                             }
                         }
                         
+                        // Проверяем также чаты в messages
                         const allChats = await db.ref('chats').once('value');
                         const chatsList = allChats.val() || {};
                         
@@ -3541,6 +3438,7 @@
             });
         }
 
+        // ========== ОПТИМИЗИРОВАННАЯ ФУНКЦИЯ ОБНОВЛЕНИЯ СПИСКА ЧАТОВ ==========
         function updateChatsList(chats) {
             const container = document.getElementById('chats-container');
             const welcome = document.getElementById('welcome-screen');
@@ -3568,6 +3466,7 @@
             
             chatsArray.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
             
+            // Предзагружаем всех пользователей одним запросом
             db.ref('users').once('value', usersSnap => {
                 const allUsers = usersSnap.val() || {};
                 
@@ -3595,6 +3494,7 @@
                     div.id = `chat-${chat.withUid}`;
                     div.setAttribute('data-uid', chat.withUid);
                     
+                    // Определяем последнее сообщение
                     let lastMessageText = '';
                     if (chat.lastMessageText) {
                         lastMessageText = chat.lastMessageText;
@@ -3661,6 +3561,7 @@
                     const chatId = getChatId(currentUser.uid, chat.withUid);
                     updateUnreadCount(chatId, chat.withUid);
                     
+                    // Слушаем новые сообщения для обновления списка
                     const messagesRef = db.ref('chats/' + chatId + '/messages');
                     messagesRef.limitToLast(1).on('child_added', (snap) => {
                         const msg = snap.val();
@@ -3777,6 +3678,7 @@
             
             toggleFabButton(false);
             
+            // Оптимизация: предзагружаем данные пользователя
             if (userCache.has(uid)) {
                 const user = userCache.get(uid);
                 updateChatHeader(uid, user);
@@ -3912,6 +3814,7 @@
             });
         }
 
+        // ========== ОПТИМИЗИРОВАННАЯ ФУНКЦИЯ ЗАГРУЗКИ СООБЩЕНИЙ ==========
         function loadMessages(uid) {
             const chatId = getChatId(currentUser.uid, uid);
             
@@ -3925,6 +3828,7 @@
                 messageListener.off();
             }
             
+            // Загружаем все сообщения сразу
             db.ref('chats/' + chatId + '/messages').once('value', snapshot => {
                 const messages = snapshot.val();
                 const hasMessages = messages && Object.keys(messages).length > 0;
@@ -3934,6 +3838,7 @@
                         .map(([id, msg]) => ({ id, ...msg }))
                         .sort((a, b) => a.timestamp - b.timestamp);
                     
+                    // Группируем загрузку данных отправителей
                     const senderIds = [...new Set(messagesArray.map(msg => msg.sender))];
                     Promise.all(senderIds.map(id => 
                         db.ref('users/' + id).once('value').then(snap => {
@@ -3966,6 +3871,7 @@
                 }
             });
             
+            // Слушаем новые сообщения
             messageListener = db.ref('chats/' + chatId + '/messages').orderByChild('timestamp').limitToLast(1);
             
             messageListener.on('child_added', snap => {
@@ -3975,6 +3881,7 @@
                 if (!currentChatWith || currentChatWith.uid !== uid) return;
                 if (messageElements.has(msgId)) return;
                 
+                // Обновляем lastMessage в списке чатов
                 if (msg.sender !== currentUser.uid) {
                     const lastMsg = msg.type === 'photo' ? '📸 Фото' : (msg.text.substring(0, 50) + (msg.text.length > 50 ? '...' : ''));
                     
@@ -4170,6 +4077,7 @@
             }
         }
 
+        // ========== ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ СООБЩЕНИЯ ==========
         function sendMessage() {
             if (!currentUser) {
                 showToast('Сначала войдите в систему', 'error');
@@ -4308,6 +4216,7 @@
             input.click();
         }
 
+        // ========== ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТПРАВКИ ФОТО ==========
         function sendPhoto(photoData) {
             if (!currentUser || !currentChatWith || isSendingPhoto) return;
             
@@ -5134,21 +5043,6 @@
             });
             document.getElementById('confirm-overlay').addEventListener('click', (e) => {
                 if (e.target === document.getElementById('confirm-overlay')) hideConfirm();
-            });
-            
-            // Добавляем обработчик для закрытия legal modal по клику вне
-            const legalModal = document.getElementById('legal-modal');
-            legalModal.addEventListener('click', (e) => {
-                if (e.target === legalModal) {
-                    closeLegalModal();
-                }
-            });
-            
-            // Закрытие по Escape
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && legalModal.style.display === 'flex') {
-                    closeLegalModal();
-                }
             });
             
             setupSearch();
