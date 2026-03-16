@@ -122,15 +122,6 @@
             --sal: env(safe-area-inset-left);
         }
 
-        /* Отступы для статус-бара */
-        .safe-top {
-            padding-top: max(16px, var(--sat));
-        }
-
-        .safe-bottom {
-            padding-bottom: max(16px, var(--sab));
-        }
-
         /* Шапка с отступом под статус-бар */
         .messenger-header {
             padding: max(16px, var(--sat)) 20px 16px 20px;
@@ -159,6 +150,42 @@
         #chat-panel {
             padding-top: var(--sat);
             padding-bottom: var(--sab);
+        }
+
+        .chat-header-detail {
+            padding: max(16px, var(--sat)) 20px 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 110;
+        }
+
+        #input-area {
+            padding: 16px 20px max(16px, var(--sab)) 20px;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            position: relative;
+            z-index: 110;
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: max(30px, var(--sab));
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+        }
+
+        .fab-button {
+            bottom: max(20px, var(--sab));
+            right: 20px;
+        }
+
+        .fab-button.selection-active {
+            bottom: max(90px, calc(var(--sab) + 70px));
         }
 
         /* Фильтры для иконок в темной теме */
@@ -951,7 +978,7 @@
         }
 
         .chat-header-detail {
-            padding: max(16px, var(--sat)) 20px 16px 20px;
+            padding: 16px 20px;
             border-bottom: 1px solid var(--border-color);
             background: var(--bg-primary);
             display: flex;
@@ -1485,7 +1512,7 @@
         }
 
         #input-area {
-            padding: 16px 20px max(16px, var(--sab)) 20px;
+            padding: 16px 20px;
             background: var(--bg-primary);
             border-top: 1px solid var(--border-color);
             position: relative;
@@ -1611,7 +1638,7 @@
         /* ========== УВЕДОМЛЕНИЯ ========== */
         .toast-container {
             position: fixed;
-            bottom: max(30px, var(--sab));
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10000;
@@ -1753,7 +1780,7 @@
 
         .fab-button {
             position: absolute;
-            bottom: max(20px, var(--sab));
+            bottom: 20px;
             right: 20px;
             width: 56px;
             height: 56px;
@@ -1773,7 +1800,7 @@
         }
 
         .fab-button.selection-active {
-            bottom: max(90px, calc(var(--sab) + 70px));
+            bottom: 90px;
         }
 
         .fab-button:hover {
@@ -2410,7 +2437,6 @@
             }
         }
 
-        /* ========== ДОПОЛНИТЕЛЬНЫЕ ОПТИМИЗАЦИИ ========== */
         .android-webview {
             -webkit-text-size-adjust: 100%;
             touch-action: pan-y pinch-zoom;
@@ -2799,7 +2825,7 @@
         <img id="photo-modal-img" style="max-width: 90%; max-height: 90%; border-radius: 12px;">
     </div>
 
-    <!-- Firebase и EmailJS - оптимизированная загрузка -->
+    <!-- Firebase и EmailJS -->
     <script>
         (function loadScripts() {
             const scripts = [
@@ -3550,6 +3576,7 @@
             }
         }
 
+        // ========== ИСПРАВЛЕННАЯ ФУНКЦИЯ - ТОЛЬКО СООБЩЕНИЕ, БЕЗ ОТКРЫТИЯ ==========
         async function createBotChat() {
             if (!currentUser) return;
             
@@ -3560,6 +3587,9 @@
             const existingChat = await db.ref('userChats/' + currentUser.uid + '/' + chatId).once('value');
             
             if (!existingChat.exists()) {
+                console.log('🤖 Создаю чат с ботом (без открытия)');
+                
+                // 1. Создаем запись в userChats у пользователя
                 await db.ref('userChats/' + currentUser.uid + '/' + chatId).set({
                     withUid: BOT_UID,
                     withUsername: BOT_USERNAME,
@@ -3569,9 +3599,11 @@
                     lastMessageText: welcomeMessage
                 });
                 
+                // 2. Получаем username пользователя
                 const userSnap = await db.ref('users/' + currentUser.uid + '/username').once('value');
-                const userUsername = userSnap.val();
+                const userUsername = userSnap.val() || 'user';
                 
+                // 3. Создаем запись в userChats у бота
                 await db.ref('userChats/' + BOT_UID + '/' + chatId).set({
                     withUid: currentUser.uid,
                     withUsername: userUsername,
@@ -3581,6 +3613,7 @@
                     lastMessageText: welcomeMessage
                 });
                 
+                // 4. Отправляем приветственное сообщение
                 await db.ref('chats/' + chatId + '/messages').push({
                     sender: BOT_UID,
                     senderUsername: BOT_USERNAME,
@@ -3590,15 +3623,19 @@
                     readBy: {}
                 });
                 
-                showToast('✅ Чат с ботом создан!', 'success');
+                // 5. Показываем уведомление (но НЕ открываем чат)
+                showToast('📨 Новое сообщение от бота LuniMays', 'info');
                 
+                // 6. Обновляем список чатов, чтобы появился бот
                 setTimeout(() => {
-                    db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
-                        updateChatsList(snap.val() || {});
-                    });
+                    if (currentUser) {
+                        db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
+                            updateChatsList(snap.val() || {});
+                        });
+                    }
                 }, 1000);
                 
-                openChat(BOT_UID, BOT_USERNAME);
+                // 🔥 ВАЖНО: НЕТ вызова openChat!
             }
         }
 
@@ -5158,7 +5195,7 @@
                                     });
                                     
                                     if (!hasBotChat) {
-                                        createBotChat();
+                                        createBotChat(); // ← Только создаем, НЕ открываем
                                     }
                                 });
                                 
