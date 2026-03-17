@@ -1932,7 +1932,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(8px);
             z-index: 1999;
             display: none;
@@ -1942,14 +1942,36 @@
             display: block;
         }
 
-        #auth, #verify-email, #forgot-password {
+        /* Регистрация и вход - с прокруткой */
+        #auth, #forgot-password {
+            width: 100%;
+            max-width: 400px;
+            max-height: 85vh;
+            background: var(--bg-primary);
+            border-radius: 30px;
+            padding: 30px 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            margin: 0;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            animation: formFadeIn 0.3s ease;
+            border: 2px solid var(--border-color);
+        }
+
+        /* Подтверждение - без прокрутки */
+        #verify-email {
             width: 100%;
             max-width: 400px;
             max-height: 90vh;
             background: var(--bg-primary);
             border-radius: 30px;
             padding: 35px 30px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             margin: 0;
             position: fixed;
             top: 50%;
@@ -1959,27 +1981,32 @@
             overflow: hidden;
             animation: formFadeIn 0.3s ease;
             border: 2px solid var(--border-color);
+            min-height: 350px;
             display: flex;
             flex-direction: column;
-        }
-
-        #auth {
-            min-height: 600px;
-        }
-
-        #verify-email {
-            min-height: 350px;
             justify-content: center;
         }
 
-        #forgot-password {
-            min-height: 400px;
+        /* Стилизация скроллбара для форм с прокруткой */
+        #auth::-webkit-scrollbar,
+        #forgot-password::-webkit-scrollbar {
+            width: 4px;
         }
 
-        /* Убираем скроллбары */
-        #auth::-webkit-scrollbar,
-        #verify-email::-webkit-scrollbar,
-        #forgot-password::-webkit-scrollbar {
+        #auth::-webkit-scrollbar-track,
+        #forgot-password::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        #auth::-webkit-scrollbar-thumb,
+        #forgot-password::-webkit-scrollbar-thumb {
+            background: var(--accent-gradient);
+            border-radius: 4px;
+        }
+
+        /* Убираем скроллбар у подтверждения */
+        #verify-email::-webkit-scrollbar {
             display: none;
         }
 
@@ -1996,7 +2023,7 @@
 
         .auth-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             flex-shrink: 0;
         }
 
@@ -2044,7 +2071,6 @@
 
         .auth-form {
             display: none;
-            flex: 1;
         }
 
         .auth-form.active {
@@ -2114,7 +2140,7 @@
 
         .auth-footer {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 15px;
             margin-bottom: 10px;
             color: var(--text-muted);
             font-size: 14px;
@@ -2149,7 +2175,6 @@
             font-size: 14px;
             margin-top: 10px;
             text-align: center;
-            flex-shrink: 0;
         }
 
         .success-message {
@@ -2157,7 +2182,6 @@
             font-size: 14px;
             margin-top: 10px;
             text-align: center;
-            flex-shrink: 0;
         }
 
         .verification-input {
@@ -2216,11 +2240,162 @@
             display: none;
         }
 
+        /* ========== НАСТРОЙКИ - ИСПРАВЛЕННЫЕ ========== */
+        .settings-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            background: var(--bg-tertiary);
+            padding: 4px;
+            border-radius: 16px;
+        }
+
+        .settings-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            min-height: 48px;
+            transition: all 0.2s;
+        }
+
+        .settings-tab.active {
+            background: var(--bg-primary);
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .theme-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            min-height: 64px;
+            border: 1px solid var(--border-color);
+        }
+
+        .theme-switch span {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .theme-switch .toggle {
+            width: 52px;
+            height: 28px;
+            background: var(--border-color);
+            border-radius: 30px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .theme-switch .toggle::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .theme-switch.active .toggle {
+            background: var(--accent-gradient);
+        }
+
+        .theme-switch.active .toggle::after {
+            left: 26px;
+        }
+
+        #settings-profile-tab,
+        #settings-theme-tab,
+        #settings-account-tab {
+            padding: 10px 0;
+        }
+
+        #settings-profile-tab input,
+        #settings-profile-tab textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            min-height: 50px;
+        }
+
+        #settings-profile-tab textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        #settings-profile-tab button.primary,
+        #settings-theme-tab button.primary {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 16px;
+            background: var(--accent-gradient);
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            min-height: 50px;
+            margin-top: 10px;
+        }
+
+        #settings-account-tab button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 16px;
+            margin: 8px 0;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            min-height: 50px;
+        }
+
+        #settings-account-tab button.primary {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        #settings-account-tab button.danger {
+            background: #ff4444;
+            color: white;
+        }
+
+        #settings-account-tab button.warning {
+            background: #ffaa00;
+            color: white;
+        }
+
+        #settings-modal button.danger {
+            background: var(--hover-bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            margin-top: 20px;
+        }
+
         .legal-links {
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-top: 25px;
+            margin-top: 20px;
             font-size: 12px;
             color: var(--text-muted);
             flex-shrink: 0;
@@ -2247,6 +2422,86 @@
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px -5px #667eea;
+        }
+
+        .legal-modal {
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .legal-content {
+            padding: 20px;
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .legal-content h4 {
+            margin: 20px 0 10px;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .legal-content p {
+            margin-bottom: 15px;
+        }
+
+        .legal-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .legal-content li {
+            margin-bottom: 5px;
+        }
+
+        #legal-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .legal-modal button.danger {
+            background: linear-gradient(135deg, #ff4444, #ff6b6b);
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 16px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            min-height: 48px;
+        }
+
+        .legal-modal button.danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px #ff4444;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal .modal-content {
+            animation: modalFadeIn 0.3s ease;
         }
 
         /* ========== ОПТИМИЗАЦИЯ ДЛЯ МОБИЛЬНЫХ ========== */
@@ -2280,37 +2535,57 @@
                 background: var(--bg-primary) !important;
             }
             
+            .bottom-nav {
+                padding-bottom: max(8px, var(--sab));
+                position: relative;
+                z-index: 1000;
+            }
+            
+            .messenger-header, 
+            .search-section,
+            #input-area {
+                padding-left: max(20px, var(--sal));
+                padding-right: max(20px, var(--sar));
+            }
+            
+            #chat-panel {
+                padding-bottom: var(--sab);
+            }
+            
+            .back-button {
+                margin-left: var(--sal);
+            }
+            
+            #messages {
+                padding-bottom: max(20px, var(--sab));
+            }
+            
+            .fab-button {
+                bottom: max(20px, var(--sab));
+                right: max(20px, var(--sar));
+            }
+            
+            .fab-button.selection-active {
+                bottom: max(90px, calc(var(--sab) + 70px));
+            }
+
             /* Модалки на мобильных */
-            #auth, #verify-email, #forgot-password {
+            #auth, #forgot-password {
                 width: 90%;
                 max-width: 90%;
                 padding: 25px 20px;
-                min-height: auto;
                 max-height: 80vh;
-                margin: 0;
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: var(--bg-primary) !important;
-                border: 2px solid var(--border-color);
-            }
-            
-            #auth {
-                min-height: 500px;
             }
             
             #verify-email {
-                min-height: 280px;
-            }
-            
-            #forgot-password {
-                min-height: 350px;
+                width: 90%;
+                max-width: 90%;
+                padding: 25px 20px;
+                min-height: 300px;
             }
             
             .auth-header h2 {
                 font-size: 36px;
-                margin-bottom: 5px;
             }
             
             .verification-input {
@@ -2341,6 +2616,20 @@
                 text-align: center;
                 justify-content: center;
             }
+
+            .settings-tabs {
+                gap: 5px;
+            }
+            
+            .settings-tab {
+                padding: 10px 5px;
+                font-size: 13px;
+            }
+            
+            .theme-switch {
+                padding: 14px 16px;
+                min-height: 56px;
+            }
         }
 
         @media (max-width: 360px) {
@@ -2361,6 +2650,28 @@
                 font-size: 24px;
                 letter-spacing: 4px;
             }
+        }
+
+        /* ========== УЛУЧШЕНИЯ ДЛЯ TOUCH-УСТРОЙСТВ ========== */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        input, textarea, [contenteditable] {
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .android-webview {
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .android-webview #messages,
+        .android-webview .chats-list,
+        .android-webview #auth,
+        .android-webview #forgot-password {
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* ========== ЗАГРУЗОЧНЫЙ ЭКРАН ========== */
@@ -2880,6 +3191,7 @@
             'Gr8qTIJLqSUky7R29oPjk33C0t23'
         ];
 
+        // Firebase конфиг
         const firebaseConfig = {
             apiKey: "AIzaSyCzvxhleXrIMT-mLURP-zJncyPf84BC3Xo",
             authDomain: "lunimays.firebaseapp.com",
@@ -2901,7 +3213,9 @@
         let currentChatWith = null;
         let messageListener = null;
         let onlineStatusRef = null;
+        let lastActivityRef = null;
         let typingTimeout = null;
+        let activityTimeout = null;
         let currentSearchTab = 'users';
         let currentTheme = 'light';
         let replyToMessage = null;
@@ -2927,6 +3241,111 @@
         let isVerifying = false;
         let isResettingPassword = false;
         let isSendingResetCode = false;
+
+        // ========== УМНЫЙ СТАТУС ОНЛАЙН ==========
+        function setupOnlineStatus() {
+            if (!currentUser) return;
+            
+            onlineStatusRef = db.ref('status/' + currentUser.uid);
+            lastActivityRef = db.ref('lastActivity/' + currentUser.uid);
+            
+            // Функция обновления активности
+            function updateActivity() {
+                if (!currentUser) return;
+                const now = Date.now();
+                
+                // Обновляем время последней активности
+                lastActivityRef.set(now);
+                
+                // Устанавливаем статус онлайн
+                onlineStatusRef.update({ 
+                    online: true, 
+                    lastSeen: now,
+                    lastActivity: now 
+                });
+                
+                // Сбрасываем таймер для перевода в офлайн
+                if (activityTimeout) clearTimeout(activityTimeout);
+                activityTimeout = setTimeout(() => {
+                    if (!currentUser) return;
+                    // Проверяем последнюю активность
+                    lastActivityRef.once('value', (snap) => {
+                        const lastActivity = snap.val();
+                        const now = Date.now();
+                        // Если прошло больше 5 минут (300000 мс) без активности
+                        if (lastActivity && (now - lastActivity) > 300000) {
+                            onlineStatusRef.update({ 
+                                online: false, 
+                                lastSeen: now 
+                            });
+                        }
+                    });
+                }, 300000); // 5 минут
+            }
+            
+            // Обновляем при загрузке
+            updateActivity();
+            
+            // Слушаем все действия пользователя
+            const events = ['mousedown', 'mousemove', 'keydown', 'touchstart', 'touchmove', 'scroll', 'click'];
+            events.forEach(event => {
+                document.addEventListener(event, () => {
+                    if (activityTimeout) {
+                        clearTimeout(activityTimeout);
+                    }
+                    updateActivity();
+                }, { passive: true });
+            });
+            
+            // При закрытии вкладки
+            window.addEventListener('beforeunload', () => {
+                if (currentUser) {
+                    onlineStatusRef.update({ 
+                        online: false, 
+                        lastSeen: Date.now() 
+                    });
+                }
+            });
+            
+            // При скрытии вкладки
+            document.addEventListener('visibilitychange', () => {
+                if (!currentUser) return;
+                if (document.hidden) {
+                    // Вкладка скрыта - возможно пользователь отошел
+                    if (activityTimeout) clearTimeout(activityTimeout);
+                    activityTimeout = setTimeout(() => {
+                        lastActivityRef.once('value', (snap) => {
+                            const lastActivity = snap.val();
+                            const now = Date.now();
+                            if (lastActivity && (now - lastActivity) > 300000) {
+                                onlineStatusRef.update({ 
+                                    online: false, 
+                                    lastSeen: now 
+                                });
+                            }
+                        });
+                    }, 300000);
+                } else {
+                    // Вкладка снова активна
+                    updateActivity();
+                }
+            });
+            
+            // Каждую минуту проверяем активность
+            setInterval(() => {
+                if (!currentUser) return;
+                lastActivityRef.once('value', (snap) => {
+                    const lastActivity = snap.val();
+                    const now = Date.now();
+                    if (lastActivity && (now - lastActivity) > 300000) {
+                        onlineStatusRef.update({ 
+                            online: false, 
+                            lastSeen: now 
+                        });
+                    }
+                });
+            }, 60000); // Каждую минуту
+        }
 
         // ========== ФУНКЦИИ ДЛЯ УПРАВЛЕНИЯ МОДАЛКАМИ ==========
         function showModal(modalId) {
@@ -3141,11 +3560,7 @@
 
         // ========== УЛУЧШЕНИЯ ДЛЯ ФОРМ НА МОБИЛЬНЫХ ==========
         function setupMobileForms() {
-            // Для модалок не нужна прокрутка, они фиксированные
-        }
-
-        function scrollToTop(formId) {
-            // Не нужно, модалки фиксированные
+            // Для форм с прокруткой ничего не делаем
         }
 
         // ========== ФУНКЦИИ РЕГИСТРАЦИИ ==========
@@ -3640,6 +4055,16 @@
                 onlineStatusRef = null;
             }
             
+            if (lastActivityRef) {
+                lastActivityRef.set(null);
+                lastActivityRef = null;
+            }
+            
+            if (activityTimeout) {
+                clearTimeout(activityTimeout);
+                activityTimeout = null;
+            }
+            
             if (messageListener) {
                 messageListener.off();
                 messageListener = null;
@@ -3739,8 +4164,8 @@
                         userCache.set(user.uid, data);
                     });
                     
-                    onlineStatusRef = db.ref('status/' + user.uid);
-                    onlineStatusRef.set({ online: true, lastSeen: Date.now() });
+                    // Запускаем умный статус
+                    setupOnlineStatus();
                     
                     loadChats();
                     
@@ -3819,6 +4244,11 @@
                     if (messageListener) {
                         messageListener.off();
                         messageListener = null;
+                    }
+                    
+                    if (activityTimeout) {
+                        clearTimeout(activityTimeout);
+                        activityTimeout = null;
                     }
                     
                     cancelSelection();
@@ -5364,6 +5794,7 @@
             }
             await db.ref('users/' + currentUser.uid).remove();
             await db.ref('status/' + currentUser.uid).remove();
+            await db.ref('lastActivity/' + currentUser.uid).remove();
             await currentUser.delete();
             showToast('Аккаунт удалён', 'success');
         }
@@ -5468,6 +5899,7 @@
                 searchInput.addEventListener('input', debounce(async (e) => {
                     let query = e.target.value.trim().toLowerCase();
                     
+                    // Убираем @ если есть
                     if (query.startsWith('@')) {
                         query = query.substring(1);
                     }
@@ -5490,17 +5922,19 @@
             const users = (await db.ref('users').once('value')).val() || {};
             const results = [];
             
-            const searchQuery = query.toLowerCase().replace(/^@/, '');
+            const searchQuery = query.toLowerCase();
             
             for (let uid in users) {
                 if (uid === currentUser?.uid) continue;
                 const user = users[uid];
                 
+                // Поиск по username (с @ или без)
                 const usernameMatch = user.username && (
                     user.username.toLowerCase().includes(searchQuery) ||
-                    ('@' + user.username.toLowerCase()).includes(searchQuery)
+                    ('@' + user.username.toLowerCase()).includes('@' + searchQuery)
                 );
                 
+                // Поиск по имени
                 const nameMatch = user.name && user.name.toLowerCase().includes(searchQuery);
                 
                 if (usernameMatch || nameMatch) {
@@ -5684,7 +6118,6 @@
             });
             
             setupSearch();
-            setupMobileForms();
             initFirebase();
         });
 
