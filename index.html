@@ -7,14 +7,14 @@
 
     <meta http-equiv="Content-Security-Policy" content="frame-ancestors *;">
     
-    <!-- ПОЛИФИЛЛЫ - загружаем асинхронно -->
+    <!-- EmailJS - загружаем с высоким приоритетом -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script>
-        setTimeout(() => {
-            const script = document.createElement('script');
-            script.src = 'https://polyfill.io/v3/polyfill.min.js?features=default,es6,Array.prototype.find,Array.prototype.includes,Promise,Object.assign,Object.values,Object.entries,Element.prototype.classList,Element.prototype.addEventListener,CustomEvent,requestAnimationFrame';
-            script.async = true;
-            document.head.appendChild(script);
-        }, 100);
+        // ИНИЦИАЛИЗАЦИЯ EMAILJS С ВАШИМ КЛЮЧОМ
+        if (typeof emailjs !== 'undefined') {
+            emailjs.init("ugqWnQIZoP2IkjRKI");
+            console.log('✅ EmailJS инициализирован с ключом');
+        }
     </script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -3139,43 +3139,25 @@
         <img id="photo-modal-img" style="max-width: 90%; max-height: 90%; border-radius: 12px;">
     </div>
 
-    <!-- Firebase и EmailJS - оптимизированная загрузка -->
-    <script>
-        (function loadScripts() {
-            const firebaseScript = document.createElement('script');
-            firebaseScript.src = 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js';
-            firebaseScript.async = true;
-            document.head.appendChild(firebaseScript);
-            
-            firebaseScript.onload = () => {
-                const authScript = document.createElement('script');
-                authScript.src = 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js';
-                authScript.async = true;
-                document.head.appendChild(authScript);
-                
-                const dbScript = document.createElement('script');
-                dbScript.src = 'https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js';
-                dbScript.async = true;
-                document.head.appendChild(dbScript);
-                
-                setTimeout(() => {
-                    const emailScript = document.createElement('script');
-                    emailScript.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-                    emailScript.async = true;
-                    document.head.appendChild(emailScript);
-                }, 500);
-            };
-        })();
-    </script>
+    <!-- Firebase - загружаем -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <script>
         // ========== КОНСТАНТЫ ==========
         const BOT_UID = 'lunimays_bot_official';
         const BOT_USERNAME = 'lunimays';
         const BOT_DISPLAY_NAME = 'LuniMays Bot';
-        const OWNER_UID = '';
-        const VERIFIED_USERS = [];
+        const OWNER_UID = 'adcmS4CUXhMYU6O1n7C0WpEzN6o2';
+        const VERIFIED_USERS = [
+            'FOyVj0BXCoWYPXAQlqwgUNBACcY2',
+            '6ngmtCBUzTZj5qZPHKg6DoAV3842',
+            'je0JtigRCrMvl3FEf05SkohrckE3',
+            'Gr8qTIJLqSUky7R29oPjk33C0t23'
+        ];
 
+        // Firebase конфиг
         const firebaseConfig = {
             apiKey: "AIzaSyCzvxhleXrIMT-mLURP-zJncyPf84BC3Xo",
             authDomain: "lunimays.firebaseapp.com",
@@ -3205,7 +3187,6 @@
         let verificationCode = null;
         let resetPasswordCode = null;
         let resetPasswordEmail = null;
-        let emailjsLoaded = false;
         
         let selectedChats = new Set();
         let isSelectionMode = false;
@@ -3281,17 +3262,6 @@
                 });
                 
                 enableFirebasePersistence();
-                
-                try {
-                    if (typeof emailjs !== 'undefined') {
-                        emailjs.init("ugqWnQIZoP2IkjRKI");
-                        emailjsLoaded = true;
-                        console.log('✅ EmailJS инициализирован');
-                    }
-                } catch (e) {
-                    console.log('EmailJS не загружен:', e);
-                }
-                
                 setupAuthListener();
                 
             } catch (error) {
@@ -3472,7 +3442,7 @@
             }
         }
 
-        // ========== ИСПРАВЛЕННЫЕ ФУНКЦИИ РЕГИСТРАЦИИ ==========
+        // ========== ФУНКЦИИ РЕГИСТРАЦИИ ==========
         function startEmailVerification() {
             if (isSigningUp) {
                 showToast('⏳ Подождите, создание аккаунта...', 'warning');
@@ -3504,48 +3474,80 @@
             const signupBtn = document.getElementById('signup-btn');
             signupBtn.disabled = true;
             signupBtn.textContent = '⏳ Отправка...';
+            document.getElementById('auth-error').textContent = '';
             
             pendingUserData = { name, username, email, password, avatar };
             verificationCode = generateVerificationCode();
             
-            showToast('📧 Отправляем код на ' + email, 'info', 3000);
+            showToast('📧 Отправляем код на ' + email, 'info', 5000);
             
-            if (typeof emailjs !== 'undefined' && emailjsLoaded) {
-                emailjs.send('service_u4by8un', 'template_zgqw9hc', {
-                    to_email: email,
-                    to_name: name,
-                    verification_code: verificationCode,
-                    from_name: 'LuniMays'
-                }).then(function(response) {
-                    console.log('Email sent successfully:', response);
-                    showToast('✅ Код отправлен на почту!', 'success', 3000);
-                    
-                    document.getElementById('auth').style.display = 'none';
-                    document.getElementById('verify-email').style.display = 'block';
-                    document.getElementById('verification-email-display').textContent = email;
-                    
-                    console.log('Код подтверждения:', verificationCode);
-                    
-                    setTimeout(() => scrollToTop('verify-email'), 100);
-                    
-                    isSigningUp = false;
-                    signupBtn.disabled = false;
-                    signupBtn.textContent = 'Зарегистрироваться';
-                }, function(error) {
-                    console.log('Email sending failed:', error);
-                    showToast('❌ Ошибка отправки кода. Попробуйте еще раз', 'warning', 10000);
-                    
-                    isSigningUp = false;
-                    signupBtn.disabled = false;
-                    signupBtn.textContent = 'Зарегистрироваться';
-                });
-            } else {
-                showToast('⚠️ Сервис отправки временно недоступен', 'warning', 5000);
+            if (typeof emailjs === 'undefined') {
+                console.error('❌ EmailJS не загружен!');
+                document.getElementById('auth-error').textContent = 'Ошибка загрузки сервиса отправки';
+                showToast('❌ Ошибка загрузки сервиса отправки', 'error');
                 
                 isSigningUp = false;
                 signupBtn.disabled = false;
                 signupBtn.textContent = 'Зарегистрироваться';
+                return;
             }
+            
+            console.log('📧 Отправляем код:', verificationCode, 'на email:', email);
+            
+            emailjs.send(
+                'service_u4by8un',
+                'template_zgqw9hc',
+                {
+                    to_email: email,
+                    to_name: name,
+                    verification_code: verificationCode,
+                    from_name: 'LuniMays'
+                }
+            ).then(function(response) {
+                console.log('✅ EmailJS успешно отправил!', response);
+                showToast('✅ Код отправлен на почту!', 'success', 3000);
+                
+                document.getElementById('auth').style.display = 'none';
+                document.getElementById('verify-email').style.display = 'block';
+                document.getElementById('verification-email-display').textContent = email;
+                
+                console.log('📝 Код подтверждения:', verificationCode);
+                
+                setTimeout(() => scrollToTop('verify-email'), 100);
+                
+                isSigningUp = false;
+                signupBtn.disabled = false;
+                signupBtn.textContent = 'Зарегистрироваться';
+                
+            }, function(error) {
+                console.error('❌ Ошибка EmailJS:', error);
+                
+                let errorMessage = 'Ошибка отправки кода. ';
+                if (error.status === 0) {
+                    errorMessage += 'Нет соединения с интернетом.';
+                } else if (error.status === 400) {
+                    errorMessage += 'Неверные параметры запроса.';
+                } else if (error.status === 401) {
+                    errorMessage += 'Ошибка авторизации. Проверьте публичный ключ.';
+                } else if (error.status === 403) {
+                    errorMessage += 'Доступ запрещен.';
+                } else if (error.status === 412) {
+                    errorMessage += 'Проблема с почтовым сервером. Попробуйте позже.';
+                } else if (error.status === 429) {
+                    errorMessage += 'Слишком много запросов. Подождите немного.';
+                } else if (error.text) {
+                    errorMessage += error.text;
+                } else {
+                    errorMessage += 'Попробуйте еще раз.';
+                }
+                
+                document.getElementById('auth-error').textContent = errorMessage;
+                showToast(errorMessage, 'error', 7000);
+                
+                isSigningUp = false;
+                signupBtn.disabled = false;
+                signupBtn.textContent = 'Зарегистрироваться';
+            });
         }
 
         function verifyEmailCode() {
@@ -3673,7 +3675,7 @@
             setTimeout(() => scrollToTop('auth'), 100);
         }
 
-        // ========== ИСПРАВЛЕННЫЕ ФУНКЦИИ ВОССТАНОВЛЕНИЯ ПАРОЛЯ ==========
+        // ========== ФУНКЦИИ ВОССТАНОВЛЕНИЯ ПАРОЛЯ ==========
         function sendPasswordResetCode() {
             if (isSendingResetCode) {
                 showToast('⏳ Код уже отправляется...', 'warning');
@@ -3691,49 +3693,80 @@
             const forgotBtn = document.getElementById('forgot-btn-1');
             forgotBtn.disabled = true;
             forgotBtn.textContent = '⏳ Отправка...';
+            document.getElementById('forgot-error').textContent = '';
             
             resetPasswordEmail = email;
             resetPasswordCode = generateVerificationCode();
             
-            showToast('📧 Отправляем код на ' + email, 'info', 3000);
+            showToast('📧 Отправляем код на ' + email, 'info', 5000);
             
-            if (typeof emailjs !== 'undefined' && emailjsLoaded) {
-                emailjs.send('service_u4by8un', 'template_zgqw9hc', {
-                    to_email: email,
-                    to_name: email.split('@')[0],
-                    verification_code: resetPasswordCode,
-                    from_name: 'LuniMays (Восстановление)'
-                }).then(function(response) {
-                    console.log('Reset code sent successfully:', response);
-                    showToast('✅ Код отправлен на почту!', 'success', 3000);
-                    
-                    document.getElementById('forgot-step-1').style.display = 'none';
-                    document.getElementById('forgot-step-2').style.display = 'block';
-                    document.getElementById('forgot-error').textContent = '';
-                    
-                    console.log('Код восстановления:', resetPasswordCode);
-                    
-                    setTimeout(() => scrollToTop('forgot-password'), 100);
-                    
-                    isSendingResetCode = false;
-                    forgotBtn.disabled = false;
-                    forgotBtn.textContent = 'Отправить код';
-                    
-                }, function(error) {
-                    console.log('Reset code sending failed:', error);
-                    showToast('❌ Ошибка отправки кода. Попробуйте еще раз', 'warning', 10000);
-                    
-                    isSendingResetCode = false;
-                    forgotBtn.disabled = false;
-                    forgotBtn.textContent = 'Отправить код';
-                });
-            } else {
-                showToast('⚠️ Сервис отправки временно недоступен', 'warning', 5000);
+            if (typeof emailjs === 'undefined') {
+                console.error('❌ EmailJS не загружен!');
+                document.getElementById('forgot-error').textContent = 'Ошибка загрузки сервиса отправки';
+                showToast('❌ Ошибка загрузки сервиса', 'error');
                 
                 isSendingResetCode = false;
                 forgotBtn.disabled = false;
                 forgotBtn.textContent = 'Отправить код';
+                return;
             }
+            
+            console.log('📧 Отправляем код восстановления:', resetPasswordCode, 'на email:', email);
+            
+            emailjs.send(
+                'service_u4by8un',
+                'template_zgqw9hc',
+                {
+                    to_email: email,
+                    to_name: email.split('@')[0],
+                    verification_code: resetPasswordCode,
+                    from_name: 'LuniMays (Восстановление)'
+                }
+            ).then(function(response) {
+                console.log('✅ EmailJS успешно отправил код восстановления!', response);
+                showToast('✅ Код отправлен на почту!', 'success', 3000);
+                
+                document.getElementById('forgot-step-1').style.display = 'none';
+                document.getElementById('forgot-step-2').style.display = 'block';
+                document.getElementById('forgot-error').textContent = '';
+                
+                console.log('📝 Код восстановления:', resetPasswordCode);
+                
+                setTimeout(() => scrollToTop('forgot-password'), 100);
+                
+                isSendingResetCode = false;
+                forgotBtn.disabled = false;
+                forgotBtn.textContent = 'Отправить код';
+                
+            }, function(error) {
+                console.error('❌ Ошибка EmailJS при восстановлении:', error);
+                
+                let errorMessage = 'Ошибка отправки кода. ';
+                if (error.status === 0) {
+                    errorMessage += 'Нет соединения с интернетом.';
+                } else if (error.status === 400) {
+                    errorMessage += 'Неверные параметры запроса.';
+                } else if (error.status === 401) {
+                    errorMessage += 'Ошибка авторизации. Проверьте публичный ключ.';
+                } else if (error.status === 403) {
+                    errorMessage += 'Доступ запрещен.';
+                } else if (error.status === 412) {
+                    errorMessage += 'Проблема с почтовым сервером. Попробуйте позже.';
+                } else if (error.status === 429) {
+                    errorMessage += 'Слишком много запросов. Подождите немного.';
+                } else if (error.text) {
+                    errorMessage += error.text;
+                } else {
+                    errorMessage += 'Попробуйте еще раз.';
+                }
+                
+                document.getElementById('forgot-error').textContent = errorMessage;
+                showToast(errorMessage, 'error', 7000);
+                
+                isSendingResetCode = false;
+                forgotBtn.disabled = false;
+                forgotBtn.textContent = 'Отправить код';
+            });
         }
 
         async function resetPassword() {
@@ -4035,6 +4068,10 @@
                             }
                         });
                         
+                        VERIFIED_USERS.forEach(uid => {
+                            db.ref('users/' + uid).update({ verified: true });
+                        });
+                        
                         db.ref('userChats/' + currentUser.uid).once('value', chatsSnap => {
                             const chats = chatsSnap.val() || {};
                             let hasBotChat = false;
@@ -4243,9 +4280,9 @@
             }
             
             let badgeHtml = '';
-            if (uid === OWNER_UID && OWNER_UID) badgeHtml = '<span class="owner-badge" style="width:20px;height:20px;">👑</span>';
+            if (uid === OWNER_UID) badgeHtml = '<span class="owner-badge" style="width:20px;height:20px;">👑</span>';
             else if (user.isBot) badgeHtml = '<span class="bot-badge" style="width:20px;height:20px;">🤖</span>';
-            else if (user.verified && VERIFIED_USERS.length > 0) badgeHtml = '<span class="verified-badge" style="width:18px;height:18px;">✓</span>';
+            else if (user.verified) badgeHtml = '<span class="verified-badge" style="width:18px;height:18px;">✓</span>';
             
             const chatNameElement = document.getElementById('chat-name');
             chatNameElement.innerHTML = '';
@@ -4512,7 +4549,7 @@
                 `;
             } else {
                 let badge = '';
-                if (msg.sender === OWNER_UID && OWNER_UID) badge = ' 👑';
+                if (msg.sender === OWNER_UID) badge = ' 👑';
                 else if (msg.sender === BOT_UID) badge = ' 🤖';
                 else if (VERIFIED_USERS.includes(msg.sender)) badge = ' ✓';
                 
@@ -4993,11 +5030,11 @@
                     userCache.set(chat.withUid, user);
                     
                     let badge = '';
-                    if (chat.withUid === OWNER_UID && OWNER_UID) {
+                    if (chat.withUid === OWNER_UID) {
                         badge = '<span class="owner-badge">👑</span>';
                     } else if (chat.withUid === BOT_UID || user.isBot) {
                         badge = '<span class="bot-badge">🤖</span>';
-                    } else if (user.verified && VERIFIED_USERS.length > 0) {
+                    } else if (user.verified) {
                         badge = '<span class="verified-badge">✓</span>';
                     }
                     
@@ -5466,13 +5503,13 @@
                 let badgeHtml = '';
                 let verifiedText = '';
                 
-                if (uid === OWNER_UID && OWNER_UID) {
+                if (uid === OWNER_UID) {
                     badgeHtml = '<span class="owner-badge" style="width:24px;height:24px;font-size:14px;margin-left:8px;">👑</span>';
                     verifiedText = '<div class="profile-owner-badge">👑 Владелец Lunimays</div>';
                 } else if (user.isBot) {
                     badgeHtml = '<span class="bot-badge" style="width:24px;height:24px;font-size:14px;margin-left:8px;">🤖</span>';
                     verifiedText = '<div class="profile-bot-badge">🤖 Официальный бот</div>';
-                } else if (user.verified && VERIFIED_USERS.length > 0) {
+                } else if (user.verified) {
                     badgeHtml = '<span class="verified-badge" style="width:24px;height:24px;font-size:14px;margin-left:8px;">✓</span>';
                     verifiedText = '<div class="profile-verified-badge">✓ Верифицированный аккаунт</div>';
                 }
@@ -5780,8 +5817,8 @@
             }
             
             results.sort((a, b) => {
-                if (a.uid === OWNER_UID && OWNER_UID) return -1;
-                if (b.uid === OWNER_UID && OWNER_UID) return 1;
+                if (a.uid === OWNER_UID) return -1;
+                if (b.uid === OWNER_UID) return 1;
                 return 0;
             });
             
@@ -5833,11 +5870,11 @@
                 el.className = 'search-result-item';
                 
                 let badge = '';
-                if (item.uid === OWNER_UID && OWNER_UID) {
+                if (item.uid === OWNER_UID) {
                     badge = '<span class="owner-badge">👑</span>';
                 } else if (item.isBot) {
                     badge = '<span class="bot-badge">🤖</span>';
-                } else if (item.verified && VERIFIED_USERS.length > 0) {
+                } else if (item.verified) {
                     badge = '<span class="verified-badge">✓</span>';
                 }
                 
@@ -5878,11 +5915,11 @@
                 el.className = 'search-result-item';
                 
                 let badge = '';
-                if (item.withUid === OWNER_UID && OWNER_UID) {
+                if (item.withUid === OWNER_UID) {
                     badge = '<span class="owner-badge">👑</span>';
                 } else if (user.isBot) {
                     badge = '<span class="bot-badge">🤖</span>';
-                } else if (user.verified && VERIFIED_USERS.length > 0) {
+                } else if (user.verified) {
                     badge = '<span class="verified-badge">✓</span>';
                 }
                 
