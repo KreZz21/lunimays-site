@@ -1776,11 +1776,26 @@
             padding: 30px;
             max-width: 400px;
             width: 100%;
-            max-height: 90vh;
+            max-height: 85vh;
             overflow-y: auto;
             color: var(--text-primary);
             position: relative;
             z-index: 1010;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: var(--accent-gradient);
+            border-radius: 4px;
         }
 
         .modal h3 {
@@ -1802,6 +1817,7 @@
             color: var(--text-primary);
             -webkit-user-select: text;
             user-select: text;
+            min-height: 50px;
         }
 
         .modal button {
@@ -1830,27 +1846,64 @@
             color: white;
         }
 
+        /* ========== АВТОРИЗАЦИЯ С ПРОКРУТКОЙ ========== */
         #auth, #verify-email, #forgot-password {
             width: 100%;
             max-width: 400px;
+            max-height: 85vh;
             background: var(--bg-primary);
             border-radius: 30px;
-            padding: 40px 30px;
+            padding: 30px 25px;
             box-shadow: var(--shadow);
             margin: 20px;
             position: relative;
             z-index: 2000;
             -webkit-mask-image: -webkit-radial-gradient(white, black);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            animation: formFadeIn 0.3s ease;
+        }
+
+        #auth::-webkit-scrollbar,
+        #verify-email::-webkit-scrollbar,
+        #forgot-password::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #auth::-webkit-scrollbar-track,
+        #verify-email::-webkit-scrollbar-track,
+        #forgot-password::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        #auth::-webkit-scrollbar-thumb,
+        #verify-email::-webkit-scrollbar-thumb,
+        #forgot-password::-webkit-scrollbar-thumb {
+            background: var(--accent-gradient);
+            border-radius: 4px;
+        }
+
+        @keyframes formFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .auth-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+            flex-shrink: 0;
         }
 
         .auth-header h2 {
             font-size: 42px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -1861,7 +1914,8 @@
             background: var(--bg-tertiary);
             border-radius: 16px;
             padding: 4px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
+            flex-shrink: 0;
         }
 
         .auth-tab {
@@ -1873,6 +1927,8 @@
             color: var(--text-secondary);
             font-weight: 500;
             min-height: 48px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(102, 126, 234, 0.3);
         }
 
         .auth-tab.active {
@@ -1904,9 +1960,10 @@
             padding: 14px 16px;
             border: 2px solid var(--border-color);
             border-radius: 16px;
-            font-size: 15px;
+            font-size: 16px;
             background: var(--input-bg);
             color: var(--text-primary);
+            min-height: 50px;
         }
 
         .auth-btn {
@@ -1917,7 +1974,10 @@
             font-weight: 600;
             cursor: pointer;
             margin: 10px 0;
-            min-height: 48px;
+            min-height: 50px;
+            font-size: 16px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(102, 126, 234, 0.3);
         }
 
         .auth-btn.primary {
@@ -1932,7 +1992,8 @@
 
         .auth-footer {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 15px;
+            margin-bottom: 10px;
             color: var(--text-muted);
             font-size: 14px;
         }
@@ -1942,6 +2003,7 @@
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
+            touch-action: manipulation;
         }
 
         .forgot-password-link {
@@ -1956,6 +2018,8 @@
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
+            touch-action: manipulation;
+            padding: 5px;
         }
 
         .error {
@@ -1963,6 +2027,7 @@
             font-size: 14px;
             margin-top: 10px;
             text-align: center;
+            flex-shrink: 0;
         }
 
         .success-message {
@@ -1970,6 +2035,7 @@
             font-size: 14px;
             margin-top: 10px;
             text-align: center;
+            flex-shrink: 0;
         }
 
         .verification-input {
@@ -1988,6 +2054,9 @@
             border-radius: 16px;
             cursor: pointer;
             margin-bottom: 20px;
+            min-height: 70px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(102, 126, 234, 0.3);
         }
 
         .avatar-preview {
@@ -2189,6 +2258,7 @@
             margin-top: 20px;
             font-size: 12px;
             color: var(--text-muted);
+            flex-shrink: 0;
         }
 
         .legal-links a {
@@ -2203,6 +2273,8 @@
             min-height: 44px;
             display: inline-flex;
             align-items: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(102, 126, 234, 0.3);
         }
 
         .legal-links a:hover {
@@ -2365,12 +2437,40 @@
             
             #auth, #verify-email, #forgot-password {
                 margin: 10px;
-                padding: 30px 20px;
+                padding: 25px 20px;
+                max-height: 85vh;
                 -webkit-mask-image: none;
+            }
+            
+            .input-group input,
+            .auth-btn,
+            .avatar-upload-container {
+                min-height: 50px;
+                font-size: 16px;
+            }
+            
+            #rememberMe {
+                width: 20px !important;
+                height: 20px !important;
             }
         }
 
-        /* ========== УЛУЧШЕНИЯ ДЛЯ TOCH-УСТРОЙСТВ ========== */
+        @media (max-width: 360px) {
+            #auth, #verify-email, #forgot-password {
+                padding: 20px 15px;
+            }
+            
+            .auth-header h2 {
+                font-size: 32px;
+            }
+            
+            .auth-tab {
+                padding: 10px 5px;
+                font-size: 13px;
+            }
+        }
+
+        /* ========== УЛУЧШЕНИЯ ДЛЯ TOUCH-УСТРОЙСТВ ========== */
         * {
             -webkit-tap-highlight-color: transparent;
         }
@@ -2385,9 +2485,19 @@
         }
 
         .android-webview #messages,
-        .android-webview .chats-list {
+        .android-webview .chats-list,
+        .android-webview #auth,
+        .android-webview #verify-email,
+        .android-webview #forgot-password {
             overscroll-behavior: contain;
             -webkit-overflow-scrolling: touch;
+        }
+
+        .android-webview #auth,
+        .android-webview #verify-email,
+        .android-webview #forgot-password {
+            scrollbar-width: thin;
+            scrollbar-color: #667eea var(--bg-secondary);
         }
 
         :root {
@@ -2550,11 +2660,6 @@
             <div class="auth-footer">
                 Нет аккаунта? <a onclick="switchAuthTab('signup')">Создать</a>
             </div>
-            
-            <div class="legal-links">
-                <a onclick="showLegalModal('terms')">📋 Пользовательское соглашение</a>
-                <a onclick="showLegalModal('privacy')">🔒 Политика конфиденциальности</a>
-            </div>
         </div>
         
         <div id="signup-form" class="auth-form">
@@ -2601,6 +2706,11 @@
         </div>
         
         <div class="error" id="auth-error"></div>
+        
+        <div class="legal-links">
+            <a onclick="showLegalModal('terms')">📋 Пользовательское соглашение</a>
+            <a onclick="showLegalModal('privacy')">🔒 Политика конфиденциальности</a>
+        </div>
     </div>
 
     <!-- ПОДТВЕРЖДЕНИЕ EMAIL -->
@@ -2636,8 +2746,6 @@
             
             <button class="auth-btn primary" onclick="sendPasswordResetCode()">Отправить код</button>
             <button class="auth-btn" onclick="goBackToSignIn()">← Назад</button>
-            
-            <div class="error" id="forgot-error"></div>
         </div>
         
         <div id="forgot-step-2" style="display: none;">
@@ -2658,10 +2766,11 @@
             
             <button class="auth-btn primary" onclick="resetPassword()">Изменить пароль</button>
             <button class="auth-btn" onclick="goBackToForgotStep1()">← Назад</button>
-            
-            <div class="error" id="forgot-step2-error"></div>
-            <div class="success-message" id="forgot-success"></div>
         </div>
+        
+        <div class="error" id="forgot-error"></div>
+        <div class="error" id="forgot-step2-error"></div>
+        <div class="success-message" id="forgot-success"></div>
     </div>
 
     <!-- МОДАЛКИ -->
@@ -2821,17 +2930,6 @@
         let isSendingPhoto = false;
         let isSendingEmoji = false;
 
-        // ========== ОПТИМИЗАЦИЯ ДЛЯ МОБИЛЬНЫХ ==========
-        let isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        let lastTapTime = 0;
-
-        function isDoubleTap() {
-            const now = Date.now();
-            const isDouble = (now - lastTapTime) < 300;
-            lastTapTime = now;
-            return isDouble;
-        }
-
         // ========== ИНИЦИАЛИЗАЦИЯ FIREBASE ==========
         function initFirebase() {
             if (!window.firebase) {
@@ -2925,12 +3023,6 @@
             return false;
         }
 
-        async function userExists(uid) {
-            if (!uid) return false;
-            const snap = await db.ref('users/' + uid).once('value');
-            return snap.exists();
-        }
-
         // ========== UI ФУНКЦИИ ==========
         function toggleFabButton(show) {
             const fab = document.getElementById('fab-button');
@@ -2989,8 +3081,51 @@
             reader.readAsDataURL(file);
         }
 
-        // ========== ИСПРАВЛЕННЫЕ ФУНКЦИИ РЕГИСТРАЦИИ ==========
+        // ========== УЛУЧШЕНИЯ ДЛЯ ФОРМ НА МОБИЛЬНЫХ ==========
+        function setupMobileForms() {
+            const forms = ['auth', 'verify-email', 'forgot-password'];
+            
+            forms.forEach(formId => {
+                const form = document.getElementById(formId);
+                if (!form) return;
+                
+                const inputs = form.querySelectorAll('input, textarea, button');
+                inputs.forEach(input => {
+                    input.addEventListener('focus', () => {
+                        setTimeout(() => {
+                            input.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center',
+                                inline: 'nearest'
+                            });
+                        }, 300);
+                    });
+                });
+            });
+            
+            if ('visualViewport' in window) {
+                window.visualViewport.addEventListener('resize', () => {
+                    const activeElement = document.activeElement;
+                    if (activeElement && activeElement.tagName === 'INPUT') {
+                        setTimeout(() => {
+                            activeElement.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center' 
+                            });
+                        }, 100);
+                    }
+                });
+            }
+        }
 
+        function scrollToTop(formId) {
+            const form = document.getElementById(formId);
+            if (form) {
+                form.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // ========== ИСПРАВЛЕННЫЕ ФУНКЦИИ РЕГИСТРАЦИИ ==========
         function startEmailVerification() {
             const name = sanitizeInput(document.getElementById('signup-name').value.trim());
             const username = sanitizeInput(document.getElementById('signup-username').value.trim().toLowerCase());
@@ -3018,7 +3153,6 @@
             
             showToast('📧 Отправляем код на ' + email, 'info', 3000);
             
-            // Пробуем отправить через EmailJS
             if (typeof emailjs !== 'undefined' && emailjsLoaded) {
                 emailjs.send('service_u4by8un', 'template_zgqw9hc', {
                     to_email: email,
@@ -3029,30 +3163,32 @@
                     console.log('Email sent successfully:', response);
                     showToast('✅ Код отправлен на почту!', 'success', 3000);
                     
-                    // Показываем окно подтверждения
                     document.getElementById('auth').style.display = 'none';
                     document.getElementById('verify-email').style.display = 'block';
                     document.getElementById('verification-email-display').textContent = email;
                     
-                    // Для теста показываем код в консоли и тосте
                     console.log('Код подтверждения:', verificationCode);
                     showToast('📝 Код: ' + verificationCode, 'info', 10000);
+                    
+                    setTimeout(() => scrollToTop('verify-email'), 100);
                 }, function(error) {
                     console.log('Email sending failed:', error);
                     showToast('❌ Ошибка отправки кода. Код: ' + verificationCode, 'warning', 10000);
                     
-                    // Всё равно показываем окно подтверждения
                     document.getElementById('auth').style.display = 'none';
                     document.getElementById('verify-email').style.display = 'block';
                     document.getElementById('verification-email-display').textContent = email;
+                    
+                    setTimeout(() => scrollToTop('verify-email'), 100);
                 });
             } else {
-                // Если EmailJS не загружен
                 showToast('⚠️ Код для теста: ' + verificationCode, 'warning', 10000);
                 
                 document.getElementById('auth').style.display = 'none';
                 document.getElementById('verify-email').style.display = 'block';
                 document.getElementById('verification-email-display').textContent = email;
+                
+                setTimeout(() => scrollToTop('verify-email'), 100);
             }
         }
 
@@ -3071,7 +3207,6 @@
                 return;
             }
             
-            // Код верный - завершаем регистрацию
             completeSignUp();
         }
 
@@ -3108,10 +3243,12 @@
             document.getElementById('auth').style.display = 'block';
             document.getElementById('verification-code').value = '';
             document.getElementById('verification-error').textContent = '';
+            
+            switchAuthTab('signup');
+            setTimeout(() => scrollToTop('auth'), 100);
         }
 
         // ========== ИСПРАВЛЕННЫЕ ФУНКЦИИ ВОССТАНОВЛЕНИЯ ПАРОЛЯ ==========
-
         function sendPasswordResetCode() {
             const email = document.getElementById('forgot-email').value.trim();
             
@@ -3125,7 +3262,6 @@
             
             showToast('📧 Отправляем код на ' + email, 'info', 3000);
             
-            // Пробуем отправить через EmailJS
             if (typeof emailjs !== 'undefined' && emailjsLoaded) {
                 emailjs.send('service_u4by8un', 'template_zgqw9hc', {
                     to_email: email,
@@ -3136,30 +3272,32 @@
                     console.log('Reset code sent successfully:', response);
                     showToast('✅ Код отправлен на почту!', 'success', 3000);
                     
-                    // Показываем второй шаг
                     document.getElementById('forgot-step-1').style.display = 'none';
                     document.getElementById('forgot-step-2').style.display = 'block';
                     document.getElementById('forgot-error').textContent = '';
                     
-                    // Для теста показываем код в консоли и тосте
                     console.log('Код восстановления:', resetPasswordCode);
                     showToast('📝 Код: ' + resetPasswordCode, 'info', 10000);
+                    
+                    setTimeout(() => scrollToTop('forgot-password'), 100);
                 }, function(error) {
                     console.log('Reset code sending failed:', error);
                     showToast('❌ Ошибка отправки кода. Код: ' + resetPasswordCode, 'warning', 10000);
                     
-                    // Всё равно показываем второй шаг
                     document.getElementById('forgot-step-1').style.display = 'none';
                     document.getElementById('forgot-step-2').style.display = 'block';
                     document.getElementById('forgot-error').textContent = '';
+                    
+                    setTimeout(() => scrollToTop('forgot-password'), 100);
                 });
             } else {
-                // Если EmailJS не загружен
                 showToast('⚠️ Код для теста: ' + resetPasswordCode, 'warning', 10000);
                 
                 document.getElementById('forgot-step-1').style.display = 'none';
                 document.getElementById('forgot-step-2').style.display = 'block';
                 document.getElementById('forgot-error').textContent = '';
+                
+                setTimeout(() => scrollToTop('forgot-password'), 100);
             }
         }
 
@@ -3192,14 +3330,12 @@
             try {
                 showToast('⏳ Отправляем запрос...', 'info');
                 
-                // Используем стандартный Firebase сброс пароля
                 await auth.sendPasswordResetEmail(resetPasswordEmail);
                 
                 document.getElementById('forgot-success').textContent = '✅ Письмо для сброса пароля отправлено! Проверьте почту.';
                 document.getElementById('forgot-step2-error').textContent = '';
                 showToast('✅ Письмо отправлено!', 'success');
                 
-                // Через 3 секунды возвращаемся на вход
                 setTimeout(() => {
                     goBackToSignIn();
                 }, 3000);
@@ -3218,6 +3354,8 @@
             document.getElementById('forgot-confirm-password').value = '';
             document.getElementById('forgot-step2-error').textContent = '';
             document.getElementById('forgot-success').textContent = '';
+            
+            setTimeout(() => scrollToTop('forgot-password'), 100);
         }
 
         function showForgotPassword() {
@@ -3232,6 +3370,8 @@
             document.getElementById('forgot-error').textContent = '';
             document.getElementById('forgot-step2-error').textContent = '';
             document.getElementById('forgot-success').textContent = '';
+            
+            setTimeout(() => scrollToTop('forgot-password'), 100);
         }
 
         function goBackToSignIn() {
@@ -3240,8 +3380,12 @@
             document.getElementById('forgot-code').value = '';
             document.getElementById('forgot-new-password').value = '';
             document.getElementById('forgot-confirm-password').value = '';
+            
+            switchAuthTab('signin');
+            setTimeout(() => scrollToTop('auth'), 100);
         }
 
+        // ========== ФУНКЦИИ АВТОРИЗАЦИИ ==========
         function signIn() {
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
@@ -3338,6 +3482,7 @@
             document.getElementById('auth-error').textContent = '';
         }
 
+        // ========== НАВИГАЦИЯ ==========
         function switchSearchTab(tab) {
             currentSearchTab = tab;
             document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
@@ -3351,7 +3496,6 @@
             document.getElementById('chat-panel').classList.remove('active');
             toggleFabButton(true);
             
-            // Показываем нижнюю навигацию при возврате к списку чатов
             document.getElementById('bottomNav').classList.remove('hidden');
         }
 
@@ -3359,7 +3503,6 @@
             document.getElementById('chat-panel').classList.remove('active');
             toggleFabButton(true);
             
-            // Показываем нижнюю навигацию при возврате к списку чатов
             document.getElementById('bottomNav').classList.remove('hidden');
             
             if (currentChatWith) {
@@ -3401,7 +3544,6 @@
             document.getElementById('input-area').style.display = 'block';
             messageElements.clear();
             
-            // Скрываем нижнюю навигацию при открытии чата
             document.getElementById('bottomNav').classList.add('hidden');
             
             lastMessageDate = null;
@@ -5189,7 +5331,6 @@
                     document.getElementById('chats-container').innerHTML = '';
                     document.getElementById('chat-panel').classList.remove('active');
                     
-                    // Показываем нижнюю навигацию при входе
                     document.getElementById('bottomNav').classList.remove('hidden');
                     
                     onlineStatusRef = db.ref('status/' + user.uid);
@@ -5312,6 +5453,7 @@
             });
             
             setupSearch();
+            setupMobileForms();
             initFirebase();
         });
 
@@ -5336,6 +5478,13 @@
                             setTimeout(() => {
                                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
                             }, 100);
+                        }
+                        
+                        const activeElement = document.activeElement;
+                        if (activeElement && ['INPUT', 'TEXTAREA'].includes(activeElement.tagName)) {
+                            setTimeout(() => {
+                                activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }, 200);
                         }
                     } 
                     else if (newHeight - originalHeight > 100) {
