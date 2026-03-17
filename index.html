@@ -80,6 +80,7 @@
             --reply-border: #667eea;
             --reply-bg: rgba(102, 126, 234, 0.1);
             --reply-hover: rgba(102, 126, 234, 0.2);
+            --bg-primary-rgb: 255, 255, 255;
         }
 
         body.dark-theme {
@@ -116,6 +117,7 @@
             --reply-border: #9d4edd;
             --reply-bg: rgba(157, 78, 221, 0.2);
             --reply-hover: rgba(157, 78, 221, 0.3);
+            --bg-primary-rgb: 26, 26, 46;
         }
 
         /* Фильтры для иконок в темной теме */
@@ -2375,15 +2377,28 @@
                 height: 100vh;
                 height: -webkit-fill-available;
                 -webkit-mask-image: none;
+                background: transparent !important;
             }
             
             body {
-                background: var(--bg-primary);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            
+            .messenger-header,
+            .search-section,
+            .bottom-nav,
+            #chat-panel,
+            .chats-list,
+            #welcome-screen,
+            #input-area,
+            .reply-preview,
+            .selection-bar,
+            #messages {
+                background: var(--bg-primary) !important;
             }
             
             .bottom-nav {
                 padding-bottom: env(safe-area-inset-bottom, 0);
-                background: var(--bg-primary);
                 position: relative;
                 z-index: 1000;
             }
@@ -2440,6 +2455,7 @@
                 padding: 25px 20px;
                 max-height: 85vh;
                 -webkit-mask-image: none;
+                background: var(--bg-primary) !important;
             }
             
             .input-group input,
@@ -2849,25 +2865,31 @@
     <!-- Firebase и EmailJS - оптимизированная загрузка -->
     <script>
         (function loadScripts() {
-            const scripts = [
-                'https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js',
-                'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js',
-                'https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js',
-                'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js'
-            ];
-            
+            // Загружаем Firebase самым первым
             const firebaseScript = document.createElement('script');
-            firebaseScript.src = scripts[0];
+            firebaseScript.src = 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js';
             firebaseScript.async = true;
             document.head.appendChild(firebaseScript);
             
             firebaseScript.onload = () => {
-                scripts.slice(1).forEach(src => {
-                    const script = document.createElement('script');
-                    script.src = src;
-                    script.async = true;
-                    document.head.appendChild(script);
-                });
+                // Загружаем остальные Firebase модули параллельно
+                const authScript = document.createElement('script');
+                authScript.src = 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js';
+                authScript.async = true;
+                document.head.appendChild(authScript);
+                
+                const dbScript = document.createElement('script');
+                dbScript.src = 'https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js';
+                dbScript.async = true;
+                document.head.appendChild(dbScript);
+                
+                // EmailJS загружаем с меньшим приоритетом
+                setTimeout(() => {
+                    const emailScript = document.createElement('script');
+                    emailScript.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+                    emailScript.async = true;
+                    document.head.appendChild(emailScript);
+                }, 500);
             };
         })();
     </script>
@@ -2930,6 +2952,18 @@
         let isSendingPhoto = false;
         let isSendingEmoji = false;
 
+        // ========== ФУНКЦИИ ОПТИМИЗАЦИИ ==========
+        function enableFirebasePersistence() {
+            try {
+                if (db) {
+                    db.ref().keepSynced(true);
+                    console.log('✅ Firebase persistence enabled');
+                }
+            } catch (e) {
+                console.log('Firebase persistence error:', e);
+            }
+        }
+
         // ========== ИНИЦИАЛИЗАЦИЯ FIREBASE ==========
         function initFirebase() {
             if (!window.firebase) {
@@ -2939,6 +2973,9 @@
             firebase.initializeApp(firebaseConfig);
             window.auth = firebase.auth();
             window.db = firebase.database();
+            
+            // Включаем кэширование
+            enableFirebasePersistence();
             
             try {
                 if (typeof emailjs !== 'undefined') {
@@ -3480,6 +3517,185 @@
                 document.getElementById('signup-form').classList.add('active');
             }
             document.getElementById('auth-error').textContent = '';
+        }
+
+        // ========== УСКОРЕННАЯ ПРОВЕРКА АВТОРИЗАЦИИ ==========
+        function setupAuthListener() {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // СРАЗУ показываем приложение
+                    document.getElementById('appContainer').style.display = 'flex';
+                    document.getElementById('auth').style.display = 'none';
+                    document.getElementById('forgot-password').style.display = 'none';
+                    document.getElementById('verify-email').style.display = 'none';
+                    
+                    currentUser = user;
+                    
+                    // Очищаем старые данные
+                    messageElements.clear();
+                    messageStatusListeners.clear();
+                    statusListeners.clear();
+                    unreadCounts.clear();
+                    selectedChats.clear();
+                    chatsData = [];
+                    lastMessageDate = null;
+                    
+                    document.getElementById('messages').innerHTML = '';
+                    document.getElementById('chats-container').innerHTML = '';
+                    document.getElementById('chat-panel').classList.remove('active');
+                    document.getElementById('bottomNav').classList.remove('hidden');
+                    
+                    // Показываем тост загрузки
+                    showToast('🔄 Загрузка...', 'info', 1000);
+                    
+                    // Загружаем данные пользователя
+                    db.ref('users/' + user.uid).once('value', snap => {
+                        const data = snap.val();
+                        if (data?.avatar) {
+                            document.getElementById('header-avatar').innerHTML = `<img src="${data.avatar}" style="width:100%;height:100%;object-fit:cover;">`;
+                        } else {
+                            document.getElementById('header-avatar').textContent = getInitial(data?.name);
+                        }
+                        if (data?.theme) applyTheme(data.theme);
+                        userCache.set(user.uid, data);
+                    });
+                    
+                    // Статус онлайн
+                    onlineStatusRef = db.ref('status/' + user.uid);
+                    onlineStatusRef.set({ online: true, lastSeen: Date.now() });
+                    
+                    // Загружаем чаты (самое быстрое)
+                    loadChats();
+                    
+                    // ВСЕ ОСТАЛЬНОЕ ДЕЛАЕМ В ФОНЕ
+                    setTimeout(() => {
+                        if (!currentUser) return;
+                        
+                        // Создаем бота если нужно
+                        db.ref('users/' + BOT_UID).once('value', botSnap => {
+                            if (!botSnap.exists()) {
+                                db.ref('users/' + BOT_UID).set({
+                                    name: BOT_DISPLAY_NAME,
+                                    username: BOT_USERNAME,
+                                    bio: '🤖 Официальный бот LuniMays',
+                                    isBot: true,
+                                    verified: true,
+                                    createdAt: Date.now(),
+                                    avatar: 'https://ui-avatars.com/api/?name=LM&background=9d4edd&color=fff&size=128'
+                                });
+                                db.ref('usernames/' + BOT_USERNAME).set(BOT_UID);
+                            }
+                        });
+                        
+                        // Обновляем верифицированных пользователей
+                        VERIFIED_USERS.forEach(uid => {
+                            db.ref('users/' + uid).update({ verified: true });
+                        });
+                        
+                        // Проверяем наличие чата с ботом
+                        db.ref('userChats/' + currentUser.uid).once('value', chatsSnap => {
+                            const chats = chatsSnap.val() || {};
+                            let hasBotChat = false;
+                            
+                            Object.values(chats).forEach(chat => {
+                                if (chat.withUid === BOT_UID) hasBotChat = true;
+                            });
+                            
+                            if (!hasBotChat) {
+                                createBotChatInBackground();
+                            }
+                        });
+                        
+                        // Проверяем проблемные чаты
+                        db.ref('userChats/' + currentUser.uid).once('value', chatsSnap => {
+                            const chats = chatsSnap.val() || {};
+                            let hasProblems = false;
+                            
+                            for (const [chatId, chatData] of Object.entries(chats)) {
+                                if (!chatData.withUid || chatData.withUid === 'undefined' || chatId.includes('undefined')) {
+                                    hasProblems = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (hasProblems) {
+                                setTimeout(() => {
+                                    showToast('🔍 Есть проблемные чаты. Зайдите в настройки', 'warning', 4000);
+                                }, 2000);
+                            }
+                        });
+                        
+                    }, 100); // Задержка 100мс, чтобы интерфейс загрузился первым
+                    
+                } else {
+                    document.getElementById('appContainer').style.display = 'none';
+                    document.getElementById('auth').style.display = 'block';
+                    document.getElementById('verify-email').style.display = 'none';
+                    document.getElementById('forgot-password').style.display = 'none';
+                    
+                    currentUser = null;
+                    currentChatWith = null;
+                    messageElements.clear();
+                    messageStatusListeners.clear();
+                    statusListeners.clear();
+                    unreadCounts.clear();
+                    selectedChats.clear();
+                    chatsData = [];
+                    lastMessageDate = null;
+                    userCache.clear();
+                    
+                    if (messageListener) {
+                        messageListener.off();
+                        messageListener = null;
+                    }
+                    
+                    cancelSelection();
+                }
+            });
+        }
+
+        // Функция для создания чата с ботом в фоне
+        function createBotChatInBackground() {
+            if (!currentUser) return;
+            
+            const chatId = getChatId(currentUser.uid, BOT_UID);
+            const timestamp = Date.now();
+            const welcomeMessage = '👋 Привет! Я официальный бот LuniMays. Здесь будут новости и обновления!';
+            
+            db.ref('userChats/' + currentUser.uid + '/' + chatId).once('value', exists => {
+                if (!exists.exists()) {
+                    db.ref('userChats/' + currentUser.uid + '/' + chatId).set({
+                        withUid: BOT_UID,
+                        withUsername: BOT_USERNAME,
+                        lastMessage: welcomeMessage.substring(0, 50) + '...',
+                        lastMessageTime: timestamp,
+                        lastMessageSender: BOT_UID,
+                        lastMessageText: welcomeMessage
+                    });
+                    
+                    db.ref('users/' + currentUser.uid + '/username').once('value', userSnap => {
+                        const userUsername = userSnap.val();
+                        
+                        db.ref('userChats/' + BOT_UID + '/' + chatId).set({
+                            withUid: currentUser.uid,
+                            withUsername: userUsername,
+                            lastMessage: welcomeMessage.substring(0, 50) + '...',
+                            lastMessageTime: timestamp,
+                            lastMessageSender: BOT_UID,
+                            lastMessageText: welcomeMessage
+                        });
+                        
+                        db.ref('chats/' + chatId + '/messages').push({
+                            sender: BOT_UID,
+                            senderUsername: BOT_USERNAME,
+                            type: 'text',
+                            text: welcomeMessage,
+                            timestamp: timestamp,
+                            readBy: {}
+                        });
+                    });
+                }
+            });
         }
 
         // ========== НАВИГАЦИЯ ==========
@@ -5052,91 +5268,6 @@
             document.body.style.overflow = '';
         }
 
-        async function createBot() {
-            const botRef = db.ref('users/' + BOT_UID);
-            const botSnapshot = await botRef.once('value');
-            
-            if (!botSnapshot.exists()) {
-                await botRef.set({
-                    name: BOT_DISPLAY_NAME,
-                    username: BOT_USERNAME,
-                    bio: '🤖 Официальный бот LuniMays. Здесь будут новости и обновления!',
-                    isBot: true,
-                    verified: true,
-                    createdAt: Date.now(),
-                    avatar: 'https://ui-avatars.com/api/?name=LM&background=9d4edd&color=fff&size=128'
-                });
-                
-                await db.ref('usernames/' + BOT_USERNAME).set(BOT_UID);
-                console.log('✅ Бот создан');
-            } else {
-                await botRef.update({
-                    isBot: true,
-                    verified: true,
-                    name: BOT_DISPLAY_NAME
-                });
-                console.log('✅ Бот обновлен');
-            }
-        }
-
-        async function updateVerifiedUsers() {
-            for (let uid of VERIFIED_USERS) {
-                await db.ref('users/' + uid).update({ verified: true });
-            }
-        }
-
-        async function createBotChat() {
-            if (!currentUser) return;
-            
-            const chatId = getChatId(currentUser.uid, BOT_UID);
-            const timestamp = Date.now();
-            const welcomeMessage = '👋 Привет! Я официальный бот LuniMays. Здесь будут новости и обновления!';
-            
-            const existingChat = await db.ref('userChats/' + currentUser.uid + '/' + chatId).once('value');
-            
-            if (!existingChat.exists()) {
-                await db.ref('userChats/' + currentUser.uid + '/' + chatId).set({
-                    withUid: BOT_UID,
-                    withUsername: BOT_USERNAME,
-                    lastMessage: welcomeMessage.substring(0, 50) + '...',
-                    lastMessageTime: timestamp,
-                    lastMessageSender: BOT_UID,
-                    lastMessageText: welcomeMessage
-                });
-                
-                const userSnap = await db.ref('users/' + currentUser.uid + '/username').once('value');
-                const userUsername = userSnap.val();
-                
-                await db.ref('userChats/' + BOT_UID + '/' + chatId).set({
-                    withUid: currentUser.uid,
-                    withUsername: userUsername,
-                    lastMessage: welcomeMessage.substring(0, 50) + '...',
-                    lastMessageTime: timestamp,
-                    lastMessageSender: BOT_UID,
-                    lastMessageText: welcomeMessage
-                });
-                
-                await db.ref('chats/' + chatId + '/messages').push({
-                    sender: BOT_UID,
-                    senderUsername: BOT_USERNAME,
-                    type: 'text',
-                    text: welcomeMessage,
-                    timestamp: timestamp,
-                    readBy: {}
-                });
-                
-                showToast('✅ Чат с ботом создан!', 'success');
-                
-                setTimeout(() => {
-                    db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
-                        updateChatsList(snap.val() || {});
-                    });
-                }, 1000);
-                
-                openChat(BOT_UID, BOT_USERNAME);
-            }
-        }
-
         function setupSearch() {
             const searchInput = document.getElementById('search-input');
             if (searchInput) {
@@ -5307,123 +5438,6 @@
                 clearTimeout(timer);
                 timer = setTimeout(() => fn.apply(this, args), delay);
             };
-        }
-
-        function setupAuthListener() {
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    document.getElementById('appContainer').style.display = 'flex';
-                    document.getElementById('auth').style.display = 'none';
-                    document.getElementById('forgot-password').style.display = 'none';
-                    document.getElementById('verify-email').style.display = 'none';
-                    
-                    currentUser = user;
-                    
-                    messageElements.clear();
-                    messageStatusListeners.clear();
-                    statusListeners.clear();
-                    unreadCounts.clear();
-                    selectedChats.clear();
-                    chatsData = [];
-                    lastMessageDate = null;
-                    
-                    document.getElementById('messages').innerHTML = '';
-                    document.getElementById('chats-container').innerHTML = '';
-                    document.getElementById('chat-panel').classList.remove('active');
-                    
-                    document.getElementById('bottomNav').classList.remove('hidden');
-                    
-                    onlineStatusRef = db.ref('status/' + user.uid);
-                    onlineStatusRef.set({ online: true, lastSeen: Date.now() });
-                    
-                    setInterval(() => {
-                        if (!document.hidden && currentUser) {
-                            onlineStatusRef.update({ online: true, lastSeen: Date.now() });
-                        }
-                    }, 30000);
-                    
-                    document.addEventListener('visibilitychange', () => {
-                        if (currentUser) {
-                            onlineStatusRef.set({
-                                online: !document.hidden,
-                                lastSeen: Date.now()
-                            });
-                        }
-                    });
-                    
-                    db.ref('users/' + user.uid).once('value', snap => {
-                        const data = snap.val();
-                        if (data?.avatar) {
-                            document.getElementById('header-avatar').innerHTML = `<img src="${data.avatar}" style="width:100%;height:100%;object-fit:cover;">`;
-                        } else {
-                            document.getElementById('header-avatar').textContent = getInitial(data?.name);
-                        }
-                        if (data?.theme) applyTheme(data.theme);
-                        userCache.set(user.uid, data);
-                    });
-                    
-                    Promise.all([createBot(), updateVerifiedUsers()]).then(() => {
-                        loadChats();
-                        
-                        setTimeout(() => {
-                            if (currentUser) {
-                                db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
-                                    const chats = snap.val() || {};
-                                    let hasBotChat = false;
-                                    
-                                    Object.values(chats).forEach(chat => {
-                                        if (chat.withUid === BOT_UID) hasBotChat = true;
-                                    });
-                                    
-                                    if (!hasBotChat) {
-                                        createBotChat();
-                                    }
-                                });
-                                
-                                db.ref('userChats/' + currentUser.uid).once('value', (snap) => {
-                                    const chats = snap.val() || {};
-                                    let hasProblems = false;
-                                    
-                                    for (const [chatId, chatData] of Object.entries(chats)) {
-                                        if (!chatData.withUid || chatData.withUid === 'undefined' || chatId.includes('undefined')) {
-                                            hasProblems = true;
-                                            break;
-                                        }
-                                    }
-                                    
-                                    if (hasProblems) {
-                                        showToast('🔍 Найдены проблемные чаты. Нажмите "Очистить" в настройках', 'warning', 5000);
-                                    }
-                                });
-                            }
-                        }, 2000);
-                    });
-                    
-                } else {
-                    document.getElementById('appContainer').style.display = 'none';
-                    document.getElementById('auth').style.display = 'block';
-                    document.getElementById('verify-email').style.display = 'none';
-                    document.getElementById('forgot-password').style.display = 'none';
-                    
-                    currentUser = null;
-                    currentChatWith = null;
-                    messageElements.clear();
-                    messageStatusListeners.clear();
-                    statusListeners.clear();
-                    unreadCounts.clear();
-                    selectedChats.clear();
-                    chatsData = [];
-                    lastMessageDate = null;
-                    userCache.clear();
-                    
-                    if (messageListener) {
-                        messageListener.off();
-                        messageListener = null;
-                    }
-                    
-                    cancelSelection();
-                }
-            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
