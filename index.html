@@ -1501,6 +1501,9 @@
             z-index: 110;
             flex-shrink: 0;
             width: 100%;
+            position: sticky;
+            bottom: 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
 
         .input-wrapper {
@@ -1909,7 +1912,7 @@
             flex: 1;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            padding-bottom: 20px;
+            padding-bottom: 40px;
         }
 
         .profile-avatar-section {
@@ -3198,6 +3201,22 @@
             
             .fab-button.selection-active {
                 bottom: max(90px, calc(var(--sab) + 70px));
+            }
+
+            /* Исправление для чата на мобильных */
+            #chat-panel.active {
+                bottom: 0;
+                height: 100%;
+            }
+            
+            /* Скрываем навигацию когда открыт чат */
+            #chat-panel.active ~ .bottom-nav {
+                display: none !important;
+            }
+            
+            /* Увеличиваем отступ для сообщений */
+            #messages {
+                padding-bottom: 20px;
             }
 
             /* Модалки на мобильных */
@@ -5241,7 +5260,8 @@
             // Показываем FAB кнопку
             toggleFabButton(true);
             
-            // Навигация всегда видна
+            // Показываем навигацию
+            document.getElementById('bottomNav').style.display = 'flex';
         }
 
         function showProfileTab() {
@@ -5267,6 +5287,9 @@
             document.getElementById('chat-panel').classList.remove('active');
             document.getElementById('settings-panel').style.display = 'none';
             document.getElementById('settings-panel').classList.remove('active');
+            
+            // Показываем навигацию
+            document.getElementById('bottomNav').style.display = 'flex';
             
             // Загружаем данные
             loadProfileData();
@@ -5296,12 +5319,18 @@
             document.getElementById('profile-panel').style.display = 'none';
             document.getElementById('profile-panel').classList.remove('active');
             
+            // Показываем навигацию
+            document.getElementById('bottomNav').style.display = 'flex';
+            
             // Загружаем данные
             loadSettingsData();
         }
 
         function goToSidebar() {
             showChatsTab();
+            
+            // Показываем навигацию обратно
+            document.getElementById('bottomNav').style.display = 'flex';
             
             if (currentChatWith) {
                 db.ref('status/' + currentChatWith.uid).off();
@@ -5357,6 +5386,9 @@
             document.getElementById('profile-panel').classList.remove('active');
             document.getElementById('settings-panel').style.display = 'none';
             document.getElementById('settings-panel').classList.remove('active');
+            
+            // ВАЖНО: Скрываем навигацию в чате
+            document.getElementById('bottomNav').style.display = 'none';
             
             // Скрываем FAB
             toggleFabButton(false);
