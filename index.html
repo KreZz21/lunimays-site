@@ -106,14 +106,14 @@
             --sab: env(safe-area-inset-bottom, 0);
         }
 
-        /* ЗАГРУЗОЧНЫЙ ЭКРАН - БЕЛЫЙ ФОН */
+        /* ЗАГРУЗОЧНЫЙ ЭКРАН */
         #splash-screen {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -141,17 +141,16 @@
             max-width: 160px;
             width: auto;
             height: auto;
-            filter: drop-shadow(0 4px 15px rgba(0,0,0,0.1));
+            filter: drop-shadow(0 4px 15px rgba(0,0,0,0.2));
         }
 
         .splash-title {
             font-size: 28px;
             font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: white;
             letter-spacing: 2px;
             margin-bottom: 30px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
         .splash-dots {
@@ -164,7 +163,7 @@
         .splash-dot {
             width: 12px;
             height: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: rgba(255,255,255,0.6);
             border-radius: 50%;
             animation: bounce 1.4s infinite ease-in-out;
         }
@@ -225,6 +224,7 @@
             padding-top: var(--sat);
         }
 
+        /* ШАПКА */
         .messenger-header {
             padding: 16px 20px;
             border-bottom: 1px solid var(--border-color);
@@ -299,6 +299,7 @@
             display: block;
         }
 
+        /* ПОИСК */
         .search-section {
             padding: 12px 20px;
             border-bottom: 1px solid var(--border-color);
@@ -338,6 +339,7 @@
         .search-icon img {
             width: 18px;
             height: 18px;
+            opacity: 0.6;
         }
 
         .search-tabs {
@@ -437,6 +439,7 @@
             flex-shrink: 0;
         }
 
+        /* СПИСОК ЧАТОВ */
         .chats-list {
             flex: 1;
             overflow-y: auto;
@@ -454,10 +457,6 @@
             position: relative;
             min-height: 80px;
             -webkit-tap-highlight-color: transparent;
-        }
-
-        .chat-item:hover {
-            background-color: var(--hover-bg);
         }
 
         .chat-item:active {
@@ -565,6 +564,7 @@
             padding: 0 6px;
         }
 
+        /* НИЖНЯЯ НАВИГАЦИЯ */
         .bottom-nav {
             display: flex;
             border-top: 1px solid var(--border-color);
@@ -603,8 +603,14 @@
         .nav-icon img {
             width: 24px;
             height: 24px;
+            filter: invert(0.5);
         }
 
+        .nav-item.active .nav-icon img {
+            filter: invert(0) brightness(0) sepia(1) hue-rotate(180deg) saturate(5);
+        }
+
+        /* ЧАТ ПАНЕЛЬ */
         #chat-panel {
             display: none;
             position: absolute;
@@ -729,6 +735,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        /* СООБЩЕНИЯ */
         .message-wrapper {
             position: relative;
             max-width: 85%;
@@ -911,6 +918,7 @@
             border: 1px solid var(--border-color);
         }
 
+        /* ПОЛЕ ВВОДА */
         #input-area {
             padding: 16px;
             padding-bottom: max(16px, var(--sab));
@@ -968,11 +976,6 @@
             background: var(--input-bg);
             border: 2px solid var(--border-color);
             font-size: 18px;
-        }
-
-        .photo-button img {
-            width: 22px;
-            height: 22px;
         }
 
         .reply-preview {
@@ -1087,6 +1090,7 @@
 
         .fab-button.hidden { display: none; }
 
+        /* ПРОФИЛЬ ПАНЕЛЬ */
         #profile-panel {
             display: none;
             position: absolute;
@@ -1164,7 +1168,6 @@
             margin-bottom: 20px;
             position: relative;
             cursor: pointer;
-            overflow: hidden;
         }
 
         .profile-avatar-large img {
@@ -1360,6 +1363,7 @@
             border: 1px solid var(--delete-color);
         }
 
+        /* НАСТРОЙКИ ПАНЕЛЬ */
         #settings-panel {
             display: none;
             position: absolute;
@@ -1537,6 +1541,7 @@
             color: var(--text-muted);
         }
 
+        /* ПРИВЕТСТВИЕ В ЧАТЕ */
         .welcome-chat-message {
             display: flex;
             align-items: center;
@@ -1591,6 +1596,7 @@
             cursor: pointer;
         }
 
+        /* ПРИВЕТСТВИЕ ГЛАВНОЕ */
         #welcome-screen {
             display: none;
             flex-direction: column;
@@ -1641,6 +1647,7 @@
             font-weight: 500;
         }
 
+        /* МОДАЛКИ */
         .toast-container {
             position: fixed;
             bottom: 30px;
@@ -1797,6 +1804,21 @@
             color: white;
         }
 
+        /* АВТОРИЗАЦИЯ */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1999;
+            display: none;
+        }
+
+        .modal-backdrop.active { display: block; }
+
         #auth, #forgot-password, #verify-email {
             width: 90%;
             max-width: 400px;
@@ -1940,32 +1962,26 @@
     </div>
 
     <div id="appContainer" style="display: none;">
-        <!-- ШАПКА - КАРТИНКИ -->
+        <!-- ШАПКА -->
         <div class="messenger-header" id="mainHeader">
             <div class="header-left" onclick="openSettingsPanel()">
                 <div class="profile-avatar" id="header-avatar">L</div>
                 <span class="header-title">LuniMays</span>
             </div>
             <div class="header-actions">
-                <button class="icon-button" onclick="selectPhoto()">
-                    <img src="https://abrakadabra.fun/uploads/posts/2021-12/1640216608_1-abrakadabra-fun-p-logotip-instagram-cherno-belii-1.png" alt="photo">
-                </button>
-                <button class="icon-button" onclick="openSettingsPanel()">
-                    <img src="https://images.icon-icons.com/1131/PNG/512/pencil_80423.png" alt="edit">
-                </button>
+                <button class="icon-button" onclick="selectPhoto()">📷</button>
+                <button class="icon-button" onclick="openSettingsPanel()">⚙️</button>
             </div>
         </div>
 
-        <!-- ПОИСК - ЛУПА КАРТИНКА -->
+        <!-- ПОИСК -->
         <div class="search-section" id="searchSection">
             <div class="search-tabs">
                 <div class="search-tab active" onclick="switchSearchTab('users')">👥 Люди</div>
                 <div class="search-tab" onclick="switchSearchTab('messages')">💬 Сообщения</div>
             </div>
             <div class="search-wrapper">
-                <span class="search-icon">
-                    <img src="https://cdn-icons-png.flaticon.com/512/109/109164.png" alt="search">
-                </span>
+                <span class="search-icon">🔍</span>
                 <input type="text" class="search-input" id="search-input" placeholder="Поиск...">
             </div>
             <div id="search-results"></div>
@@ -1989,12 +2005,10 @@
             </button>
         </div>
 
-        <!-- НИЖНЯЯ НАВИГАЦИЯ - КАРТИНКИ -->
+        <!-- НИЖНЯЯ НАВИГАЦИЯ -->
         <div class="bottom-nav" id="bottomNav">
             <button class="nav-item active" onclick="showChatsTab()">
-                <span class="nav-icon">
-                    <img src="https://images.icon-icons.com/984/PNG/512/Untitled-1-02_icon-icons.com_75124.png" alt="chats">
-                </span>
+                <span class="nav-icon">💬</span>
                 <span>Чаты</span>
             </button>
             <button class="nav-item" onclick="showProfileTab()">
@@ -2002,19 +2016,15 @@
                 <span>Профиль</span>
             </button>
             <button class="nav-item" onclick="openSettingsPanel()">
-                <span class="nav-icon">
-                    <img src="https://cdn-icons-png.flaticon.com/512/263/263074.png" alt="settings">
-                </span>
+                <span class="nav-icon">⚙️</span>
                 <span>Настройки</span>
             </button>
         </div>
 
-        <!-- ЧАТ ПАНЕЛЬ - КАРТИНКИ (НАЗАД, ФОТО), ОТПРАВКА - ЭМОДЗИ -->
+        <!-- ЧАТ ПАНЕЛЬ -->
         <div id="chat-panel">
             <div class="chat-header-detail">
-                <div class="back-button" onclick="goToSidebar()">
-                    <img src="https://cdn-icons-png.flaticon.com/512/93/93634.png" alt="back" style="width:20px;height:20px;">
-                </div>
+                <div class="back-button" onclick="goToSidebar()">←</div>
                 <div class="chat-avatar-large" id="chat-avatar-large">?</div>
                 <div class="chat-info-detail" onclick="openUserProfile(currentChatWith?.uid)">
                     <div class="chat-name-detail" id="chat-name"></div>
@@ -2036,16 +2046,14 @@
             <div id="input-area">
                 <div id="photo-preview"></div>
                 <div class="input-wrapper">
-                    <button class="photo-button" onclick="selectPhoto()">
-                        <img src="https://abrakadabra.fun/uploads/posts/2021-12/1640216608_1-abrakadabra-fun-p-logotip-instagram-cherno-belii-1.png" alt="photo" style="width:22px;height:22px;">
-                    </button>
+                    <button class="photo-button" onclick="selectPhoto()">📷</button>
                     <input type="text" id="messageInput" placeholder="Напишите сообщение..." oninput="handleTyping()">
                     <button class="send-button" onclick="sendMessage()">➤</button>
                 </div>
             </div>
         </div>
 
-        <!-- ПРОФИЛЬ ПАНЕЛЬ - ЭМОДЗИ -->
+        <!-- ПРОФИЛЬ ПАНЕЛЬ -->
         <div id="profile-panel">
             <div class="profile-header">
                 <div class="back-button" onclick="goToSidebarFromProfile()">←</div>
@@ -2057,7 +2065,7 @@
                 <div class="profile-avatar-section">
                     <div class="profile-avatar-large" id="profile-avatar" onclick="selectProfilePhoto()">
                         <span id="profile-avatar-text">👤</span>
-                        <div class="profile-avatar-edit" onclick="event.stopPropagation(); selectProfilePhoto()">✎</div>
+                        <div class="profile-avatar-edit" onclick="event.stopPropagation(); openSettingsPanel()">✎</div>
                     </div>
                     <h2 class="profile-name" id="profile-name">Загрузка...</h2>
                     <div class="profile-status" id="profile-status">
@@ -2132,7 +2140,7 @@
             </div>
         </div>
 
-        <!-- НАСТРОЙКИ ПАНЕЛЬ - ЭМОДЗИ -->
+        <!-- НАСТРОЙКИ ПАНЕЛЬ -->
         <div id="settings-panel">
             <div class="settings-header">
                 <div class="back-button" onclick="goToSidebarFromSettings()">←</div>
@@ -2294,10 +2302,7 @@
     </div>
 
     <div id="verify-email" style="display: none;">
-        <div class="auth-header">
-            <h2>📧 Подтверждение</h2>
-            <p id="verification-email-display" style="color: var(--text-secondary); margin-top: 5px;"></p>
-        </div>
+        <div class="auth-header"><h2>📧 Подтверждение</h2><p id="verification-email-display"></p></div>
         <div class="input-group"><label>Код</label><input type="text" id="verification-code" maxlength="6" placeholder="------" style="text-align: center; letter-spacing: 5px; font-size: 24px;"></div>
         <button class="auth-btn primary" onclick="verifyEmailCode()" id="verify-btn">Подтвердить</button>
         <button class="auth-btn" onclick="goBackToSignUp()">Назад</button>
@@ -2630,28 +2635,21 @@
             if (!text) { showToast('Введите сообщение', 'warning'); return; }
             
             isSending = true;
-            const sendButton = document.querySelector('.send-button');
-            if (sendButton) sendButton.disabled = true;
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
             
             db.ref('users/' + currentUser.uid).once('value', snap => {
                 const user = snap.val();
-                if (!user?.username) { 
-                    isSending = false; 
-                    if (sendButton) sendButton.disabled = false;
-                    return; 
-                }
+                if (!user?.username) { isSending = false; sendBtn.disabled = false; return; }
                 
                 const chatId = getChatId(currentUser.uid, currentChatWith.uid);
                 const timestamp = Date.now();
                 const msg = {
-                    sender: currentUser.uid, 
-                    senderUsername: user.username,
-                    type: 'text', 
-                    text: text, 
-                    timestamp: timestamp, 
-                    readBy: {}
+                    sender: currentUser.uid, senderUsername: user.username,
+                    type: 'text', text: text, timestamp: timestamp, readBy: {}
                 };
                 
+                // ВАЖНО: добавляем ответ на сообщение
                 if (replyToMessage && replyToMessage.id) {
                     msg.replyTo = {
                         id: replyToMessage.id,
@@ -2664,16 +2662,12 @@
                     const lastMsg = text.substring(0, 50) + (text.length > 50 ? '...' : '');
                     return Promise.all([
                         db.ref('userChats/' + currentUser.uid + '/' + chatId).update({
-                            lastMessage: lastMsg, 
-                            lastMessageTime: timestamp,
-                            lastMessageSender: currentUser.uid, 
-                            lastMessageText: text
+                            lastMessage: lastMsg, lastMessageTime: timestamp,
+                            lastMessageSender: currentUser.uid, lastMessageText: text
                         }),
                         db.ref('userChats/' + currentChatWith.uid + '/' + chatId).update({
-                            lastMessage: lastMsg, 
-                            lastMessageTime: timestamp,
-                            lastMessageSender: currentUser.uid, 
-                            lastMessageText: text
+                            lastMessage: lastMsg, lastMessageTime: timestamp,
+                            lastMessageSender: currentUser.uid, lastMessageText: text
                         })
                     ]);
                 }).then(() => {
@@ -2681,14 +2675,8 @@
                     cancelReply();
                     if (typingTimeout) clearTimeout(typingTimeout);
                     db.ref('typing/' + chatId).update({ [currentUser.uid]: null });
-                }).catch(error => { 
-                    console.error('Ошибка при отправке:', error);
-                    showToast('❌ Ошибка при отправке', 'error'); 
-                })
-                .finally(() => { 
-                    isSending = false; 
-                    if (sendButton) sendButton.disabled = false;
-                });
+                }).catch(error => { showToast('❌ Ошибка при отправке', 'error'); })
+                .finally(() => { isSending = false; sendBtn.disabled = false; });
             });
         }
 
@@ -2726,43 +2714,27 @@
                 const chatId = getChatId(currentUser.uid, currentChatWith.uid);
                 const timestamp = Date.now();
                 const msg = {
-                    sender: currentUser.uid, 
-                    senderUsername: user?.username,
-                    type: 'photo', 
-                    photo: photoData, 
-                    timestamp: timestamp, 
-                    readBy: {}
+                    sender: currentUser.uid, senderUsername: user?.username,
+                    type: 'photo', photo: photoData, timestamp: timestamp, readBy: {}
                 };
                 if (replyToMessage && replyToMessage.id) {
                     msg.replyTo = {
-                        id: replyToMessage.id, 
-                        sender: replyToMessage.sender, 
-                        text: replyToMessage.text
+                        id: replyToMessage.id, sender: replyToMessage.sender, text: replyToMessage.text
                     };
                 }
                 db.ref('chats/' + chatId + '/messages').push(msg).then(() => {
                     return Promise.all([
                         db.ref('userChats/' + currentUser.uid + '/' + chatId).update({
-                            lastMessage: '📸 Фото', 
-                            lastMessageTime: timestamp,
-                            lastMessageSender: currentUser.uid, 
-                            lastMessageText: '[Фото]'
+                            lastMessage: '📸 Фото', lastMessageTime: timestamp,
+                            lastMessageSender: currentUser.uid, lastMessageText: '[Фото]'
                         }),
                         db.ref('userChats/' + currentChatWith.uid + '/' + chatId).update({
-                            lastMessage: '📸 Фото', 
-                            lastMessageTime: timestamp,
-                            lastMessageSender: currentUser.uid, 
-                            lastMessageText: '[Фото]'
+                            lastMessage: '📸 Фото', lastMessageTime: timestamp,
+                            lastMessageSender: currentUser.uid, lastMessageText: '[Фото]'
                         })
                     ]);
-                }).then(() => { 
-                    cancelPhoto(); 
-                    cancelReply();
-                })
-                .catch(error => { 
-                    console.error('Ошибка при отправке фото:', error);
-                    showToast('❌ Ошибка при отправке', 'error'); 
-                })
+                }).then(() => { cancelPhoto(); cancelReply(); })
+                .catch(error => { showToast('❌ Ошибка при отправке', 'error'); })
                 .finally(() => { isSendingPhoto = false; });
             });
         }
@@ -3198,42 +3170,6 @@
             document.getElementById('profile-email').textContent = user.email || currentUser.email;
             document.getElementById('profile-username').textContent = '@' + (user.username || 'unknown');
             document.getElementById('profile-bio').textContent = user.bio || 'Нажмите, чтобы добавить информацию о себе';
-            
-            if (user.createdAt) {
-                const regDate = new Date(user.createdAt);
-                const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-                const formattedDate = `${regDate.getDate()} ${months[regDate.getMonth()]} ${regDate.getFullYear()}`;
-                document.getElementById('profile-joined').textContent = formattedDate;
-                const days = Math.floor((Date.now() - user.createdAt) / (1000 * 60 * 60 * 24));
-                document.getElementById('profile-days-count').textContent = days;
-            } else {
-                document.getElementById('profile-joined').textContent = 'неизвестно';
-                document.getElementById('profile-days-count').textContent = '0';
-            }
-            
-            const profileAvatar = document.getElementById('profile-avatar');
-            profileAvatar.innerHTML = '';
-            if (user.avatar) {
-                const img = document.createElement('img');
-                img.src = user.avatar;
-                img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
-                profileAvatar.appendChild(img);
-            } else {
-                profileAvatar.style.background = 'var(--accent-gradient)';
-                profileAvatar.style.display = 'flex';
-                profileAvatar.style.alignItems = 'center';
-                profileAvatar.style.justifyContent = 'center';
-                profileAvatar.textContent = user.name ? user.name[0].toUpperCase() : '?';
-                profileAvatar.style.fontSize = '48px';
-                profileAvatar.style.fontWeight = '600';
-            }
-            
-            const editBtn = document.createElement('div');
-            editBtn.className = 'profile-avatar-edit';
-            editBtn.textContent = '✎';
-            editBtn.onclick = (e) => { e.stopPropagation(); selectProfilePhoto(); };
-            profileAvatar.appendChild(editBtn);
-            
             updateProfileStatus();
             const userChats = await db.ref('userChats/' + currentUser.uid).once('value');
             const chats = userChats.val() || {};
@@ -3294,13 +3230,7 @@
             if (!newName) { showToast('Введите имя', 'error'); return; }
             await db.ref('users/' + currentUser.uid).update({ name: newName });
             document.getElementById('settings-name-display').textContent = newName;
-            const headerAvatar = document.getElementById('header-avatar');
-            headerAvatar.innerHTML = '';
-            headerAvatar.style.background = 'var(--accent-gradient)';
-            headerAvatar.style.display = 'flex';
-            headerAvatar.style.alignItems = 'center';
-            headerAvatar.style.justifyContent = 'center';
-            headerAvatar.textContent = getInitial(newName);
+            document.getElementById('header-avatar').innerHTML = getInitial(newName);
             closeNameDialog();
             showToast('✅ Имя сохранено', 'success');
         }
@@ -3373,19 +3303,10 @@
                     db.ref('users/' + user.uid).once('value', snap => {
                         const data = snap.val();
                         if (data?.theme) { currentTheme = data.theme; toggleTheme(); }
-                        const headerAvatar = document.getElementById('header-avatar');
-                        headerAvatar.innerHTML = '';
                         if (data?.avatar) {
-                            const img = document.createElement('img');
-                            img.src = data.avatar;
-                            img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
-                            headerAvatar.appendChild(img);
+                            document.getElementById('header-avatar').innerHTML = `<img src="${data.avatar}" style="width:100%;height:100%;object-fit:cover;">`;
                         } else if (data?.name) {
-                            headerAvatar.style.background = 'var(--accent-gradient)';
-                            headerAvatar.style.display = 'flex';
-                            headerAvatar.style.alignItems = 'center';
-                            headerAvatar.style.justifyContent = 'center';
-                            headerAvatar.textContent = getInitial(data.name);
+                            document.getElementById('header-avatar').textContent = getInitial(data.name);
                         }
                     });
                     setTimeout(() => {
@@ -3423,16 +3344,6 @@
             });
         }
 
-        function setupOnlineStatus() {
-            if (!currentUser) return;
-            const userStatusRef = db.ref('status/' + currentUser.uid);
-            userStatusRef.onDisconnect().update({ online: false, lastSeen: Date.now() });
-            userStatusRef.set({ online: true, lastSeen: Date.now() });
-            setInterval(() => {
-                if (currentUser) userStatusRef.update({ lastSeen: Date.now() });
-            }, 30000);
-        }
-
         function signIn() {
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
@@ -3443,7 +3354,7 @@
         }
 
         function signOut() {
-            if (currentUser) db.ref('status/' + currentUser.uid).update({ online: false, lastSeen: Date.now() });
+            if (onlineStatusRef) onlineStatusRef.set({ online: false, lastSeen: Date.now() });
             auth.signOut();
             showToast('До свидания! 👋', 'info');
         }
@@ -3473,19 +3384,12 @@
             isSigningUp = true;
             pendingUserData = { name, username, email, password };
             verificationCode = generateVerificationCode();
-            
-            // Показываем сообщение с email
-            const verifyDiv = document.getElementById('verify-email');
-            const emailDisplay = document.getElementById('verification-email-display');
-            if (emailDisplay) {
-                emailDisplay.textContent = `Код отправлен на ${email}`;
-            }
-            
             emailjs.send('service_u4by8un', 'template_zgqw9hc', {
                 to_email: email, to_name: name, verification_code: verificationCode, from_name: 'LuniMays'
             }).then(() => {
                 document.getElementById('auth').style.display = 'none';
                 document.getElementById('verify-email').style.display = 'block';
+                document.getElementById('verification-email-display').textContent = email;
                 isSigningUp = false;
             }).catch(error => {
                 document.getElementById('auth-error').textContent = 'Ошибка отправки кода';
@@ -3519,7 +3423,6 @@
             document.getElementById('verify-email').style.display = 'none';
             document.getElementById('auth').style.display = 'block';
             document.getElementById('verification-code').value = '';
-            document.getElementById('verification-error').textContent = '';
         }
 
         function showForgotPassword() {
@@ -3599,7 +3502,7 @@
                     document.getElementById('profile-content').innerHTML = `
                         <div style="text-align:center">
                             <div style="width:100px;height:100px;border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:40px;color:white;overflow:hidden;${user.avatar ? '' : 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);'}">
-                                ${user.avatar ? `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (user.name ? user.name[0].toUpperCase() : '?')}
+                                ${user.avatar ? `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;">` : getInitial(user.name)}
                             </div>
                             <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;">
                                 <span style="font-size:24px;font-weight:700;color:var(--text-primary);">${sanitizeInput(user.name || '')}</span>
