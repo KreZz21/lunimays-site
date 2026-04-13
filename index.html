@@ -1804,6 +1804,101 @@
             color: white;
         }
 
+        /* ВЫБОР ЧАТОВ LONG PRESS */
+        .chat-selector {
+            position: absolute;
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--text-muted);
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.2s ease;
+            z-index: 15;
+        }
+
+        .selection-mode .chat-selector {
+            opacity: 1;
+            left: 4px;
+        }
+
+        .chat-item.selected .chat-selector {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        .chat-item.selected .chat-selector::after {
+            content: "✓";
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .selection-mode .avatar {
+            margin-left: 28px;
+        }
+
+        .selection-bar {
+            display: none;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            padding: 12px 20px;
+            z-index: 50;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 -5px 10px rgba(0,0,0,0.1);
+        }
+
+        .selection-bar.active {
+            display: flex;
+        }
+
+        .selection-count {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .selection-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .selection-action {
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+        }
+
+        .selection-action.delete {
+            background: var(--delete-bg);
+            color: var(--delete-color);
+        }
+
+        .selection-action.cancel {
+            background: var(--hover-bg);
+            color: var(--text-secondary);
+        }
+
+        .fab-button.selection-active {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.8);
+        }
+
         /* АВТОРИЗАЦИЯ */
         .modal-backdrop {
             position: fixed;
@@ -1998,6 +2093,15 @@
 
             <div class="chats-list" id="chats-list" style="display: none;">
                 <div id="chats-container"></div>
+            </div>
+
+            <!-- Панель выбора для удаления чатов -->
+            <div class="selection-bar" id="selection-bar">
+                <span class="selection-count" id="selection-count">Выбрано: 0</span>
+                <div class="selection-actions">
+                    <button class="selection-action delete" onclick="deleteSelectedChats()">🗑️ Удалить</button>
+                    <button class="selection-action cancel" onclick="cancelSelection()">✕ Отмена</button>
+                </div>
             </div>
 
             <button class="fab-button" id="fab-button" onclick="showToast('🔄 Скоро здесь будет функция создания чата!', 'info')">
@@ -2425,6 +2529,133 @@
         let statusListeners = new Map();
         let unreadCounts = new Map();
 
+        // ========== ВЫБОР ЧАТОВ ДЛЯ УДАЛЕНИЯ ==========
+        let selectedChats = new Set();
+        let isSelectionMode = false;
+
+        function enterSelectionMode() {
+            if (isSelectionMode) return;
+            isSelectionMode = true;
+            document.querySelectorAll('.chat-item').forEach(item => item.classList.add('selection-mode'));
+            const selectionBar = document.getElementById('selection-bar');
+            if (selectionBar) selectionBar.classList.add('active');
+            const fab = document.getElementById('fab-button');
+            if (fab) fab.classList.add('selection-active');
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+
+        function exitSelectionMode() {
+            if (!isSelectionMode) return;
+            isSelectionMode = false;
+            selectedChats.clear();
+            document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('selection-mode', 'selected'));
+            const selectionBar = document.getElementById('selection-bar');
+            if (selectionBar) selectionBar.classList.remove('active');
+            const fab = document.getElementById('fab-button');
+            if (fab) fab.classList.remove('selection-active');
+            updateSelectionCount();
+        }
+
+        function toggleChatSelection(chatId) {
+            if (!isSelectionMode) return;
+            const el = document.getElementById(`chat-${chatId}`);
+            if (!el) return;
+            if (selectedChats.has(chatId)) {
+                selectedChats.delete(chatId);
+                el.classList.remove('selected');
+            } else {
+                selectedChats.add(chatId);
+                el.classList.add('selected');
+            }
+            updateSelectionCount();
+            if (selectedChats.size === 0) exitSelectionMode();
+        }
+
+        function updateSelectionCount() {
+            const span = document.getElementById('selection-count');
+            if (span) span.textContent = `Выбрано: ${selectedChats.size}`;
+        }
+
+        function cancelSelection() {
+            exitSelectionMode();
+        }
+
+        async function deleteSelectedChats() {
+            if (selectedChats.size === 0) return;
+            showConfirm('Удаление чатов', `Удалить ${selectedChats.size} чат(ов)? Это действие нельзя отменить.`, async () => {
+                let deleted = 0;
+                for (const chatId of selectedChats) {
+                    try {
+                        await db.ref(`chats/${chatId}`).remove();
+                        await db.ref(`userChats/${currentUser.uid}/${chatId}`).remove();
+                        const el = document.getElementById(`chat-${chatId}`);
+                        if (el) el.remove();
+                        deleted++;
+                    } catch(e) { console.error(e); }
+                }
+                showToast(`✅ Удалено ${deleted} чат(ов)`, 'success');
+                exitSelectionMode();
+                if (currentChatWith && selectedChats.has(currentChatWith.uid)) goToSidebar();
+                selectedChats.clear();
+                const remainingChats = document.querySelectorAll('.chat-item');
+                if (remainingChats.length === 0) {
+                    document.getElementById('welcome-screen').style.display = 'flex';
+                    document.getElementById('chats-list').style.display = 'none';
+                }
+            });
+        }
+
+        function setupChatLongPress(el, chatId) {
+            let timer = null, isLong = false, moved = false, sx = 0, sy = 0;
+            
+            el.addEventListener('touchstart', (e) => {
+                if (isSelectionMode) return;
+                const t = e.touches[0];
+                sx = t.clientX; sy = t.clientY;
+                moved = false; isLong = false;
+                timer = setTimeout(() => {
+                    if (!moved && !isSelectionMode) {
+                        isLong = true;
+                        e.preventDefault();
+                        enterSelectionMode();
+                        toggleChatSelection(chatId);
+                    }
+                }, 500);
+            }, { passive: false });
+            
+            el.addEventListener('touchmove', (e) => {
+                if (!timer) return;
+                const t = e.touches[0];
+                if (Math.abs(t.clientX - sx) > 10 || Math.abs(t.clientY - sy) > 10) {
+                    moved = true;
+                    clearTimeout(timer);
+                    timer = null;
+                }
+            });
+            
+            el.addEventListener('touchend', () => {
+                if (timer) clearTimeout(timer);
+                if (!isLong && !moved && !isSelectionMode) {
+                    openChat(chatId);
+                }
+                isLong = false;
+                timer = null;
+            });
+            
+            el.addEventListener('touchcancel', () => {
+                if (timer) clearTimeout(timer);
+                isLong = false;
+                timer = null;
+            });
+            
+            el.addEventListener('click', (e) => {
+                if (isSelectionMode) {
+                    e.stopPropagation();
+                    toggleChatSelection(chatId);
+                }
+            });
+        }
+
         // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
         function getInitial(name) { return name && name.length > 0 ? name[0].toUpperCase() : '?'; }
         function sanitizeInput(input) { return input ? input.replace(/[<>]/g, '').substring(0, 500) : ''; }
@@ -2635,7 +2866,7 @@
             if (!text) { showToast('Введите сообщение', 'warning'); return; }
             
             isSending = true;
-            const sendBtn = document.getElementById('sendBtn');
+            const sendBtn = document.querySelector('.send-button');
             sendBtn.disabled = true;
             
             db.ref('users/' + currentUser.uid).once('value', snap => {
@@ -2649,7 +2880,6 @@
                     type: 'text', text: text, timestamp: timestamp, readBy: {}
                 };
                 
-                // ВАЖНО: добавляем ответ на сообщение
                 if (replyToMessage && replyToMessage.id) {
                     msg.replyTo = {
                         id: replyToMessage.id,
@@ -3086,8 +3316,14 @@
                     const div = document.createElement('div');
                     div.className = 'chat-item';
                     div.id = `chat-${chat.withUid}`;
-                    div.setAttribute('data-uid', chat.withUid);
-                    div.innerHTML = `
+                    div.setAttribute('data-chat-id', chat.withUid);
+                    
+                    // Добавляем селектор (галочку)
+                    const selector = document.createElement('div');
+                    selector.className = 'chat-selector';
+                    div.appendChild(selector);
+                    
+                    div.innerHTML += `
                         <div class="avatar" style="${user.avatar ? '' : 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;'}">
                             ${user.avatar ? `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;">` : getInitial(user.name)}
                             <div class="online-indicator" style="display: none;"></div>
@@ -3103,7 +3339,18 @@
                             <div class="chat-message">${sanitizeInput(lastMsg)}</div>
                         </div>
                     `;
-                    div.addEventListener('click', (e) => { e.stopPropagation(); openChat(chat.withUid, chat.withUsername); });
+                    
+                    setupChatLongPress(div, chat.withUid);
+                    
+                    div.addEventListener('click', (e) => {
+                        if (isSelectionMode) {
+                            e.stopPropagation();
+                            toggleChatSelection(chat.withUid);
+                        } else {
+                            openChat(chat.withUid, chat.withUsername);
+                        }
+                    });
+                    
                     container.appendChild(div);
                     const chatId = getChatId(currentUser.uid, chat.withUid);
                     updateUnreadCount(chatId, chat.withUid);
@@ -3170,10 +3417,21 @@
             document.getElementById('profile-email').textContent = user.email || currentUser.email;
             document.getElementById('profile-username').textContent = '@' + (user.username || 'unknown');
             document.getElementById('profile-bio').textContent = user.bio || 'Нажмите, чтобы добавить информацию о себе';
+            
+            // ДАТА РЕГИСТРАЦИИ
+            const createdAt = user.createdAt || Date.now();
+            document.getElementById('profile-joined').textContent = formatDate(createdAt);
+            
+            // ДНИ С НАМИ
+            const daysWithUs = Math.floor((Date.now() - createdAt) / (1000 * 60 * 60 * 24));
+            document.getElementById('profile-days-count').textContent = daysWithUs;
+            
             updateProfileStatus();
+            
             const userChats = await db.ref('userChats/' + currentUser.uid).once('value');
             const chats = userChats.val() || {};
             document.getElementById('profile-chats-count').textContent = Object.keys(chats).length;
+            
             let totalMessages = 0;
             for (const chatId of Object.keys(chats)) {
                 const msgs = await db.ref('chats/' + chatId + '/messages').once('value');
@@ -3344,6 +3602,16 @@
             });
         }
 
+        function setupOnlineStatus() {
+            if (!currentUser) return;
+            const userStatusRef = db.ref('status/' + currentUser.uid);
+            userStatusRef.onDisconnect().set({ online: false, lastSeen: Date.now() });
+            userStatusRef.set({ online: true, lastSeen: Date.now() });
+            setInterval(() => {
+                if (currentUser) userStatusRef.update({ lastSeen: Date.now() });
+            }, 30000);
+        }
+
         function signIn() {
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
@@ -3354,7 +3622,9 @@
         }
 
         function signOut() {
-            if (onlineStatusRef) onlineStatusRef.set({ online: false, lastSeen: Date.now() });
+            if (currentUser) {
+                db.ref('status/' + currentUser.uid).set({ online: false, lastSeen: Date.now() });
+            }
             auth.signOut();
             showToast('До свидания! 👋', 'info');
         }
@@ -3708,6 +3978,8 @@
         window.editBioFromProfile = editBioFromProfile;
         window.selectProfilePhoto = selectProfilePhoto;
         window.uploadProfilePhoto = uploadProfilePhoto;
+        window.deleteSelectedChats = deleteSelectedChats;
+        window.cancelSelection = cancelSelection;
     </script>
 </body>
 </html>
