@@ -21,8 +21,6 @@
             --glow-1: rgba(0, 122, 255, 0.05);
             --glow-2: rgba(0, 122, 255, 0.03);
             --glow-3: rgba(0, 122, 255, 0.15);
-            --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
         body.dark-mode {
@@ -71,8 +69,6 @@
             flex-direction: column;
             overflow: hidden;
             transition: background 0.4s ease;
-            padding-top: var(--safe-top);
-            padding-bottom: var(--safe-bottom);
         }
 
         @media (min-width: 500px) {
@@ -87,8 +83,6 @@
                 height: 720px;
                 border-radius: 40px;
                 box-shadow: 0 30px 60px rgba(0,0,0,0.12);
-                padding-top: 0;
-                padding-bottom: 0;
             }
         }
 
@@ -96,7 +90,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px 16px;
+            padding: 20px 20px 16px;
             position: relative;
             z-index: 10;
             flex-shrink: 0;
@@ -155,7 +149,7 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            padding-top: 70px;
+            padding-top: 80px;
         }
 
         .logo-wrap { position: relative; margin-bottom: 45px; }
@@ -201,8 +195,7 @@
         .bottom-section {
             position: absolute;
             bottom: 0; width: 100%;
-            padding: 0 25px 30px;
-            padding-bottom: calc(30px + var(--safe-bottom));
+            padding: 0 25px 40px;
             box-sizing: border-box;
             z-index: 10;
             background: var(--bg);
@@ -240,7 +233,6 @@
         .s3-active .btn-main { background: var(--purple); }
         .s4-active .btn-main { background: var(--orange); }
 
-        /* ЭКРАНЫ */
         #registerScreen, #displayNameScreen, #welcomeScreen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -250,13 +242,11 @@
             transform: translateY(100%);
             transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease;
             z-index: 20;
-            padding-top: var(--safe-top);
         }
 
         @media (min-width: 500px) {
             #registerScreen, #displayNameScreen, #welcomeScreen {
                 border-radius: 40px;
-                padding-top: 0;
             }
         }
 
@@ -266,7 +256,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px 12px;
+            padding: 16px 20px;
             flex-shrink: 0;
         }
 
@@ -302,8 +292,7 @@
         }
 
         .circle-at {
-            width: 85px; height: 85px;
-            font-size: 38px;
+            width: 85px; height: 85px; font-size: 38px;
             background: linear-gradient(135deg, #4cb1ff 0%, var(--blue) 100%);
             box-shadow: 0 0 0 12px var(--glow-1), 0 0 0 26px var(--glow-2), 0 0 45px var(--glow-3);
             margin-top: 5px;
@@ -353,19 +342,17 @@
         input:focus { box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.3); }
 
         .input-error {
-            font-size: 11px; color: var(--red);
-            text-align: left; padding: 2px 5px 4px 5px;
+            font-size: 11px; text-align: left;
+            padding: 2px 5px 4px 5px;
             min-height: 20px; display: flex;
             align-items: center; gap: 3px; flex-shrink: 0;
+            color: var(--red);
         }
 
-        .input-success {
-            color: var(--green);
-        }
+        .input-success { color: var(--green); }
 
         .screen-footer {
-            padding: 0 25px 20px;
-            padding-bottom: calc(20px + var(--safe-bottom));
+            padding: 0 25px 30px;
             display: flex; flex-direction: column; align-items: center;
             opacity: 0; transform: translateY(20px);
             transition: all 0.5s ease 0.4s; flex-shrink: 0;
@@ -427,7 +414,6 @@
             position: absolute; bottom: -100%; left: 0; width: 100%;
             background: var(--card); border-radius: 30px 30px 0 0;
             z-index: 100; padding: 20px 0 30px;
-            padding-bottom: calc(30px + var(--safe-bottom));
             transition: bottom 0.4s, background 0.4s ease; 
             color: var(--text-main);
             max-height: 75%; overflow-y: auto;
@@ -639,59 +625,34 @@ firebase.initializeApp(firebaseConfig);const database=firebase.database();
 
 const submitBtn=document.getElementById('submitBtn'),userInp=document.getElementById('username'),passInp=document.getElementById('password'),usernameError=document.getElementById('usernameError'),passwordError=document.getElementById('passwordError'),displayNameBtn=document.getElementById('displayNameBtn'),displayNameInput=document.getElementById('displayNameInput'),displayError=document.getElementById('displayError'),startChatBtn=document.getElementById('startChatBtn');
 
-// Проверка занятости имени при вводе
 let checkTimeout;
 userInp.addEventListener('input',function(){
     usernameError.classList.remove('input-success');
     const val=this.value.trim().toLowerCase();
     clearTimeout(checkTimeout);
-    
-    if(val.length===0){
-        usernameError.innerHTML='';
-        return;
-    }
-    if(val.length<3){
-        usernameError.innerHTML='⚠️ Минимум 3 символа';
-        return;
-    }
-    if(!/^[a-zA-Z0-9_]+$/.test(val)){
-        usernameError.innerHTML='⚠️ Только латиница, цифры и _';
-        return;
-    }
-    
-    // Проверка занятости с задержкой
+    if(val.length===0){usernameError.innerHTML='';return;}
+    if(val.length<3){usernameError.innerHTML='⚠️ Минимум 3 символа';return;}
+    if(!/^[a-zA-Z0-9_]+$/.test(val)){usernameError.innerHTML='⚠️ Только латиница, цифры и _';return;}
     usernameError.innerHTML='Проверка...';
     checkTimeout=setTimeout(async()=>{
-        try{
-            const snap=await database.ref('users/'+val).once('value');
-            if(snap.exists()){
-                usernameError.innerHTML='❌ Это имя занято';
-            }else{
-                usernameError.innerHTML='✅ Имя свободно';
-                usernameError.classList.add('input-success');
-            }
-        }catch(e){
-            usernameError.innerHTML='';
-        }
+        try{const snap=await database.ref('users/'+val).once('value');
+            if(snap.exists()){usernameError.innerHTML='❌ Это имя занято';}
+            else{usernameError.innerHTML='✅ Имя свободно';usernameError.classList.add('input-success');}
+        }catch(e){usernameError.innerHTML='';}
     },500);
 });
 
-passInp.addEventListener('input',()=>{
-    if(passwordError.classList.contains('input-success')) passwordError.classList.remove('input-success');
-    passwordError.innerHTML='';
-});
+passInp.addEventListener('input',()=>{passwordError.classList.remove('input-success');passwordError.innerHTML='';});
 displayNameInput.addEventListener('input',()=>{displayError.innerHTML='';});
 
 submitBtn.onclick=async function(){
     const user=userInp.value.trim().toLowerCase(),pass=passInp.value.trim();
     usernameError.classList.remove('input-success');
-    
     let err=false;
     if(user.length<3){usernameError.innerHTML='⚠️ Минимум 3 символа';err=true;}
     else if(!/^[a-zA-Z0-9_]+$/.test(user)){usernameError.innerHTML='⚠️ Только латиница, цифры и _';err=true;}
     if(pass.length<6){passwordError.innerHTML='⚠️ Минимум 6 символов';err=true;}
     if(err)return;
-
     submitBtn.innerText="Загрузка...";submitBtn.disabled=true;
     try{
         const ref=database.ref('users/'+user),snap=await ref.once('value'),hash=await sha256(pass);
@@ -747,10 +708,10 @@ const nextBtn=document.getElementById('nextBtn'),btnText=document.getElementById
 let currentStep=1,curCode='RU';
 
 const langData={
-'RU':{h:['Добро пожаловать в Logos','Шифрование','Ghost Mode','Фантомные сообщения'],p:['Мессенджер нового поколения с максимальной конфиденциальностью','Ваши данные защищены сквозным шифрованием.','Станьте невидимым для всех пользователей.','Сообщения, которые исчезают после прочтения.'],next:'Далее',skip:'Пропустить',start:'Начать',regTitle:'Создайте имя пользователя',regSub:'Это ваш уникальный идентификатор в Logos. Без номера телефона, без почты.',regName:'Имя пользователя',regPass:'Пароль',regBtn:'Далее',regLegalBefore:'Регистрируясь, вы соглашаетесь с ',regTerms:'Условиями использования',regAnd:' и ',regPolicy:'Политикой конфиденциальности',regExtra:'Дополнительные параметры',displayTitle:'Как вас зовут?',displaySub:'Это имя увидят другие пользователи',displayPlaceholder:'Отображаемое имя',displayBtn:'Готово',welcomeTitle:'Добро пожаловать!',welcomeSub:'Ваш аккаунт успешно создан',labelName:'Ваше имя',labelUsername:'Ваш username',labelDate:'Дата регистрации',labelTheme:'Тема',labelLang:'Язык',betaBadge:'✅ Вы записались на beta-test',startChat:'Начать общение',extraTitle:'Дополнительные параметры',autoDeleteLabel:'Автоудаление аккаунта',proxyLabel:'Прокси/Tor сервер',extraSave:'Сохранить',termsTitle:'Условия использования',termsBody:'<h4>1.</h4><p>Условия использования Logos.</p>',policyTitle:'Политика конфиденциальности',policyBody:'<h4>1.</h4><p>Минимум данных.</p>',termsClose:'Понятно'},
-'EN':{h:['Welcome to Logos','Encryption','Ghost Mode','Phantom Messages'],p:['Next gen messenger','Messages protected.','Become invisible.','Messages disappear.'],next:'Next',skip:'Skip',start:'Start',regTitle:'Create username',regSub:'Your unique ID.',regName:'Username',regPass:'Password',regBtn:'Next',regLegalBefore:'By registering, you agree to ',regTerms:'Terms',regAnd:' and ',regPolicy:'Privacy',regExtra:'Options',displayTitle:'Your name?',displaySub:'Others will see',displayPlaceholder:'Display name',displayBtn:'Done',welcomeTitle:'Welcome!',welcomeSub:'Account created',labelName:'Name',labelUsername:'Username',labelDate:'Date',labelTheme:'Theme',labelLang:'Language',betaBadge:'✅ Beta tester',startChat:'Start',extraTitle:'Options',autoDeleteLabel:'Auto-delete',proxyLabel:'Proxy/Tor',extraSave:'Save',termsTitle:'Terms',termsBody:'<h4>1.</h4>',policyTitle:'Privacy',policyBody:'<h4>1.</h4>',termsClose:'Got it'},
+'RU':{h:['Добро пожаловать в Logos','Шифрование','Ghost Mode','Фантомные сообщения'],p:['Мессенджер нового поколения с максимальной конфиденциальностью','Ваши данные защищены сквозным шифрованием.','Станьте невидимым для всех пользователей.','Сообщения, которые исчезают после прочтения.'],next:'Далее',skip:'Пропустить',start:'Начать',regTitle:'Создайте имя пользователя',regSub:'Это ваш уникальный идентификатор в Logos. Без номера телефона, без почты.',regName:'Имя пользователя',regPass:'Пароль',regBtn:'Далее',regLegalBefore:'Регистрируясь, вы соглашаетесь с ',regTerms:'Условиями использования',regAnd:' и ',regPolicy:'Политикой конфиденциальности',regExtra:'Дополнительные параметры',displayTitle:'Как вас зовут?',displaySub:'Это имя увидят другие пользователи',displayPlaceholder:'Отображаемое имя',displayBtn:'Готово',welcomeTitle:'Добро пожаловать!',welcomeSub:'Ваш аккаунт успешно создан',labelName:'Ваше имя',labelUsername:'Ваш username',labelDate:'Дата регистрации',labelTheme:'Тема',labelLang:'Язык',betaBadge:'✅ Вы записались на beta-test',startChat:'Начать общение',extraTitle:'Дополнительные параметры',autoDeleteLabel:'Автоудаление аккаунта',proxyLabel:'Прокси/Tor сервер',extraSave:'Сохранить',termsTitle:'Условия использования',termsBody:'<h4>1.</h4><p>Условия.</p>',policyTitle:'Политика',policyBody:'<h4>1.</h4><p>Данные.</p>',termsClose:'Понятно'},
+'EN':{h:['Welcome to Logos','Encryption','Ghost Mode','Phantom Msg'],p:['Next gen','Protected','Invisible','Disappear'],next:'Next',skip:'Skip',start:'Start',regTitle:'Create username',regSub:'Your unique ID.',regName:'Username',regPass:'Password',regBtn:'Next',regLegalBefore:'By registering, you agree ',regTerms:'Terms',regAnd:' and ',regPolicy:'Privacy',regExtra:'Options',displayTitle:'Your name?',displaySub:'Others will see',displayPlaceholder:'Display name',displayBtn:'Done',welcomeTitle:'Welcome!',welcomeSub:'Account created',labelName:'Name',labelUsername:'Username',labelDate:'Date',labelTheme:'Theme',labelLang:'Language',betaBadge:'✅ Beta tester',startChat:'Start',extraTitle:'Options',autoDeleteLabel:'Auto-delete',proxyLabel:'Proxy/Tor',extraSave:'Save',termsTitle:'Terms',termsBody:'<h4>1.</h4>',policyTitle:'Privacy',policyBody:'<h4>1.</h4>',termsClose:'Got it'},
 'ZH':{h:['欢迎','加密','隐身','幻影'],p:['新一代','保护','不可见','消失'],next:'下一步',skip:'跳过',start:'开始',regTitle:'创建用户名',regSub:'唯一标识',regName:'用户名',regPass:'密码',regBtn:'下一步',regLegalBefore:'同意',regTerms:'条款',regAnd:'和',regPolicy:'隐私',regExtra:'选项',displayTitle:'名字？',displaySub:'其他人可见',displayPlaceholder:'名称',displayBtn:'完成',welcomeTitle:'欢迎！',welcomeSub:'已创建',labelName:'名字',labelUsername:'用户名',labelDate:'日期',labelTheme:'主题',labelLang:'语言',betaBadge:'✅ 测试',startChat:'开始',extraTitle:'选项',autoDeleteLabel:'自动删除',proxyLabel:'代理',extraSave:'保存',termsTitle:'条款',termsBody:'<h4>1.</h4>',policyTitle:'隐私',policyBody:'<h4>1.</h4>',termsClose:'好'},
-'ES':{h:['Bienvenido','Cifrado','Fantasma','Mensajes'],p:['Privacidad','Protegido','Invisible','Desaparecen'],next:'Sig',skip:'Omitir',start:'Comenzar',regTitle:'Crear usuario',regSub:'ID único',regName:'Usuario',regPass:'Contraseña',regBtn:'Sig',regLegalBefore:'Acepta ',regTerms:'Términos',regAnd:' y ',regPolicy:'Privacidad',regExtra:'Opciones',displayTitle:'¿Nombre?',displaySub:'Otros lo verán',displayPlaceholder:'Nombre',displayBtn:'Hecho',welcomeTitle:'¡Bienvenido!',welcomeSub:'Creado',labelName:'Nombre',labelUsername:'Usuario',labelDate:'Fecha',labelTheme:'Tema',labelLang:'Idioma',betaBadge:'✅ Beta',startChat:'Chat',extraTitle:'Opciones',autoDeleteLabel:'Auto-eliminar',proxyLabel:'Proxy',extraSave:'Guardar',termsTitle:'Términos',termsBody:'<h4>1.</h4>',policyTitle:'Privacidad',policyBody:'<h4>1.</h4>',termsClose:'OK'},
+'ES':{h:['Bienvenido','Cifrado','Fantasma','Mensajes'],p:['Privacidad','Protegido','Invisible','Desaparecen'],next:'Sig',skip:'Omitir',start:'Comenzar',regTitle:'Crear usuario',regSub:'ID único',regName:'Usuario',regPass:'Contraseña',regBtn:'Sig',regLegalBefore:'Acepta ',regTerms:'Términos',regAnd:' y ',regPolicy:'Privacidad',regExtra:'Opciones',displayTitle:'¿Nombre?',displaySub:'Otros verán',displayPlaceholder:'Nombre',displayBtn:'Hecho',welcomeTitle:'¡Bienvenido!',welcomeSub:'Creado',labelName:'Nombre',labelUsername:'Usuario',labelDate:'Fecha',labelTheme:'Tema',labelLang:'Idioma',betaBadge:'✅ Beta',startChat:'Chat',extraTitle:'Opciones',autoDeleteLabel:'Auto-eliminar',proxyLabel:'Proxy',extraSave:'Guardar',termsTitle:'Términos',termsBody:'<h4>1.</h4>',policyTitle:'Privacidad',policyBody:'<h4>1.</h4>',termsClose:'OK'},
 'AR':{h:['مرحباً','تشفير','شبح','وهمية'],p:['خصوصية','محمي','غير مرئي','تختفي'],next:'التالي',skip:'تخطي',start:'ابدأ',regTitle:'اسم المستخدم',regSub:'معرف فريد',regName:'المستخدم',regPass:'كلمة المرور',regBtn:'التالي',regLegalBefore:'توافق على ',regTerms:'الشروط',regAnd:' و ',regPolicy:'الخصوصية',regExtra:'خيارات',displayTitle:'ما اسمك؟',displaySub:'سيراه الآخرون',displayPlaceholder:'اسم العرض',displayBtn:'تم',welcomeTitle:'أهلاً!',welcomeSub:'تم الإنشاء',labelName:'الاسم',labelUsername:'المستخدم',labelDate:'التاريخ',labelTheme:'المظهر',labelLang:'اللغة',betaBadge:'✅ مسجل',startChat:'ابدأ',extraTitle:'خيارات',autoDeleteLabel:'حذف تلقائي',proxyLabel:'وكيل',extraSave:'حفظ',termsTitle:'الشروط',termsBody:'<h4>۱.</h4>',policyTitle:'الخصوصية',policyBody:'<h4>۱.</h4>',termsClose:'فهمت'}
 };
 
