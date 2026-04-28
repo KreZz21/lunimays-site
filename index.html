@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Logos App</title>
     <style>
         :root {
@@ -34,33 +35,49 @@
             --glow-3: rgba(0, 122, 255, 0.2);
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
         body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f8f9fa;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden;
+            background: var(--bg);
             transition: background 0.3s;
         }
 
         body.rtl { direction: rtl; }
 
         .app-screen {
-            width: 375px;
-            height: 720px;
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
             background: var(--bg);
-            border-radius: 40px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.12);
             position: relative;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             transition: background 0.4s;
+        }
+
+        /* На больших экранах (десктоп) ограничиваем размер */
+        @media (min-width: 500px) {
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: #f8f9fa;
+            }
+            .app-screen {
+                width: 375px;
+                height: 720px;
+                border-radius: 40px;
+                box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+            }
         }
 
         .top-nav {
@@ -183,13 +200,12 @@
         .btn-skip { 
             width: 100%; background: none; border: none; 
             color: var(--text-gray); font-size: 15px; margin-top: 15px; 
-            cursor: pointer; opacity: 0; transition: opacity 0.4s;
+            cursor: pointer; transition: opacity 0.4s;
         }
 
         .s2-active .btn-main { background: var(--green); }
         .s3-active .btn-main { background: var(--purple); }
         .s4-active .btn-main { background: var(--orange); }
-        .s2-active .btn-skip, .s3-active .btn-skip, .s4-active .btn-skip { opacity: 1; }
 
         #registerScreen, #displayNameScreen, #welcomeScreen {
             position: absolute;
@@ -200,8 +216,12 @@
             transform: translateY(100%);
             transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 20;
-            border-radius: 40px;
-            overflow: hidden;
+        }
+
+        @media (min-width: 500px) {
+            #registerScreen, #displayNameScreen, #welcomeScreen {
+                border-radius: 40px;
+            }
         }
 
         #registerScreen.active, #displayNameScreen.active, #welcomeScreen.active { transform: translateY(0); }
@@ -428,7 +448,7 @@
         <div class="extra-content">
             <h3 id="extraTitle">Дополнительные параметры</h3>
             <div class="extra-option">
-                <span id="autoDeleteLabel">Автоудаление</span>
+                <span id="autoDeleteLabel">Автоудаление аккаунта</span>
                 <select id="autoDeleteSelect">
                     <option value="never">Никогда</option>
                     <option value="1month">Через месяц</option>
@@ -436,12 +456,12 @@
                     <option value="1year">Год</option>
                 </select>
             </div>
-            <p style="font-size:11px;color:var(--text-gray);margin:2px 0 6px 0;" id="autoDeleteHint">Аккаунт удалится, если не заходить указанное время</p>
+            <p style="font-size:11px;color:var(--text-gray);margin:2px 0 6px 0;">Аккаунт и переписка удалятся, если не заходить указанное время</p>
             <div class="extra-option">
-                <span id="proxyLabel">Прокси/Tor</span>
+                <span id="proxyLabel">Прокси/Tor сервер</span>
                 <input type="text" id="proxyInput" placeholder="socks5://127.0.0.1:9050" style="width:120px;">
             </div>
-            <p style="font-size:11px;color:var(--text-gray);margin:2px 0 6px 0;" id="proxyHint">Свой сервер при блокировке</p>
+            <p style="font-size:11px;color:var(--text-gray);margin:2px 0 6px 0;">Свой сервер при блокировке</p>
         </div>
         <button class="extra-close" onclick="saveExtra()" id="extraSaveBtn">Сохранить</button>
     </div>
@@ -459,35 +479,21 @@
             </div>
         </div>
         <div class="slider" id="slider">
-            <!-- Слайд 1 -->
             <div class="slide animate" id="slide1">
                 <div class="logo-wrap"><div class="circle logo-blue"><span class="letter-l">L</span></div></div>
-                <div class="content-box"><h1 id="h1">Добро пожаловать в Logos</h1><p id="p1" class="sub-text">Мессенджер нового поколения</p></div>
+                <div class="content-box"><h1 id="h1">Добро пожаловать в Logos</h1><p id="p1" class="sub-text">Мессенджер нового поколения с максимальной конфиденциальностью</p></div>
             </div>
-            <!-- Слайд 2: Шифрование -->
             <div class="slide" id="slide2">
-                <div class="logo-wrap"><div class="circle logo-green">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><rect x="9" y="10" width="6" height="5" rx="1"/><path d="M10 10V9a2 2 0 0 1 4 0v1"/></svg>
-                </div></div>
-                <div class="content-box"><h1 id="h2">Шифрование</h1><p id="p2" class="sub-text">Ваши данные защищены.</p></div>
+                <div class="logo-wrap"><div class="circle logo-green"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><rect x="9" y="10" width="6" height="5" rx="1"/><path d="M10 10V9a2 2 0 0 1 4 0v1"/></svg></div></div>
+                <div class="content-box"><h1 id="h2">Шифрование</h1><p id="p2" class="sub-text">Ваши данные защищены сквозным шифрованием.</p></div>
             </div>
-            <!-- Слайд 3: Ghost Mode — ГЛАЗ С ПЕРЕЧЁРКИВАНИЕМ -->
             <div class="slide" id="slide3">
-                <div class="logo-wrap"><div class="circle logo-purple">
-                    <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                        <line x1="1" y1="1" x2="23" y2="23"/>
-                    </svg>
-                </div></div>
-                <div class="content-box"><h1 id="h3">Ghost Mode</h1><p id="p3" class="sub-text">Станьте невидимым.</p></div>
+                <div class="logo-wrap"><div class="circle logo-purple"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="1" y1="1" x2="23" y2="23"/></svg></div></div>
+                <div class="content-box"><h1 id="h3">Ghost Mode</h1><p id="p3" class="sub-text">Станьте невидимым для всех пользователей.</p></div>
             </div>
-            <!-- Слайд 4: Фантомные сообщения -->
             <div class="slide" id="slide4">
-                <div class="logo-wrap"><div class="circle logo-orange">
-                    <svg width="42" height="42" viewBox="0 0 24 24" fill="white"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                </div></div>
-                <div class="content-box"><h1 id="h4">Фантомные сообщения</h1><p id="p4" class="sub-text">Сообщения исчезают.</p></div>
+                <div class="logo-wrap"><div class="circle logo-orange"><svg width="42" height="42" viewBox="0 0 24 24" fill="white"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div></div>
+                <div class="content-box"><h1 id="h4">Фантомные сообщения</h1><p id="p4" class="sub-text">Сообщения, которые исчезают после прочтения.</p></div>
             </div>
         </div>
         <div class="bottom-section">
@@ -501,16 +507,13 @@
     <div id="registerScreen">
         <div class="screen-top-nav">
             <button class="back-btn" onclick="hideRegister()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-            <div class="lang-select" id="langBtn2">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                <span id="curLang2">RU</span>
-            </div>
+            <div class="lang-select" id="langBtn2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="curLang2">RU</span></div>
             <div class="moon-btn" id="themeBtn2"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
         </div>
         <div class="main-content">
             <div class="logo-wrap"><div class="circle-at">@</div></div>
             <h1 class="reg-title" id="regTitle">Создайте имя пользователя</h1>
-            <p class="reg-sub" id="regSub">Уникальный идентификатор. Без номера телефона, без почты.</p>
+            <p class="reg-sub" id="regSub">Это ваш уникальный идентификатор в Logos. Без номера телефона, без почты.</p>
             <div class="form-group">
                 <input type="text" id="username" placeholder="Имя пользователя" spellcheck="false" autocomplete="off">
                 <div class="input-error" id="usernameError"></div>
@@ -520,28 +523,20 @@
         </div>
         <div class="screen-footer">
             <button class="btn-next" id="submitBtn">Далее</button>
-            <div class="legal" id="legalText">Регистрируясь, вы соглашаетесь с <a onclick="showTerms()">Условиями</a> и <a onclick="showPolicy()">Политикой</a></div>
-            <button class="extra-btn" onclick="showExtra()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                <span id="extraText">Дополнительные параметры</span>
-            </button>
+            <div class="legal" id="legalText">Регистрируясь, вы соглашаетесь с <a onclick="showTerms()">Условиями использования</a> и <a onclick="showPolicy()">Политикой конфиденциальности</a></div>
+            <button class="extra-btn" onclick="showExtra()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg><span id="extraText">Дополнительные параметры</span></button>
         </div>
     </div>
 
-    <!-- ИМЯ -->
+    <!-- КАК ВАС ЗОВУТ -->
     <div id="displayNameScreen">
         <div class="screen-top-nav">
             <button class="back-btn" onclick="hideDisplayName()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-            <div class="lang-select" id="langBtn3">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                <span id="curLang3">RU</span>
-            </div>
+            <div class="lang-select" id="langBtn3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="curLang3">RU</span></div>
             <div class="moon-btn" id="themeBtn3"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
         </div>
         <div class="main-content">
-            <div class="logo-wrap"><div class="circle-user">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div></div>
+            <div class="logo-wrap"><div class="circle-user"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div></div>
             <h1 class="reg-title" id="displayTitle">Как вас зовут?</h1>
             <p class="reg-sub" id="displaySub">Это имя увидят другие пользователи</p>
             <div class="form-group">
@@ -555,16 +550,11 @@
     <!-- ФИНАЛ -->
     <div id="welcomeScreen">
         <div class="screen-top-nav">
-            <div class="welcome-top-left"><div class="lang-select" id="langBtn4">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                <span id="curLang4">RU</span>
-            </div></div>
+            <div class="welcome-top-left"><div class="lang-select" id="langBtn4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="curLang4">RU</span></div></div>
             <div class="moon-btn" id="themeBtn4"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
         </div>
         <div class="main-content">
-            <div class="logo-wrap"><div class="circle-check">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-            </div></div>
+            <div class="logo-wrap"><div class="circle-check"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div></div>
             <h1 class="reg-title" id="welcomeTitle">Добро пожаловать!</h1>
             <p class="reg-sub" id="welcomeSub">Ваш аккаунт успешно создан</p>
             <div class="info-card">
@@ -585,8 +575,7 @@
 <script>
 const firebaseConfig={apiKey:"AIzaSyC5ffpuq0fK-PBS53Q2RHOi4w4-lmrBoFg",authDomain:"logos-c1b90.firebaseapp.com",projectId:"logos-c1b90",databaseURL:"https://logos-c1b90-default-rtdb.firebaseio.com",storageBucket:"logos-c1b90.firebasestorage.app",messagingSenderId:"430181345570",appId:"1:430181345570:web:5fd520b01aacd913b59d7b"};
 async function sha256(m){const b=new TextEncoder().encode(m);const h=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('');}
-firebase.initializeApp(firebaseConfig);
-const database=firebase.database();
+firebase.initializeApp(firebaseConfig);const database=firebase.database();
 
 const submitBtn=document.getElementById('submitBtn'),userInp=document.getElementById('username'),passInp=document.getElementById('password'),usernameError=document.getElementById('usernameError'),passwordError=document.getElementById('passwordError'),displayNameBtn=document.getElementById('displayNameBtn'),displayNameInput=document.getElementById('displayNameInput'),displayError=document.getElementById('displayError'),startChatBtn=document.getElementById('startChatBtn');
 
@@ -618,7 +607,7 @@ submitBtn.onclick=async function(){
             localStorage.setItem('logos_user',user);localStorage.setItem('logos_createdAt',now);
             hideRegister();showDisplayName();
         }
-    }catch(e){console.error(e);passwordError.innerHTML='⚠️ Ошибка соединения';}
+    }catch(e){console.error(e);passwordError.innerHTML='⚠️ Ошибка соединения с базой';}
     finally{submitBtn.innerText="Далее";submitBtn.disabled=false;}
 };
 passInp.addEventListener('keydown',e=>{if(e.key==='Enter')submitBtn.click();});
@@ -658,11 +647,11 @@ const nextBtn=document.getElementById('nextBtn'),btnText=document.getElementById
 let currentStep=1,curCode='RU';
 
 const langData={
-'RU':{h:['Добро пожаловать в Logos','Шифрование','Ghost Mode','Фантомные сообщения'],p:['Новое поколение','Защищены','Невидимость','Исчезают'],next:'Далее',skip:'Пропустить',start:'Начать',regTitle:'Создайте имя пользователя',regSub:'Уникальный ID. Без телефона и почты.',regName:'Имя пользователя',regPass:'Пароль',regBtn:'Далее',regLegalBefore:'Регистрируясь, вы соглашаетесь с ',regTerms:'Условиями',regAnd:' и ',regPolicy:'Политикой',regExtra:'Дополнительные параметры',displayTitle:'Как вас зовут?',displaySub:'Это имя увидят другие',displayPlaceholder:'Отображаемое имя',displayBtn:'Готово',welcomeTitle:'Добро пожаловать!',welcomeSub:'Аккаунт создан',labelName:'Ваше имя',labelUsername:'Ваш username',labelDate:'Дата регистрации',labelTheme:'Тема',labelLang:'Язык',betaBadge:'✅ Вы записались на beta-test',startChat:'Начать общение',extraTitle:'Дополнительные параметры',autoDeleteLabel:'Автоудаление',proxyLabel:'Прокси/Tor',extraSave:'Сохранить',termsTitle:'Условия',termsBody:'<h4>1.</h4><p>Условия использования Logos.</p>',policyTitle:'Политика',policyBody:'<h4>1.</h4><p>Минимум данных.</p>',termsClose:'Понятно'},
-'EN':{h:['Welcome to Logos','Encryption','Ghost Mode','Phantom Messages'],p:['Next gen','Protected','Invisible','Disappear'],next:'Next',skip:'Skip',start:'Start',regTitle:'Create username',regSub:'Unique ID. No phone, no email.',regName:'Username',regPass:'Password',regBtn:'Next',regLegalBefore:'By registering, you agree to ',regTerms:'Terms',regAnd:' and ',regPolicy:'Privacy',regExtra:'Options',displayTitle:'Your name?',displaySub:'Others will see this',displayPlaceholder:'Display name',displayBtn:'Done',welcomeTitle:'Welcome!',welcomeSub:'Account created',labelName:'Name',labelUsername:'Username',labelDate:'Registered',labelTheme:'Theme',labelLang:'Language',betaBadge:'✅ Beta tester',startChat:'Start chat',extraTitle:'Options',autoDeleteLabel:'Auto-delete',proxyLabel:'Proxy/Tor',extraSave:'Save',termsTitle:'Terms',termsBody:'<h4>1.</h4>',policyTitle:'Privacy',policyBody:'<h4>1.</h4>',termsClose:'Got it'},
-'ZH':{h:['欢迎','加密','隐身','幻影'],p:['新一代','保护','不可见','消失'],next:'下一步',skip:'跳过',start:'开始',regTitle:'创建用户名',regSub:'唯一标识',regName:'用户名',regPass:'密码',regBtn:'下一步',regLegalBefore:'同意',regTerms:'条款',regAnd:'和',regPolicy:'隐私',regExtra:'选项',displayTitle:'名字？',displaySub:'其他人可见',displayPlaceholder:'名称',displayBtn:'完成',welcomeTitle:'欢迎！',welcomeSub:'已创建',labelName:'名字',labelUsername:'用户名',labelDate:'日期',labelTheme:'主题',labelLang:'语言',betaBadge:'✅ 测试',startChat:'开始',extraTitle:'选项',autoDeleteLabel:'自动删除',proxyLabel:'代理',extraSave:'保存',termsTitle:'条款',termsBody:'<h4>1.</h4>',policyTitle:'隐私',policyBody:'<h4>1.</h4>',termsClose:'好'},
-'ES':{h:['Bienvenido','Cifrado','Fantasma','Mensajes'],p:['Privacidad','Protegido','Invisible','Desaparecen'],next:'Sig',skip:'Omitir',start:'Comenzar',regTitle:'Crear usuario',regSub:'ID único',regName:'Usuario',regPass:'Contraseña',regBtn:'Sig',regLegalBefore:'Acepta ',regTerms:'Términos',regAnd:' y ',regPolicy:'Privacidad',regExtra:'Opciones',displayTitle:'¿Nombre?',displaySub:'Otros lo verán',displayPlaceholder:'Nombre',displayBtn:'Hecho',welcomeTitle:'¡Bienvenido!',welcomeSub:'Creado',labelName:'Nombre',labelUsername:'Usuario',labelDate:'Fecha',labelTheme:'Tema',labelLang:'Idioma',betaBadge:'✅ Beta',startChat:'Chat',extraTitle:'Opciones',autoDeleteLabel:'Auto-eliminar',proxyLabel:'Proxy',extraSave:'Guardar',termsTitle:'Términos',termsBody:'<h4>1.</h4>',policyTitle:'Privacidad',policyBody:'<h4>1.</h4>',termsClose:'OK'},
-'AR':{h:['مرحباً','تشفير','شبح','وهمية'],p:['خصوصية','محمي','غير مرئي','تختفي'],next:'التالي',skip:'تخطي',start:'ابدأ',regTitle:'اسم المستخدم',regSub:'معرف فريد',regName:'المستخدم',regPass:'كلمة المرور',regBtn:'التالي',regLegalBefore:'توافق على ',regTerms:'الشروط',regAnd:' و ',regPolicy:'الخصوصية',regExtra:'خيارات',displayTitle:'ما اسمك؟',displaySub:'سيراه الآخرون',displayPlaceholder:'اسم العرض',displayBtn:'تم',welcomeTitle:'أهلاً!',welcomeSub:'تم الإنشاء',labelName:'الاسم',labelUsername:'المستخدم',labelDate:'التاريخ',labelTheme:'المظهر',labelLang:'اللغة',betaBadge:'✅ مسجل',startChat:'ابدأ',extraTitle:'خيارات',autoDeleteLabel:'حذف تلقائي',proxyLabel:'وكيل',extraSave:'حفظ',termsTitle:'الشروط',termsBody:'<h4>۱.</h4>',policyTitle:'الخصوصية',policyBody:'<h4>۱.</h4>',termsClose:'فهمت'}
+'RU':{h:['Добро пожаловать в Logos','Шифрование','Ghost Mode','Фантомные сообщения'],p:['Мессенджер нового поколения с максимальной конфиденциальностью','Ваши данные защищены сквозным шифрованием.','Станьте невидимым для всех пользователей.','Сообщения, которые исчезают после прочтения.'],next:'Далее',skip:'Пропустить',start:'Начать',regTitle:'Создайте имя пользователя',regSub:'Это ваш уникальный идентификатор в Logos. Без номера телефона, без почты.',regName:'Имя пользователя',regPass:'Пароль',regBtn:'Далее',regLegalBefore:'Регистрируясь, вы соглашаетесь с ',regTerms:'Условиями использования',regAnd:' и ',regPolicy:'Политикой конфиденциальности',regExtra:'Дополнительные параметры',displayTitle:'Как вас зовут?',displaySub:'Это имя увидят другие пользователи',displayPlaceholder:'Отображаемое имя',displayBtn:'Готово',welcomeTitle:'Добро пожаловать!',welcomeSub:'Ваш аккаунт успешно создан',labelName:'Ваше имя',labelUsername:'Ваш username',labelDate:'Дата регистрации',labelTheme:'Тема',labelLang:'Язык',betaBadge:'✅ Вы записались на beta-test',startChat:'Начать общение',extraTitle:'Дополнительные параметры',autoDeleteLabel:'Автоудаление аккаунта',proxyLabel:'Прокси/Tor сервер',extraSave:'Сохранить',termsTitle:'Условия использования',termsBody:'<h4>1. Общие положения</h4><p>Настоящие условия регулируют использование мессенджера Logos.</p><h4>2. Конфиденциальность</h4><p>Logos использует сквозное шифрование.</p><h4>3. Ответственность</h4><p>Пользователь несёт полную ответственность.</p><h4>4. Блокировка</h4><p>Администрация оставляет за собой право блокировать аккаунты.</p>',policyTitle:'Политика конфиденциальности',policyBody:'<h4>1. Сбор данных</h4><p>Logos собирает минимум данных.</p><h4>2. Хранение</h4><p>Данные хранятся в зашифрованном виде.</p><h4>3. Передача</h4><p>Logos никогда не передаёт данные третьим лицам.</p><h4>4. Удаление</h4><p>Вы можете удалить аккаунт в любой момент.</p>',termsClose:'Понятно'},
+'EN':{h:['Welcome to Logos','End-to-End Encryption','Ghost Mode','Phantom Messages'],p:['Next generation messenger with maximum privacy','All messages are protected by encryption.','Become invisible to all other users.','Messages that disappear after reading.'],next:'Next',skip:'Skip',start:'Start',regTitle:'Create username',regSub:'Your unique identifier in Logos. No phone number, no email.',regName:'Username',regPass:'Password',regBtn:'Next',regLegalBefore:'By registering, you agree to the ',regTerms:'Terms of Service',regAnd:' and ',regPolicy:'Privacy Policy',regExtra:'Additional options',displayTitle:'What\'s your name?',displaySub:'This name will be seen by other users',displayPlaceholder:'Display name',displayBtn:'Done',welcomeTitle:'Welcome!',welcomeSub:'Your account has been successfully created',labelName:'Your name',labelUsername:'Your username',labelDate:'Registration date',labelTheme:'Theme',labelLang:'Language',betaBadge:'✅ You signed up for beta-test',startChat:'Start chatting',extraTitle:'Additional options',autoDeleteLabel:'Auto-delete account',proxyLabel:'Proxy/Tor server',extraSave:'Save',termsTitle:'Terms of Service',termsBody:'<h4>1. General</h4><p>These terms govern the use of Logos messenger.</p><h4>2. Privacy</h4><p>Logos uses end-to-end encryption.</p><h4>3. Responsibility</h4><p>The user bears full responsibility.</p><h4>4. Blocking</h4><p>Administration reserves the right to block accounts.</p>',policyTitle:'Privacy Policy',policyBody:'<h4>1. Data</h4><p>Logos collects minimal data.</p><h4>2. Storage</h4><p>Data is stored encrypted.</p><h4>3. Sharing</h4><p>Logos never shares data.</p><h4>4. Deletion</h4><p>You can delete your account anytime.</p>',termsClose:'Got it'},
+'ZH':{h:['欢迎来到 Logos','端到端加密','隐身模式','幻影消息'],p:['具有最大隐私的新一代信使','所有消息都受到加密保护。','让自己对所有其他用户不可见。','阅读后消失的消息。'],next:'下一步',skip:'跳过',start:'开始',regTitle:'创建用户名',regSub:'您在Logos中的唯一标识。',regName:'用户名',regPass:'密码',regBtn:'下一步',regLegalBefore:'注册即表示您同意',regTerms:'服务条款',regAnd:'和',regPolicy:'隐私政策',regExtra:'其他选项',displayTitle:'你的名字是什么？',displaySub:'其他用户将看到这个名字',displayPlaceholder:'显示名称',displayBtn:'完成',welcomeTitle:'欢迎！',welcomeSub:'您的账户已成功创建',labelName:'名字',labelUsername:'用户名',labelDate:'注册日期',labelTheme:'主题',labelLang:'语言',betaBadge:'✅ 您已注册beta测试',startChat:'开始聊天',extraTitle:'其他选项',autoDeleteLabel:'自动删除账户',proxyLabel:'代理/Tor',extraSave:'保存',termsTitle:'服务条款',termsBody:'<h4>1. 总则</h4><p>本条款规范Logos的使用。</p>',policyTitle:'隐私政策',policyBody:'<h4>1. 数据</h4>',termsClose:'知道了'},
+'ES':{h:['Bienvenido a Logos','Cifrado','Modo Fantasma','Mensajes Fantasma'],p:['Mensajero con máxima privacidad','Todos los mensajes están protegidos.','Hazte invisible para todos.','Mensajes que desaparecen.'],next:'Siguiente',skip:'Omitir',start:'Comenzar',regTitle:'Crear usuario',regSub:'Su identificador único en Logos.',regName:'Usuario',regPass:'Contraseña',regBtn:'Siguiente',regLegalBefore:'Al registrarse, acepta los ',regTerms:'Términos',regAnd:' y la ',regPolicy:'Privacidad',regExtra:'Opciones',displayTitle:'¿Cómo te llamas?',displaySub:'Otros usuarios verán este nombre',displayPlaceholder:'Nombre público',displayBtn:'Hecho',welcomeTitle:'¡Bienvenido!',welcomeSub:'Tu cuenta ha sido creada',labelName:'Nombre',labelUsername:'Usuario',labelDate:'Fecha',labelTheme:'Tema',labelLang:'Idioma',betaBadge:'✅ Beta tester',startChat:'Chat',extraTitle:'Opciones',autoDeleteLabel:'Auto-eliminar cuenta',proxyLabel:'Proxy/Tor',extraSave:'Guardar',termsTitle:'Términos',termsBody:'<h4>1.</h4>',policyTitle:'Privacidad',policyBody:'<h4>1.</h4>',termsClose:'OK'},
+'AR':{h:['مرحباً بك في Logos','التشفير','وضع الشبح','الرسائل الوهمية'],p:['خصوصية قصوى','جميع الرسائل محمية.','كن غير مرئي.','رسائل تختفي.'],next:'التالي',skip:'تخطي',start:'ابدأ',regTitle:'اسم المستخدم',regSub:'معرفك الفريد في Logos.',regName:'المستخدم',regPass:'كلمة المرور',regBtn:'التالي',regLegalBefore:'بالتسجيل، أنت توافق على ',regTerms:'الشروط',regAnd:' و ',regPolicy:'الخصوصية',regExtra:'خيارات',displayTitle:'ما اسمك؟',displaySub:'هذا الاسم سيراه الآخرون',displayPlaceholder:'اسم العرض',displayBtn:'تم',welcomeTitle:'أهلاً!',welcomeSub:'تم إنشاء حسابك',labelName:'الاسم',labelUsername:'المستخدم',labelDate:'التاريخ',labelTheme:'المظهر',labelLang:'اللغة',betaBadge:'✅ مسجل في beta',startChat:'ابدأ',extraTitle:'خيارات',autoDeleteLabel:'حذف تلقائي',proxyLabel:'وكيل/Tor',extraSave:'حفظ',termsTitle:'الشروط',termsBody:'<h4>۱.</h4>',policyTitle:'الخصوصية',policyBody:'<h4>۱.</h4>',termsClose:'فهمت'}
 };
 
 function setLang(code){
