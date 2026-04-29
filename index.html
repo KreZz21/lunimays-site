@@ -5,174 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Logos App</title>
     <style>
+        @media (orientation: landscape) {
+            body { display: flex; justify-content: center; align-items: center; background: #000; }
+            body::before { content: "Пожалуйста, поверните устройство"; color: white; font-size: 18px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; }
+            .app-screen { display: none; }
+        }
+
         :root {
-            --blue: #007aff;
-            --green: #2ecc71;
-            --purple: #bf5af2;
-            --orange: #ff9500;
-            --red: #ff3b30;
-            --gray: #e5e5ea;
-            --text-gray: #8e8e93;
-            --bg: #ffffff;
-            --card: #ffffff;
-            --nav-bg: #f2f2f7;
-            --text-main: #000000;
-            --input-bg: #f2f2f7;
-            --glow-1: rgba(0, 122, 255, 0.05);
-            --glow-2: rgba(0, 122, 255, 0.03);
-            --glow-3: rgba(0, 122, 255, 0.15);
-            --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --blue: #007aff; --green: #2ecc71; --purple: #bf5af2; --orange: #ff9500; --red: #ff3b30;
+            --gray: #e5e5ea; --text-gray: #8e8e93; --bg: #ffffff; --card: #ffffff; --nav-bg: #f2f2f7;
+            --text-main: #000000; --input-bg: #f2f2f7;
+            --glow-1: rgba(0,122,255,0.05); --glow-2: rgba(0,122,255,0.03); --glow-3: rgba(0,122,255,0.15);
+            --safe-top: env(safe-area-inset-top,0px); --safe-bottom: env(safe-area-inset-bottom,0px);
         }
 
         body.dark-mode {
-            --bg: #000000;
-            --card: #1c1c1e;
-            --nav-bg: #2c2c2e;
-            --text-main: #ffffff;
-            --gray: #3a3a3c;
-            --input-bg: #1c1c1e;
-            --glow-1: rgba(0, 122, 255, 0.08);
-            --glow-2: rgba(0, 122, 255, 0.05);
-            --glow-3: rgba(0, 122, 255, 0.2);
+            --bg: #000000; --card: #1c1c1e; --nav-bg: #2c2c2e; --text-main: #ffffff;
+            --gray: #3a3a3c; --input-bg: #1c1c1e;
+            --glow-1: rgba(0,122,255,0.08); --glow-2: rgba(0,122,255,0.05); --glow-3: rgba(0,122,255,0.2);
         }
 
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-user-select: none;
-            user-select: none;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background: var(--bg);
-            transition: background 0.4s ease;
-        }
-
-        body.rtl { direction: rtl; }
+        html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background: var(--bg); transition: background 0.4s ease; }
 
         .app-screen {
-            width: 100%;
-            height: 100%;
-            max-width: 100%;
-            max-height: 100%;
-            background: var(--bg);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transition: background 0.4s ease;
-            padding-top: var(--safe-top);
-            padding-bottom: var(--safe-bottom);
+            width: 100%; height: 100%; background: var(--bg); position: relative;
+            display: flex; flex-direction: column; overflow: hidden;
+            transition: background 0.4s ease; padding-top: var(--safe-top); padding-bottom: var(--safe-bottom);
         }
 
-        @media (min-width: 500px) {
-            body {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background-color: #f8f9fa;
-            }
-            .app-screen {
-                width: 375px;
-                height: 720px;
-                border-radius: 40px;
-                box-shadow: 0 30px 60px rgba(0,0,0,0.12);
-                padding-top: 0;
-                padding-bottom: 0;
-            }
+        @media (min-width: 500px) and (orientation: portrait) {
+            body { display: flex; justify-content: center; align-items: center; background-color: #f8f9fa; }
+            body::before { display: none; }
+            .app-screen { width: 375px; height: 720px; border-radius: 40px; box-shadow: 0 30px 60px rgba(0,0,0,0.12); padding-top: 0; padding-bottom: 0; display: flex; }
         }
+        @media (min-width: 500px) and (orientation: landscape) { body::before { display: none; } .app-screen { display: flex; } }
 
-        .top-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 20px 16px;
-            position: relative;
-            z-index: 10;
-            flex-shrink: 0;
-        }
-
-        .lang-select, .moon-btn, .back-btn {
-            background: var(--nav-bg);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-main);
-            cursor: pointer;
-            transition: all 0.4s ease;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            outline: none;
-        }
-
+        .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 20px 16px; position: relative; z-index: 10; flex-shrink: 0; }
+        .lang-select, .moon-btn, .back-btn { background: var(--nav-bg); padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--text-main); cursor: pointer; transition: all 0.4s ease; border: none; display: flex; align-items: center; gap: 6px; outline: none; }
         .lang-select:active, .moon-btn:active, .back-btn:active { opacity: 0.6; }
+        .moon-btn, .back-btn { width: 32px; height: 32px; padding: 0; justify-content: center; }
+        .page-info { position: absolute; left: 50%; transform: translateX(-50%); font-size: 13px; color: var(--text-gray); transition: color 0.4s ease; }
 
-        .moon-btn, .back-btn { 
-            width: 32px; height: 32px; padding: 0; justify-content: center; 
-        }
-
-        .page-info {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 13px;
-            color: var(--text-gray);
-            transition: color 0.4s ease;
-        }
-
-        #onboardingScreen {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .slider {
-            display: flex;
-            width: 400%;
-            height: 100%;
-            transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
-        }
-
-        .slide {
-            width: 25%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding-top: 80px;
-        }
-
+        #onboardingScreen { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .slider { display: flex; width: 400%; height: 100%; transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
+        .slide { width: 25%; height: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 80px; }
         .logo-wrap { position: relative; margin-bottom: 45px; }
-
-        .circle {
-            width: 95px; height: 95px; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            color: white; position: relative; z-index: 2; transform: scale(0);
-        }
-
+        .circle { width: 95px; height: 95px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; position: relative; z-index: 2; transform: scale(0); }
+        .circle::after { content: ''; position: absolute; inset: 0; border-radius: 50%; z-index: -1; opacity: 0; transform: scale(0.5); }
         .letter-l { font-size: 52px; font-weight: 800; line-height: 1; }
-
-        .circle::after {
-            content: ''; position: absolute; inset: 0; border-radius: 50%;
-            z-index: -1; opacity: 0; transform: scale(0.5);
-        }
-
         .logo-blue { background: linear-gradient(135deg, #4cb1ff, var(--blue)); }
         .logo-blue::after { box-shadow: 0 0 0 20px rgba(0,122,255,0.1), 0 0 80px rgba(0,122,255,0.3); }
         .logo-green { background: linear-gradient(135deg, #2ecc71, #27ae60); }
@@ -181,317 +64,113 @@
         .logo-purple::after { box-shadow: 0 0 0 20px rgba(191,90,242,0.1), 0 0 80px rgba(191,90,242,0.3); }
         .logo-orange { background: linear-gradient(135deg, #ffb347, var(--orange)); }
         .logo-orange::after { box-shadow: 0 0 0 20px rgba(255,149,0,0.1), 0 0 80px rgba(255,149,0,0.3); }
-
-        .content-box { 
-            opacity: 0; transform: translateY(20px); 
-            color: var(--text-main);
-            transition: color 0.4s ease;
-        }
+        .content-box { opacity: 0; transform: translateY(20px); color: var(--text-main); transition: color 0.4s ease; }
         h1 { font-size: 26px; margin-bottom: 14px; font-weight: 700; line-height: 1.2; padding: 0 20px; }
-        .sub-text { 
-            color: var(--text-gray); font-size: 15px; 
-            line-height: 1.45; padding: 0 45px; margin: 0;
-            transition: color 0.4s ease;
-        }
-
-        .animate .circle { animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 0.2s; }
+        .sub-text { color: var(--text-gray); font-size: 15px; line-height: 1.45; padding: 0 45px; margin: 0; transition: color 0.4s ease; }
+        .animate .circle { animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards 0.2s; }
         .animate .circle::after { animation: glowExpand 0.8s ease-out forwards 0.5s; }
         .animate .content-box { animation: slideUp 0.8s ease forwards 0.4s; }
 
-        .bottom-section {
-            position: absolute;
-            bottom: 0; width: 100%;
-            padding: 0 25px 40px;
-            box-sizing: border-box;
-            z-index: 10;
-            background: var(--bg);
-            transition: background 0.4s ease;
-        }
-
-        @media (max-width: 500px) {
-            .bottom-section {
-                padding-bottom: calc(40px + var(--safe-bottom));
-            }
-        }
-
+        .bottom-section { position: absolute; bottom: 0; width: 100%; padding: 0 25px 40px; box-sizing: border-box; z-index: 10; background: var(--bg); transition: background 0.4s ease; }
+        @media (max-width: 500px) { .bottom-section { padding-bottom: calc(40px + var(--safe-bottom)); } }
         .progress-steps { display: flex; gap: 5px; margin-bottom: 25px; }
-        .step { 
-            height: 3px; flex: 1; background: var(--gray); 
-            border-radius: 2px; transition: background 0.4s ease; 
-        }
-        .step.done-blue { background: var(--blue); }
-        .step.done-green { background: var(--green); }
-        .step.done-purple { background: var(--purple); }
-        .step.done-orange { background: var(--orange); }
-
-        .btn-main {
-            width: 100%; background: var(--blue); color: white; border: none;
-            padding: 18px; border-radius: 30px; font-size: 17px; font-weight: 600;
-            display: flex; justify-content: center; align-items: center; gap: 10px;
-            cursor: pointer; transition: all 0.4s ease; outline: none;
-        }
-
+        .step { height: 3px; flex: 1; background: var(--gray); border-radius: 2px; transition: background 0.4s ease; cursor: pointer; }
+        .step.done-blue { background: var(--blue); } .step.done-green { background: var(--green); } .step.done-purple { background: var(--purple); } .step.done-orange { background: var(--orange); }
+        .btn-main { width: 100%; background: var(--blue); color: white; border: none; padding: 18px; border-radius: 30px; font-size: 17px; font-weight: 600; display: flex; justify-content: center; align-items: center; gap: 10px; cursor: pointer; transition: all 0.4s ease; outline: none; }
         .btn-main:active { opacity: 0.8; }
-
-        .btn-skip { 
-            width: 100%; background: none; border: none; 
-            color: var(--text-gray); font-size: 15px; margin-top: 15px; 
-            cursor: pointer; transition: opacity 0.4s; outline: none;
-        }
-
+        .btn-skip { width: 100%; background: none; border: none; color: var(--text-gray); font-size: 15px; margin-top: 15px; cursor: pointer; transition: opacity 0.4s; outline: none; }
         .btn-skip:active { opacity: 0.6; }
+        .s2-active .btn-main { background: var(--green); } .s3-active .btn-main { background: var(--purple); } .s4-active .btn-main { background: var(--orange); }
 
-        .s2-active .btn-main { background: var(--green); }
-        .s3-active .btn-main { background: var(--purple); }
-        .s4-active .btn-main { background: var(--orange); }
-
-        #registerScreen, #displayNameScreen, #welcomeScreen {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg);
-            display: flex;
-            flex-direction: column;
-            transform: translateY(100%);
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease;
-            z-index: 20;
-            padding-top: var(--safe-top);
-            padding-bottom: var(--safe-bottom);
+        #registerScreen, #displayNameScreen, #avatarScreen, #welcomeScreen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); display: flex; flex-direction: column;
+            transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.4,0,0.2,1), background 0.4s ease;
+            z-index: 20; padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); overflow-y: auto;
         }
+        @media (min-width: 500px) and (orientation: portrait) { #registerScreen, #displayNameScreen, #avatarScreen, #welcomeScreen { border-radius: 40px; padding-top: 0; padding-bottom: 0; } }
+        #registerScreen.active, #displayNameScreen.active, #avatarScreen.active, #welcomeScreen.active { transform: translateY(0); }
+        #welcomeScreen.active { z-index: 30; }
 
-        @media (min-width: 500px) {
-            #registerScreen, #displayNameScreen, #welcomeScreen {
-                border-radius: 40px;
-                padding-top: 0;
-                padding-bottom: 0;
-            }
-        }
+        .screen-top-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; flex-shrink: 0; }
+        .screen-top-nav .lang-select { position: absolute; left: 50%; transform: translateX(-50%); z-index: 5; }
+        .logout-btn { background: none; border: none; color: var(--red); font-size: 13px; font-weight: 600; cursor: pointer; padding: 6px 14px; border-radius: 20px; background: var(--nav-bg); outline: none; transition: all 0.4s ease; }
+        .logout-btn:active { opacity: 0.6; }
 
-        #registerScreen.active, #displayNameScreen.active, #welcomeScreen.active { transform: translateY(0); }
-
-        .screen-top-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            flex-shrink: 0;
-        }
-
-        .screen-top-nav .lang-select {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 5;
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 24px;
-            text-align: center;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.5s ease 0.2s;
-            overflow-y: auto;
-        }
-
+        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 30px; text-align: center; opacity: 0; transform: translateY(30px); transition: all 0.5s ease 0.2s; }
         .active .main-content { opacity: 1; transform: translateY(0); }
 
-        .circle-at, .circle-user, .circle-check {
-            border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            color: white; font-weight: 800;
-            position: relative; z-index: 2;
-            animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards 0.3s;
-            flex-shrink: 0;
+        .circle-at, .circle-user, .circle-check, .avatar-preview-circle, .welcome-avatar {
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            color: white; font-weight: 800; position: relative; z-index: 2;
+            animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards 0.3s;
+            flex-shrink: 0; overflow: hidden;
         }
+        .circle-at { width: 85px; height: 85px; font-size: 38px; background: linear-gradient(135deg, #4cb1ff 0%, var(--blue) 100%); box-shadow: 0 0 0 12px var(--glow-1), 0 0 0 26px var(--glow-2), 0 0 45px var(--glow-3); margin-top: 10px; }
+        .circle-user { width: 70px; height: 70px; font-size: 34px; background: linear-gradient(135deg, #e056fd, #be2edd); box-shadow: 0 0 0 10px rgba(190,46,221,0.07), 0 0 0 22px rgba(190,46,221,0.04); margin-top: 10px; }
+        .circle-check { width: 70px; height: 70px; font-size: 34px; background: linear-gradient(135deg, #2ecc71, #27ae60); box-shadow: 0 0 0 10px rgba(46,204,113,0.07), 0 0 0 22px rgba(46,204,113,0.04); margin-top: 10px; }
+        .avatar-preview-circle { width: 100px; height: 100px; background: var(--blue); box-shadow: 0 12px 30px rgba(0,122,255,0.2); margin-top: 10px; }
+        .welcome-avatar { width: 70px; height: 70px; background: var(--blue); box-shadow: 0 0 0 10px rgba(0,122,255,0.07), 0 0 0 22px rgba(0,122,255,0.04); margin-top: 10px; }
 
-        .circle-at {
-            width: 85px; height: 85px; font-size: 38px;
-            background: linear-gradient(135deg, #4cb1ff 0%, var(--blue) 100%);
-            box-shadow: 0 0 0 12px var(--glow-1), 0 0 0 26px var(--glow-2), 0 0 45px var(--glow-3);
-            margin-top: 5px;
+        .avatar-preview-circle img, .avatar-preview-circle video,
+        .welcome-avatar img, .welcome-avatar video {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 3;
         }
+        .avatar-preview-circle svg, .welcome-avatar svg { position: relative; z-index: 2; }
 
-        .circle-user {
-            width: 70px; height: 70px; font-size: 34px;
-            background: linear-gradient(135deg, #e056fd, #be2edd);
-            box-shadow: 0 0 0 10px rgba(190, 46, 221, 0.07), 0 0 0 22px rgba(190, 46, 221, 0.04);
-            margin-top: 10px;
-        }
-
-        .circle-check {
-            width: 70px; height: 70px; font-size: 34px;
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            box-shadow: 0 0 0 10px rgba(46, 204, 113, 0.07), 0 0 0 22px rgba(46, 204, 113, 0.04);
-            margin-top: 10px;
-        }
-
-        .reg-title {
-            font-size: 20px; margin: 18px 0 8px 0;
-            font-weight: 700; padding: 0 25px;
-            color: var(--text-main); flex-shrink: 0;
-            transition: color 0.4s ease;
-        }
-
-        .reg-sub {
-            color: var(--text-gray); font-size: 13px;
-            line-height: 1.4; padding: 0 30px;
-            margin-bottom: 18px; flex-shrink: 0;
-            transition: color 0.4s ease;
-        }
-
-        .form-group {
-            width: 100%; display: flex; flex-direction: column;
-            gap: 0px; padding: 0 20px; flex-shrink: 0;
-        }
-
-        input {
-            width: 100%; background: var(--input-bg);
-            border: none; padding: 14px 16px; border-radius: 14px;
-            font-size: 15px; color: var(--text-main); outline: none;
-            transition: background 0.4s ease, box-shadow 0.2s, color 0.4s ease;
-            -webkit-appearance: none;
-        }
-
-        input:focus { box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.3); }
-
-        .input-error {
-            font-size: 11px; text-align: left;
-            padding: 2px 5px 4px 5px;
-            min-height: 20px; display: flex;
-            align-items: center; gap: 3px; flex-shrink: 0;
-            color: var(--red);
-        }
-
+        .reg-title { font-size: 20px; margin: 18px 0 8px 0; font-weight: 700; padding: 0 25px; color: var(--text-main); flex-shrink: 0; transition: color 0.4s ease; }
+        .reg-sub { color: var(--text-gray); font-size: 13px; line-height: 1.4; padding: 0 30px; margin-bottom: 14px; flex-shrink: 0; transition: color 0.4s ease; }
+        .form-group { width: 100%; display: flex; flex-direction: column; gap: 0px; padding: 0 20px; flex-shrink: 0; }
+        input { width: 100%; background: var(--input-bg); border: none; padding: 14px 16px; border-radius: 14px; font-size: 15px; color: var(--text-main); outline: none; transition: background 0.4s ease, box-shadow 0.2s, color 0.4s ease; -webkit-appearance: none; }
+        input:focus { box-shadow: 0 0 0 2px rgba(0,122,255,0.3); }
+        .input-error { font-size: 11px; text-align: left; padding: 2px 5px 4px 5px; min-height: 20px; display: flex; align-items: center; gap: 3px; flex-shrink: 0; color: var(--red); }
         .input-success { color: var(--green); }
 
-        .screen-footer {
-            padding: 0 25px 30px;
-            display: flex; flex-direction: column; align-items: center;
-            opacity: 0; transform: translateY(20px);
-            transition: all 0.5s ease 0.4s; flex-shrink: 0;
-        }
-
-        @media (max-width: 500px) {
-            .screen-footer {
-                padding-bottom: calc(30px + var(--safe-bottom));
-            }
-        }
-
+        .screen-footer { padding: 0 25px 20px; display: flex; flex-direction: column; align-items: center; opacity: 0; transform: translateY(20px); transition: all 0.5s ease 0.4s; flex-shrink: 0; }
+        @media (max-width: 500px) { .screen-footer { padding-bottom: calc(20px + var(--safe-bottom)); } }
         .active .screen-footer { opacity: 1; transform: translateY(0); }
-
-        .btn-next {
-            width: 100%; background: var(--blue); color: white;
-            border: none; padding: 14px; border-radius: 30px;
-            font-size: 16px; font-weight: 600; cursor: pointer;
-            margin-bottom: 8px; outline: none;
-            transition: background 0.4s ease, transform 0.2s;
-        }
-
+        .btn-next { width: 100%; background: var(--blue); color: white; border: none; padding: 14px; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 8px; outline: none; transition: background 0.4s ease, transform 0.2s; }
         .btn-next:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-next:active { transform: scale(0.97); }
-
-        .legal {
-            font-size: 10px; color: var(--text-gray);
-            line-height: 1.3; padding: 0 15px;
-            text-align: center; margin-bottom: 4px;
-            transition: color 0.4s ease;
-        }
+        .legal { font-size: 10px; color: var(--text-gray); line-height: 1.3; padding: 0 15px; text-align: center; margin-bottom: 4px; transition: color 0.4s ease; }
         .legal a { color: var(--blue); text-decoration: underline; cursor: pointer; }
-
-        .extra-btn {
-            background: none; border: none;
-            color: var(--text-gray); font-size: 13px;
-            cursor: pointer; display: flex; align-items: center;
-            gap: 5px; padding: 4px 0; outline: none;
-            transition: color 0.4s ease;
-        }
-
+        .extra-btn { background: none; border: none; color: var(--text-gray); font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 4px 0; outline: none; transition: color 0.4s ease; }
         .extra-btn:active { opacity: 0.6; }
 
-        .info-card {
-            width: 100%; padding: 0 25px; flex-shrink: 0;
-        }
+        /* АВАТАР */
+        .avatar-container { position: relative; width: 100px; height: 100px; cursor: pointer; margin-top: 10px; }
+        .add-badge { position: absolute; bottom: 0; right: 0; background: var(--blue); width: 32px; height: 32px; border-radius: 50%; border: 3px solid var(--bg); display: flex; justify-content: center; align-items: center; color: white; z-index: 10; }
+        .color-row { display: flex; justify-content: center; gap: 12px; margin: 10px 0; flex-shrink: 0; }
+        .color-dot { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; transition: transform 0.2s; box-shadow: 0 3px 8px rgba(0,0,0,0.15); }
+        .icon-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; padding: 0 35px; box-sizing: border-box; flex-shrink: 0; margin-bottom: 10px; }
+        .icon-item { aspect-ratio: 1; background: var(--input-bg); border-radius: 14px; display: flex; justify-content: center; align-items: center; color: var(--text-gray); cursor: pointer; transition: background 0.4s ease; }
+        .icon-item:active { opacity: 0.6; }
+        .pulse { animation: avatarPulse 0.3s ease-out; }
+        @keyframes avatarPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
+        #fileInput { display: none; }
 
-        .info-row {
-            display: flex; justify-content: space-between;
-            align-items: center; padding: 10px 0;
-            border-bottom: 1px solid var(--gray); font-size: 14px;
-            transition: border-color 0.4s ease;
-        }
+        .info-card { width: 100%; padding: 0 25px; flex-shrink: 0; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--gray); font-size: 14px; transition: border-color 0.4s ease; }
         .info-row:last-child { border-bottom: none; }
         .info-label { color: var(--text-gray); transition: color 0.4s ease; }
         .info-value { color: var(--text-main); font-weight: 500; transition: color 0.4s ease; }
+        .beta-badge { margin-top: 14px; background: var(--blue); color: white; padding: 10px 20px; border-radius: 22px; font-size: 13px; font-weight: 600; text-align: center; flex-shrink: 0; transition: background 0.4s ease; }
 
-        .beta-badge {
-            margin-top: 14px; background: var(--blue);
-            color: white; padding: 10px 20px; border-radius: 22px;
-            font-size: 13px; font-weight: 600; text-align: center; flex-shrink: 0;
-            transition: background 0.4s ease;
-        }
-
-        .lang-modal, .terms-modal, .extra-modal {
-            position: absolute; bottom: -100%; left: 0; width: 100%;
-            background: var(--card); border-radius: 30px 30px 0 0;
-            z-index: 100; padding: 20px 0 30px;
-            transition: bottom 0.4s, background 0.4s ease; 
-            color: var(--text-main);
-            max-height: 75%; overflow-y: auto;
-        }
-
-        @media (max-width: 500px) {
-            .lang-modal, .terms-modal, .extra-modal {
-                padding-bottom: calc(30px + var(--safe-bottom));
-            }
-        }
-
+        .lang-modal, .terms-modal, .extra-modal { position: absolute; bottom: -100%; left: 0; width: 100%; background: var(--card); border-radius: 30px 30px 0 0; z-index: 100; padding: 20px 0 30px; transition: bottom 0.4s, background 0.4s ease; color: var(--text-main); max-height: 75%; overflow-y: auto; }
+        @media (max-width: 500px) { .lang-modal, .terms-modal, .extra-modal { padding-bottom: calc(30px + var(--safe-bottom)); } }
         .lang-modal.open, .terms-modal.open, .extra-modal.open { bottom: 0; }
-
-        .lang-option {
-            padding: 16px 25px; font-size: 16px;
-            display: flex; justify-content: space-between; cursor: pointer;
-        }
+        .lang-option { padding: 16px 25px; font-size: 16px; display: flex; justify-content: space-between; cursor: pointer; }
         .lang-option .flag { margin-right: 10px; }
         .lang-option.selected { color: var(--blue); font-weight: 600; }
-
-        .terms-content, .extra-content {
-            padding: 0 20px; font-size: 13px; line-height: 1.5;
-        }
-        .terms-content h3, .extra-content h3 {
-            font-size: 17px; margin: 0 0 12px 0; text-align: center;
-        }
-
-        .extra-option {
-            display: flex; justify-content: space-between;
-            align-items: center; padding: 10px 0;
-            border-bottom: 1px solid var(--gray);
-        }
+        .terms-content, .extra-content { padding: 0 20px; font-size: 13px; line-height: 1.5; }
+        .terms-content h3, .extra-content h3 { font-size: 17px; margin: 0 0 12px 0; text-align: center; }
+        .extra-option { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--gray); }
         .extra-option span { font-size: 13px; }
-        .extra-option select, .extra-option input {
-            padding: 6px 10px; border-radius: 8px;
-            border: 1px solid var(--gray);
-            background: var(--input-bg); color: var(--text-main);
-            font-size: 12px; width: auto;
-        }
-
-        .terms-close, .extra-close {
-            display: block; width: calc(100% - 40px); margin: 15px auto 0;
-            padding: 12px; background: var(--blue); color: white;
-            border: none; border-radius: 22px; font-size: 15px;
-            font-weight: 600; cursor: pointer; text-align: center; outline: none;
-        }
-
+        .extra-option select, .extra-option input { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--gray); background: var(--input-bg); color: var(--text-main); font-size: 12px; width: auto; }
+        .terms-close, .extra-close { display: block; width: calc(100% - 40px); margin: 15px auto 0; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 22px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; outline: none; }
         .terms-close:active, .extra-close:active { opacity: 0.8; }
-
-        .overlay {
-            position: absolute; inset: 0;
-            background: rgba(0,0,0,0.4); z-index: 99;
-            opacity: 0; pointer-events: none; transition: 0.3s;
-        }
+        .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); z-index: 99; opacity: 0; pointer-events: none; transition: 0.3s; }
         .overlay.open { opacity: 1; pointer-events: auto; }
-
         .welcome-top-left { display: flex; align-items: center; gap: 10px; }
 
         @keyframes popIn { to { transform: scale(1); } }
@@ -502,143 +181,72 @@
 <body>
 <div class="app-screen" id="app">
     <div class="overlay" id="overlay"></div>
-    
-    <div class="lang-modal" id="langModal">
-        <div style="width:40px;height:5px;background:#888;border-radius:10px;margin:0 auto 15px;"></div>
-        <div class="lang-option" id="opt-RU" onclick="setLang('RU')"><span><span class="flag">🇷🇺</span>Русский</span><span class="check"></span></div>
-        <div class="lang-option" id="opt-EN" onclick="setLang('EN')"><span><span class="flag">🇺🇸</span>English</span><span class="check"></span></div>
-        <div class="lang-option" id="opt-ZH" onclick="setLang('ZH')"><span><span class="flag">🇨🇳</span>中文</span><span class="check"></span></div>
-        <div class="lang-option" id="opt-ES" onclick="setLang('ES')"><span><span class="flag">🇪🇸</span>Español</span><span class="check"></span></div>
-        <div class="lang-option" id="opt-AR" onclick="setLang('AR')"><span><span class="flag">🇸🇦</span>العربية</span><span class="check"></span></div>
-    </div>
-
-    <div class="terms-modal" id="termsModal">
-        <div style="width:40px;height:5px;background:#888;border-radius:10px;margin:0 auto 15px;"></div>
-        <div class="terms-content" id="termsContent"></div>
-        <button class="terms-close" onclick="closeTerms()" id="termsCloseBtn">Понятно</button>
-    </div>
-
-    <div class="extra-modal" id="extraModal">
-        <div style="width:40px;height:5px;background:#888;border-radius:10px;margin:0 auto 15px;"></div>
-        <div class="extra-content">
-            <h3 id="extraTitle">Дополнительные параметры</h3>
-            <div class="extra-option">
-                <span id="autoDeleteLabel">Автоудаление аккаунта</span>
-                <select id="autoDeleteSelect">
-                    <option value="never">Никогда</option>
-                    <option value="1month">Через месяц</option>
-                    <option value="6months">6 месяцев</option>
-                    <option value="1year">Год</option>
-                </select>
-            </div>
-            <p style="font-size:11px;color:var(--text-gray);margin:2px 0 6px 0;">Аккаунт и переписка удалятся, если не заходить указанное время</p>
-            <div class="extra-option">
-                <span id="proxyLabel">Прокси/Tor сервер</span>
-                <input type="text" id="proxyInput" placeholder="socks5://127.0.0.1:9050" style="width:120px;">
-            </div>
-            <p style="font-size:11px;color:var(--text-gray);margin:2px 0 6px 0;">Свой сервер при блокировке</p>
-        </div>
-        <button class="extra-close" onclick="saveExtra()" id="extraSaveBtn">Сохранить</button>
-    </div>
+    <div class="lang-modal" id="langModal"><div style="width:40px;height:5px;background:#888;border-radius:10px;margin:0 auto 15px;"></div><div class="lang-option" id="opt-RU" onclick="setLang('RU')"><span><span class="flag">🇷🇺</span>Русский</span><span class="check"></span></div><div class="lang-option" id="opt-EN" onclick="setLang('EN')"><span><span class="flag">🇺🇸</span>English</span><span class="check"></span></div><div class="lang-option" id="opt-ZH" onclick="setLang('ZH')"><span><span class="flag">🇨🇳</span>中文</span><span class="check"></span></div><div class="lang-option" id="opt-ES" onclick="setLang('ES')"><span><span class="flag">🇪🇸</span>Español</span><span class="check"></span></div></div>
+    <div class="terms-modal" id="termsModal"><div style="width:40px;height:5px;background:#888;border-radius:10px;margin:0 auto 15px;"></div><div class="terms-content" id="termsContent"></div><button class="terms-close" onclick="closeTerms()" id="termsCloseBtn">Понятно</button></div>
+    <div class="extra-modal" id="extraModal"><div style="width:40px;height:5px;background:#888;border-radius:10px;margin:0 auto 15px;"></div><div class="extra-content"><h3 id="extraTitle">Дополнительные параметры</h3><div class="extra-option"><span id="autoDeleteLabel">Автоудаление аккаунта</span><select id="autoDeleteSelect"><option value="never" id="optNever">Никогда</option><option value="1month" id="opt1m">Через месяц</option><option value="6months" id="opt6m">6 месяцев</option><option value="1year" id="opt1y">Год</option></select></div><p style="font-size:11px;color:var(--text-gray);margin:2px 0 6px 0;" id="autoDeleteHint">Аккаунт и переписка удалятся, если не заходить указанное время</p><div class="extra-option"><span id="proxyLabel">Прокси/Tor сервер</span><input type="text" id="proxyInput" placeholder="socks5://127.0.0.1:9050"></div><p style="font-size:11px;color:var(--text-gray);margin:2px 0 6px 0;" id="proxyHint">Свой сервер при блокировке</p></div><button class="extra-close" onclick="saveExtra()" id="extraSaveBtn">Сохранить</button></div>
 
     <!-- ОНБОРДИНГ -->
     <div id="onboardingScreen">
-        <div class="top-nav">
-            <div class="lang-select" id="langBtn">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                <span id="curLang">RU</span>
-            </div>
-            <div class="page-info" id="pageNumber">1 / 4</div>
-            <div class="moon-btn" id="themeBtn1">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            </div>
-        </div>
+        <div class="top-nav"><div class="lang-select" id="langBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="curLang">RU</span></div><div class="page-info" id="pageNumber">1 / 4</div><div class="moon-btn" id="themeBtn1"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div></div>
         <div class="slider" id="slider">
-            <div class="slide animate" id="slide1">
-                <div class="logo-wrap"><div class="circle logo-blue"><span class="letter-l">L</span></div></div>
-                <div class="content-box"><h1 id="h1">Добро пожаловать в Logos</h1><p id="p1" class="sub-text">Мессенджер нового поколения с максимальной конфиденциальностью</p></div>
-            </div>
-            <div class="slide" id="slide2">
-                <div class="logo-wrap"><div class="circle logo-green"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><rect x="9" y="10" width="6" height="5" rx="1"/><path d="M10 10V9a2 2 0 0 1 4 0v1"/></svg></div></div>
-                <div class="content-box"><h1 id="h2">Шифрование</h1><p id="p2" class="sub-text">Ваши данные защищены сквозным шифрованием.</p></div>
-            </div>
-            <div class="slide" id="slide3">
-                <div class="logo-wrap"><div class="circle logo-purple"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="1" y1="1" x2="23" y2="23"/></svg></div></div>
-                <div class="content-box"><h1 id="h3">Ghost Mode</h1><p id="p3" class="sub-text">Станьте невидимым для всех пользователей.</p></div>
-            </div>
-            <div class="slide" id="slide4">
-                <div class="logo-wrap"><div class="circle logo-orange"><svg width="42" height="42" viewBox="0 0 24 24" fill="white"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div></div>
-                <div class="content-box"><h1 id="h4">Фантомные сообщения</h1><p id="p4" class="sub-text">Сообщения, которые исчезают после прочтения.</p></div>
-            </div>
+            <div class="slide animate" id="slide1"><div class="logo-wrap"><div class="circle logo-blue"><span class="letter-l">L</span></div></div><div class="content-box"><h1 id="h1">Добро пожаловать в Logos</h1><p id="p1" class="sub-text">Мессенджер нового поколения с максимальной конфиденциальностью</p></div></div>
+            <div class="slide" id="slide2"><div class="logo-wrap"><div class="circle logo-green"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><rect x="9" y="10" width="6" height="5" rx="1"/><path d="M10 10V9a2 2 0 0 1 4 0v1"/></svg></div></div><div class="content-box"><h1 id="h2">Шифрование</h1><p id="p2" class="sub-text">Ваши данные защищены сквозным шифрованием.</p></div></div>
+            <div class="slide" id="slide3"><div class="logo-wrap"><div class="circle logo-purple"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="1" y1="1" x2="23" y2="23"/></svg></div></div><div class="content-box"><h1 id="h3">Ghost Mode</h1><p id="p3" class="sub-text">Станьте невидимым для всех пользователей.</p></div></div>
+            <div class="slide" id="slide4"><div class="logo-wrap"><div class="circle logo-orange"><svg width="42" height="42" viewBox="0 0 24 24" fill="white"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div></div><div class="content-box"><h1 id="h4">Фантомные сообщения</h1><p id="p4" class="sub-text">Сообщения, которые исчезают после прочтения.</p></div></div>
         </div>
-        <div class="bottom-section">
-            <div class="progress-steps"><div class="step done-blue" id="s1"></div><div class="step" id="s2"></div><div class="step" id="s3"></div><div class="step" id="s4"></div></div>
-            <button class="btn-main" id="nextBtn"><span id="btnText">Далее</span><svg id="btnIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
-            <button class="btn-skip" id="skipBtn">Пропустить</button>
-        </div>
+        <div class="bottom-section"><div class="progress-steps"><div class="step done-blue" id="s1" onclick="goToSlide(1)"></div><div class="step" id="s2" onclick="goToSlide(2)"></div><div class="step" id="s3" onclick="goToSlide(3)"></div><div class="step" id="s4" onclick="goToSlide(4)"></div></div><button class="btn-main" id="nextBtn"><span id="btnText">Далее</span><svg id="btnIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button><button class="btn-skip" id="skipBtn">Пропустить</button></div>
     </div>
 
     <!-- РЕГИСТРАЦИЯ -->
-    <div id="registerScreen">
-        <div class="screen-top-nav">
-            <button class="back-btn" onclick="hideRegister()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-            <div class="lang-select" id="langBtn2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="curLang2">RU</span></div>
-            <div class="moon-btn" id="themeBtn2"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
-        </div>
-        <div class="main-content">
-            <div class="logo-wrap"><div class="circle-at">@</div></div>
-            <h1 class="reg-title" id="regTitle">Создайте имя пользователя</h1>
-            <p class="reg-sub" id="regSub">Это ваш уникальный идентификатор в Logos. Без номера телефона, без почты.</p>
-            <div class="form-group">
-                <input type="text" id="username" placeholder="Имя пользователя" spellcheck="false" autocomplete="off">
-                <div class="input-error" id="usernameError"></div>
-                <input type="password" id="password" placeholder="Пароль">
-                <div class="input-error" id="passwordError"></div>
-            </div>
-        </div>
-        <div class="screen-footer">
-            <button class="btn-next" id="submitBtn">Далее</button>
-            <div class="legal" id="legalText">Регистрируясь, вы соглашаетесь с <a onclick="showTerms()">Условиями использования</a> и <a onclick="showPolicy()">Политикой конфиденциальности</a></div>
-            <button class="extra-btn" onclick="showExtra()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg><span id="extraText">Дополнительные параметры</span></button>
-        </div>
+    <div id="registerScreen"><div class="screen-top-nav"><button class="back-btn" onclick="hideRegister()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button><div class="lang-select" id="langBtn2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="curLang2">RU</span></div><div class="moon-btn" id="themeBtn2"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div></div>
+        <div class="main-content"><div class="logo-wrap"><div class="circle-at">@</div></div><h1 class="reg-title" id="regTitle">Создайте имя пользователя</h1><p class="reg-sub" id="regSub">Это ваш уникальный идентификатор в Logos. Без номера телефона, без почты.</p><div class="form-group"><input type="text" id="username" placeholder="Имя пользователя" spellcheck="false" autocomplete="off"><div class="input-error" id="usernameError"></div><input type="password" id="password" placeholder="Пароль"><div class="input-error" id="passwordError"></div></div></div>
+        <div class="screen-footer"><button class="btn-next" id="submitBtn">Далее</button><div class="legal" id="legalText">Регистрируясь, вы соглашаетесь с <a onclick="showTerms()">Условиями использования</a> и <a onclick="showPolicy()">Политикой конфиденциальности</a></div><button class="extra-btn" onclick="showExtra()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg><span id="extraText">Дополнительные параметры</span></button></div>
     </div>
 
     <!-- КАК ВАС ЗОВУТ -->
-    <div id="displayNameScreen">
-        <div class="screen-top-nav">
-            <button class="back-btn" onclick="hideDisplayName()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-            <div class="lang-select" id="langBtn3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="curLang3">RU</span></div>
-            <div class="moon-btn" id="themeBtn3"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
-        </div>
+    <div id="displayNameScreen"><div class="screen-top-nav"><button class="back-btn" onclick="hideDisplayName()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button><div class="lang-select" id="langBtn3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="curLang3">RU</span></div><div class="moon-btn" id="themeBtn3"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div></div>
+        <div class="main-content"><div class="logo-wrap"><div class="circle-user"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div></div><h1 class="reg-title" id="displayTitle">Как вас зовут?</h1><p class="reg-sub" id="displaySub">Это имя увидят другие пользователи</p><div class="form-group"><input type="text" id="displayNameInput" placeholder="Отображаемое имя"><div class="input-error" id="displayError"></div></div></div>
+        <div class="screen-footer"><button class="btn-next" id="displayNameBtn">Далее</button></div>
+    </div>
+
+    <!-- АВАТАР -->
+    <div id="avatarScreen"><div class="screen-top-nav"><button class="back-btn" onclick="hideAvatar()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button><div class="lang-select" id="langBtn5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="curLang5">RU</span></div><div class="moon-btn" id="themeBtn5"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div></div>
         <div class="main-content">
-            <div class="logo-wrap"><div class="circle-user"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div></div>
-            <h1 class="reg-title" id="displayTitle">Как вас зовут?</h1>
-            <p class="reg-sub" id="displaySub">Это имя увидят другие пользователи</p>
-            <div class="form-group">
-                <input type="text" id="displayNameInput" placeholder="Отображаемое имя">
-                <div class="input-error" id="displayError"></div>
+            <div class="avatar-container" id="avatarBox" onclick="document.getElementById('fileInput').click()">
+                <div class="avatar-preview-circle" id="avatarPreview" style="background:linear-gradient(135deg,#4cb1ff,#007aff);">
+                    <img id="userImg" src=""><video id="userVideo" autoplay loop muted playsinline></video>
+                    <svg viewBox="0 0 24 24" fill="currentColor" id="mainIcon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+                </div>
+                <div class="add-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
             </div>
+            <h1 class="reg-title" id="avatarTitle">Выберите аватар</h1>
+            <p class="reg-sub" id="avatarSub">Выберите цвет или загрузите своё фото/видео</p>
+            <div class="color-row">
+                <div class="color-dot" style="background:linear-gradient(135deg,#4cb1ff,#007aff)" onclick="setAvatarColor('#4cb1ff','#007aff')"></div>
+                <div class="color-dot" style="background:linear-gradient(135deg,#e056fd,#be2edd)" onclick="setAvatarColor('#e056fd','#be2edd')"></div>
+                <div class="color-dot" style="background:linear-gradient(135deg,#2ecc71,#27ae60)" onclick="setAvatarColor('#2ecc71','#27ae60')"></div>
+                <div class="color-dot" style="background:linear-gradient(135deg,#ff9f43,#ee5253)" onclick="setAvatarColor('#ff9f43','#ee5253')"></div>
+                <div class="color-dot" style="background:linear-gradient(135deg,#5f27cd,#341f97)" onclick="setAvatarColor('#5f27cd','#341f97')"></div>
+                <div class="color-dot" style="background:#222" onclick="setAvatarColor('#444','#111')"></div>
+            </div>
+            <div class="icon-grid" id="iconGrid"></div>
         </div>
-        <div class="screen-footer"><button class="btn-next" id="displayNameBtn">Готово</button></div>
+        <input type="file" id="fileInput" accept="image/*,video/*">
+        <div class="screen-footer"><button class="btn-next" id="avatarBtn">Готово</button></div>
     </div>
 
     <!-- ФИНАЛ -->
-    <div id="welcomeScreen">
-        <div class="screen-top-nav">
-            <div class="welcome-top-left"><div class="lang-select" id="langBtn4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="curLang4">RU</span></div></div>
-            <div class="moon-btn" id="themeBtn4"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
-        </div>
+    <div id="welcomeScreen"><div class="screen-top-nav"><div class="welcome-top-left"><div class="lang-select" id="langBtn4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="curLang4">RU</span></div></div><div style="display:flex;align-items:center;gap:8px;"><button class="logout-btn" onclick="logout()" id="logoutBtn">Выйти</button><div class="moon-btn" id="themeBtn4"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div></div></div>
         <div class="main-content">
-            <div class="logo-wrap"><div class="circle-check"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+            <div class="logo-wrap">
+                <div class="welcome-avatar" id="welcomeAvatar" style="background:linear-gradient(135deg,#4cb1ff,#007aff);">
+                    <img id="welcomeImg" src=""><video id="welcomeVideo" autoplay loop muted playsinline></video>
+                    <svg viewBox="0 0 24 24" fill="currentColor" id="welcomeIcon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+                </div>
+            </div>
             <h1 class="reg-title" id="welcomeTitle">Добро пожаловать!</h1>
             <p class="reg-sub" id="welcomeSub">Ваш аккаунт успешно создан</p>
-            <div class="info-card">
-                <div class="info-row"><span class="info-label" id="labelName">Ваше имя</span><span class="info-value" id="valName">—</span></div>
-                <div class="info-row"><span class="info-label" id="labelUsername">Ваш username</span><span class="info-value" id="valUsername">—</span></div>
-                <div class="info-row"><span class="info-label" id="labelDate">Дата регистрации</span><span class="info-value" id="valDate">—</span></div>
-                <div class="info-row"><span class="info-label" id="labelTheme">Тема</span><span class="info-value" id="valTheme">—</span></div>
-                <div class="info-row"><span class="info-label" id="labelLang">Язык</span><span class="info-value" id="valLang">—</span></div>
-            </div>
+            <div class="info-card"><div class="info-row"><span class="info-label" id="labelName">Ваше имя</span><span class="info-value" id="valName">—</span></div><div class="info-row"><span class="info-label" id="labelUsername">Ваш username</span><span class="info-value" id="valUsername">—</span></div><div class="info-row"><span class="info-label" id="labelDate">Дата регистрации</span><span class="info-value" id="valDate">—</span></div><div class="info-row"><span class="info-label" id="labelTheme">Тема</span><span class="info-value" id="valTheme">—</span></div><div class="info-row"><span class="info-label" id="labelLang">Язык</span><span class="info-value" id="valLang">—</span></div></div>
             <div class="beta-badge" id="betaBadge">✅ Вы записались на beta-test</div>
         </div>
         <div class="screen-footer"><button class="btn-next" id="startChatBtn">Начать общение</button></div>
@@ -648,133 +256,156 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
+screen.orientation.lock('portrait').catch(()=>{});
+
 const firebaseConfig={apiKey:"AIzaSyC5ffpuq0fK-PBS53Q2RHOi4w4-lmrBoFg",authDomain:"logos-c1b90.firebaseapp.com",projectId:"logos-c1b90",databaseURL:"https://logos-c1b90-default-rtdb.firebaseio.com",storageBucket:"logos-c1b90.firebasestorage.app",messagingSenderId:"430181345570",appId:"1:430181345570:web:5fd520b01aacd913b59d7b"};
 async function sha256(m){const b=new TextEncoder().encode(m);const h=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('');}
 firebase.initializeApp(firebaseConfig);const database=firebase.database();
 
+// ==================== ТЕМА И ЯЗЫК ====================
+function saveTheme(){localStorage.setItem('logos_theme',document.body.classList.contains('dark-mode')?'dark':'light');}
+function loadTheme(){if(localStorage.getItem('logos_theme')==='dark'){document.body.classList.add('dark-mode');}else{document.body.classList.remove('dark-mode');}}
+function saveLang(){localStorage.setItem('logos_lang',curCode);}
+function loadLang(){return localStorage.getItem('logos_lang')||'RU';}
+
+// ==================== АВАТАР ====================
+const avatarBox=document.getElementById('avatarBox'),userImg=document.getElementById('userImg'),userVideo=document.getElementById('userVideo'),mainIcon=document.getElementById('mainIcon'),fileInput=document.getElementById('fileInput'),avatarPreview=document.getElementById('avatarPreview');
+const welcomeAvatar=document.getElementById('welcomeAvatar'),welcomeImg=document.getElementById('welcomeImg'),welcomeVideo=document.getElementById('welcomeVideo'),welcomeIcon=document.getElementById('welcomeIcon');
+
+const iconPaths=['M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z','M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z','M13 2L3 14h9l-1 8 10-12h-9l1-8z','M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z','M18 8a6 6 0 0 0-12 0c0 7 3 9 3 9h6s3-2 3-9','M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z','M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z','M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0 M12 9v4 M12 16v.01','M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z M3 6h18','M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z','M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7zm10-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z','M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5'];
+
+let avatarData={type:'gradient',gradient:['#4cb1ff','#007aff'],icon:iconPaths[0],image:'',video:''};
+
+function pulse(){avatarBox.classList.remove('pulse');void avatarBox.offsetWidth;avatarBox.classList.add('pulse');}
+function resetMedia(){userImg.style.display='none';userVideo.style.display='none';userVideo.pause();mainIcon.style.display='block';mainIcon.style.position='relative';mainIcon.style.zIndex='2';avatarData.image='';avatarData.video='';}
+
+fileInput.addEventListener('change',function(){const file=this.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(e){resetMedia();mainIcon.style.display='none';if(file.type.startsWith('video/')){userVideo.src=e.target.result;userVideo.style.display='block';userVideo.play();avatarData.type='video';avatarData.video=e.target.result;}else{userImg.src=e.target.result;userImg.style.display='block';avatarData.type='image';avatarData.image=e.target.result;}pulse();};reader.readAsDataURL(file);});
+
+function setAvatarColor(c1,c2){resetMedia();avatarPreview.style.background=`linear-gradient(135deg,${c1},${c2})`;avatarData.type='gradient';avatarData.gradient=[c1,c2];pulse();}
+
+const grid=document.getElementById('iconGrid');
+iconPaths.forEach((path,i)=>{const div=document.createElement('div');div.className='icon-item';div.innerHTML=`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="${path}"/></svg>`;div.onclick=()=>{resetMedia();mainIcon.innerHTML=`<path d="${path}"/>`;avatarData.type='gradient';avatarData.icon=path;avatarData.image='';avatarData.video='';pulse();};grid.appendChild(div);});
+
+// Сохранение аватара
+document.getElementById('avatarBtn').addEventListener('click',async()=>{
+    const user=localStorage.getItem('logos_user');
+    // Сохраняем в localStorage
+    localStorage.setItem('logos_avatar',JSON.stringify(avatarData));
+    // Сохраняем в Firebase
+    try{
+        await database.ref('users/'+user+'/avatar').set({
+            type:avatarData.type,
+            gradient:avatarData.gradient,
+            icon:avatarData.icon,
+            image:avatarData.image,
+            video:avatarData.video
+        });
+    }catch(e){console.error(e);}
+    
+    hideAvatar();
+    displayWelcomeAvatar();
+    showWelcome(user,localStorage.getItem('logos_display_name'),localStorage.getItem('logos_createdAt'));
+});
+
+// Отображение аватара на финальном экране
+function displayWelcomeAvatar(){
+    const saved=localStorage.getItem('logos_avatar');
+    if(!saved)return;
+    const data=JSON.parse(saved);
+    welcomeImg.style.display='none';welcomeVideo.style.display='none';welcomeVideo.pause();welcomeIcon.style.display='block';
+    
+    if(data.type==='gradient'){
+        welcomeAvatar.style.background=`linear-gradient(135deg,${data.gradient[0]},${data.gradient[1]})`;
+        welcomeIcon.innerHTML=`<path d="${data.icon}"/>`;
+    }else if(data.type==='image' && data.image){
+        welcomeAvatar.style.background='';
+        welcomeIcon.style.display='none';
+        welcomeImg.src=data.image;
+        welcomeImg.style.display='block';
+    }else if(data.type==='video' && data.video){
+        welcomeAvatar.style.background='';
+        welcomeIcon.style.display='none';
+        welcomeVideo.src=data.video;
+        welcomeVideo.style.display='block';
+        welcomeVideo.play();
+    }
+}
+
+// Загрузка аватара при старте
+function loadAvatar(){
+    const saved=localStorage.getItem('logos_avatar');
+    if(saved){
+        avatarData=JSON.parse(saved);
+        if(avatarData.type==='gradient'){
+            avatarPreview.style.background=`linear-gradient(135deg,${avatarData.gradient[0]},${avatarData.gradient[1]})`;
+            mainIcon.innerHTML=`<path d="${avatarData.icon}"/>`;
+            resetMedia();
+        }
+    }
+}
+
+// ==================== ОСНОВНОЙ КОД ====================
 const submitBtn=document.getElementById('submitBtn'),userInp=document.getElementById('username'),passInp=document.getElementById('password'),usernameError=document.getElementById('usernameError'),passwordError=document.getElementById('passwordError'),displayNameBtn=document.getElementById('displayNameBtn'),displayNameInput=document.getElementById('displayNameInput'),displayError=document.getElementById('displayError'),startChatBtn=document.getElementById('startChatBtn');
+let accountExists=false;
+
+function checkSession(){
+    const savedUser=localStorage.getItem('logos_user');
+    const savedName=localStorage.getItem('logos_display_name');
+    const savedDate=localStorage.getItem('logos_createdAt');
+    if(savedUser && savedName){
+        displayWelcomeAvatar();
+        showWelcome(savedUser,savedName,savedDate);
+        return true;
+    }
+    return false;
+}
+
+function logout(){
+    ['logos_user','logos_display_name','logos_createdAt','logos_avatar'].forEach(k=>localStorage.removeItem(k));
+    document.getElementById('welcomeScreen').classList.remove('active');document.getElementById('onboardingScreen').style.display='';
+    document.getElementById('registerScreen').classList.remove('active');document.getElementById('displayNameScreen').classList.remove('active');document.getElementById('avatarScreen').classList.remove('active');
+    userInp.value='';passInp.value='';usernameError.innerHTML='';passwordError.innerHTML='';currentStep=1;goToSlide(1);
+}
 
 let checkTimeout;
-userInp.addEventListener('input',function(){
-    usernameError.classList.remove('input-success');
-    const val=this.value.trim().toLowerCase();
-    clearTimeout(checkTimeout);
-    if(val.length===0){usernameError.innerHTML='';return;}
-    if(val.length<3){usernameError.innerHTML='⚠️ Минимум 3 символа';return;}
-    if(!/^[a-zA-Z0-9_]+$/.test(val)){usernameError.innerHTML='⚠️ Только латиница, цифры и _';return;}
-    usernameError.innerHTML='Проверка...';
-    checkTimeout=setTimeout(async()=>{
-        try{const snap=await database.ref('users/'+val).once('value');
-            if(snap.exists()){
-                usernameError.innerHTML='🔐 Аккаунт существует. Введите пароль';
-                usernameError.classList.add('input-success');
-                passInp.placeholder='Введите пароль для входа';
-                passInp.focus();
-            }else{
-                usernameError.innerHTML='✅ Имя свободно';
-                usernameError.classList.add('input-success');
-                passInp.placeholder='Придумайте пароль';
-            }
-        }catch(e){usernameError.innerHTML='';}
-    },500);
-});
-
+userInp.addEventListener('input',function(){usernameError.classList.remove('input-success');const val=this.value.trim().toLowerCase();clearTimeout(checkTimeout);accountExists=false;updateSubmitBtn();if(val.length===0){usernameError.innerHTML='';return;}if(val.length<5){usernameError.innerHTML=getErrorText('minLength');return;}if(!/^[a-zA-Z0-9_]+$/.test(val)){usernameError.innerHTML=getErrorText('invalidChars');return;}usernameError.innerHTML='Проверка...';checkTimeout=setTimeout(async()=>{try{const snap=await database.ref('users/'+val).once('value');if(snap.exists()){accountExists=true;usernameError.innerHTML='🔐 '+getErrorText('accountExists');usernameError.classList.add('input-success');passInp.placeholder=getErrorText('enterPass');passInp.focus();}else{accountExists=false;usernameError.innerHTML='✅ '+getErrorText('nameFree');usernameError.classList.add('input-success');passInp.placeholder=getErrorText('createPass');}updateSubmitBtn();}catch(e){usernameError.innerHTML='';}},500);});
 passInp.addEventListener('input',()=>{passwordError.classList.remove('input-success');passwordError.innerHTML='';});
 displayNameInput.addEventListener('input',()=>{displayError.innerHTML='';});
+function updateSubmitBtn(){submitBtn.innerText=accountExists?getErrorText('loginBtn'):getErrorText('registerBtn');}
 
-submitBtn.onclick=async function(){
-    const user=userInp.value.trim().toLowerCase(),pass=passInp.value.trim();
-    usernameError.classList.remove('input-success');
-    let err=false;
-    if(user.length<3){usernameError.innerHTML='⚠️ Минимум 3 символа';err=true;}
-    else if(!/^[a-zA-Z0-9_]+$/.test(user)){usernameError.innerHTML='⚠️ Только латиница, цифры и _';err=true;}
-    if(pass.length<6){passwordError.innerHTML='⚠️ Минимум 6 символов';err=true;}
-    if(err)return;
-    submitBtn.innerText="Загрузка...";submitBtn.disabled=true;
-    try{
-        const ref=database.ref('users/'+user),snap=await ref.once('value'),hash=await sha256(pass);
-        if(snap.exists()){
-            if(snap.val().password===hash){
-                localStorage.setItem('logos_user',user);localStorage.setItem('logos_createdAt',snap.val().createdAt);
-                hideRegister();
-                if(snap.val().displayName){localStorage.setItem('logos_display_name',snap.val().displayName);showWelcome(user,snap.val().displayName,snap.val().createdAt);}
-                else showDisplayName();
-            }else{passwordError.innerHTML='⚠️ Неверный пароль';passInp.value="";passInp.focus();}
-        }else{
-            const now=new Date().toISOString();
-            await ref.set({password:hash,createdAt:now,settings:{autoDelete:document.getElementById('autoDeleteSelect').value,proxy:document.getElementById('proxyInput').value.trim()}});
-            localStorage.setItem('logos_user',user);localStorage.setItem('logos_createdAt',now);
-            hideRegister();showDisplayName();
-        }
-    }catch(e){console.error(e);passwordError.innerHTML='⚠️ Ошибка соединения с базой';}
-    finally{submitBtn.innerText="Далее";submitBtn.disabled=false;}
-};
+function getErrorText(key){const texts={minLength:{RU:'⚠️ Минимум 5 символов',EN:'⚠️ Minimum 5 characters',ZH:'⚠️ 最少5个字符',ES:'⚠️ Mínimo 5 caracteres'},invalidChars:{RU:'⚠️ Только латиница, цифры и _',EN:'⚠️ Only latin, numbers and _',ZH:'⚠️ 仅拉丁字母、数字和_',ES:'⚠️ Solo latín, números y _'},accountExists:{RU:'Аккаунт существует. Введите пароль',EN:'Account exists. Enter password',ZH:'账户存在。输入密码',ES:'Cuenta existe. Ingrese contraseña'},nameFree:{RU:'Имя свободно',EN:'Name available',ZH:'名称可用',ES:'Nombre disponible'},enterPass:{RU:'Введите пароль для входа',EN:'Enter password to login',ZH:'输入密码登录',ES:'Ingrese contraseña para entrar'},createPass:{RU:'Придумайте пароль',EN:'Create a password',ZH:'创建密码',ES:'Cree una contraseña'},loginBtn:{RU:'Войти',EN:'Login',ZH:'登录',ES:'Entrar'},registerBtn:{RU:'Зарегистрироваться',EN:'Register',ZH:'注册',ES:'Registrarse'},shortPass:{RU:'⚠️ Минимум 6 символов',EN:'⚠️ Minimum 6 characters',ZH:'⚠️ 最少6个字符',ES:'⚠️ Mínimo 6 caracteres'},wrongPass:{RU:'⚠️ Неверный пароль',EN:'⚠️ Wrong password',ZH:'⚠️ 密码错误',ES:'⚠️ Contraseña incorrecta'},dbError:{RU:'⚠️ Ошибка соединения с базой',EN:'⚠️ Database connection error',ZH:'⚠️ 数据库连接错误',ES:'⚠️ Error de conexión'}};return texts[key]?.[curCode]||texts[key]?.RU||'';}
+
+submitBtn.onclick=async function(){const user=userInp.value.trim().toLowerCase(),pass=passInp.value.trim();usernameError.classList.remove('input-success');let err=false;if(user.length<5){usernameError.innerHTML=getErrorText('minLength');err=true;}else if(!/^[a-zA-Z0-9_]+$/.test(user)){usernameError.innerHTML=getErrorText('invalidChars');err=true;}if(pass.length<6){passwordError.innerHTML=getErrorText('shortPass');err=true;}if(err)return;submitBtn.innerText="...";submitBtn.disabled=true;try{const ref=database.ref('users/'+user),snap=await ref.once('value'),hash=await sha256(pass);if(snap.exists()){if(snap.val().password===hash){localStorage.setItem('logos_user',user);localStorage.setItem('logos_createdAt',snap.val().createdAt);if(snap.val().avatar){localStorage.setItem('logos_avatar',JSON.stringify(snap.val().avatar));}hideRegister();if(snap.val().displayName){localStorage.setItem('logos_display_name',snap.val().displayName);displayWelcomeAvatar();showWelcome(user,snap.val().displayName,snap.val().createdAt);}else showDisplayName();}else{passwordError.innerHTML=getErrorText('wrongPass');passInp.value="";passInp.focus();}}else{const now=new Date().toISOString();await ref.set({password:hash,createdAt:now,settings:{autoDelete:document.getElementById('autoDeleteSelect').value,proxy:document.getElementById('proxyInput').value.trim()}});localStorage.setItem('logos_user',user);localStorage.setItem('logos_createdAt',now);hideRegister();showDisplayName();}}catch(e){console.error(e);passwordError.innerHTML=getErrorText('dbError');}finally{updateSubmitBtn();submitBtn.disabled=false;}};
 passInp.addEventListener('keydown',e=>{if(e.key==='Enter')submitBtn.click();});
 
-displayNameBtn.addEventListener('click',async function(){
-    const name=displayNameInput.value.trim();displayError.innerHTML='';
-    if(name.length<1){displayError.innerHTML='⚠️ Введите имя';return;}
-    if(name.length>30){displayError.innerHTML='⚠️ Максимум 30 символов';return;}
-    const user=localStorage.getItem('logos_user'),createdAt=localStorage.getItem('logos_createdAt');
-    try{await database.ref('users/'+user+'/displayName').set(name);}catch(e){}
-    localStorage.setItem('logos_display_name',name);showWelcome(user,name,createdAt);
-});
+displayNameBtn.addEventListener('click',function(){const name=displayNameInput.value.trim();displayError.innerHTML='';if(name.length<1){displayError.innerHTML='⚠️ Введите имя';return;}if(name.length>30){displayError.innerHTML='⚠️ Максимум 30 символов';return;}localStorage.setItem('logos_display_name',name);hideDisplayName();showAvatar();});
 displayNameInput.addEventListener('keydown',e=>{if(e.key==='Enter')displayNameBtn.click();});
 
 function showWelcome(username,displayName,createdAt){
-    document.getElementById('valName').innerText=displayName||'—';
-    document.getElementById('valUsername').innerText='@'+username;
+    document.getElementById('valName').innerText=displayName||'—';document.getElementById('valUsername').innerText='@'+username;
     document.getElementById('valDate').innerText=createdAt?new Date(createdAt).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'}):new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
     updateWelcomeThemeLang();
+    document.getElementById('onboardingScreen').style.display='none';
     document.getElementById('welcomeScreen').classList.add('active');
+    try{database.ref('users/'+username+'/displayName').set(displayName);}catch(e){}
 }
-function updateWelcomeThemeLang(){
-    document.getElementById('valTheme').innerText=document.body.classList.contains('dark-mode')?'🌙 Тёмная':'☀️ Светлая';
-    document.getElementById('valLang').innerText=curCode;
-}
+function updateWelcomeThemeLang(){document.getElementById('valTheme').innerText=document.body.classList.contains('dark-mode')?'🌙 Тёмная':'☀️ Светлая';document.getElementById('valLang').innerText=curCode;}
 startChatBtn.addEventListener('click',()=>{alert("Чат скоро будет доступен!");});
-
 function showExtra(){document.getElementById('extraModal').classList.add('open');document.getElementById('overlay').classList.add('open');}
-function saveExtra(){
-    localStorage.setItem('logos_autoDelete',document.getElementById('autoDeleteSelect').value);
-    localStorage.setItem('logos_proxy',document.getElementById('proxyInput').value.trim());
-    document.getElementById('extraModal').classList.remove('open');document.getElementById('overlay').classList.remove('open');
-}
+function saveExtra(){localStorage.setItem('logos_autoDelete',document.getElementById('autoDeleteSelect').value);localStorage.setItem('logos_proxy',document.getElementById('proxyInput').value.trim());document.getElementById('extraModal').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
 
-const nextBtn=document.getElementById('nextBtn'),btnText=document.getElementById('btnText'),btnIcon=document.getElementById('btnIcon'),slider=document.getElementById('slider'),app=document.getElementById('app'),pageNumber=document.getElementById('pageNumber'),langBtn=document.getElementById('langBtn'),langBtn2=document.getElementById('langBtn2'),langBtn3=document.getElementById('langBtn3'),langBtn4=document.getElementById('langBtn4'),langModal=document.getElementById('langModal'),overlay=document.getElementById('overlay'),termsModal=document.getElementById('termsModal'),extraModal=document.getElementById('extraModal'),termsContent=document.getElementById('termsContent'),termsCloseBtn=document.getElementById('termsCloseBtn'),themeBtn1=document.getElementById('themeBtn1'),themeBtn2=document.getElementById('themeBtn2'),themeBtn3=document.getElementById('themeBtn3'),themeBtn4=document.getElementById('themeBtn4'),registerScreen=document.getElementById('registerScreen'),displayNameScreen=document.getElementById('displayNameScreen'),welcomeScreen=document.getElementById('welcomeScreen');
+const nextBtn=document.getElementById('nextBtn'),btnText=document.getElementById('btnText'),btnIcon=document.getElementById('btnIcon'),slider=document.getElementById('slider'),app=document.getElementById('app'),pageNumber=document.getElementById('pageNumber'),langBtn=document.getElementById('langBtn'),langBtn2=document.getElementById('langBtn2'),langBtn3=document.getElementById('langBtn3'),langBtn4=document.getElementById('langBtn4'),langBtn5=document.getElementById('langBtn5'),langModal=document.getElementById('langModal'),overlay=document.getElementById('overlay'),termsModal=document.getElementById('termsModal'),extraModal=document.getElementById('extraModal'),termsContent=document.getElementById('termsContent'),termsCloseBtn=document.getElementById('termsCloseBtn'),themeBtn1=document.getElementById('themeBtn1'),themeBtn2=document.getElementById('themeBtn2'),themeBtn3=document.getElementById('themeBtn3'),themeBtn4=document.getElementById('themeBtn4'),themeBtn5=document.getElementById('themeBtn5'),registerScreen=document.getElementById('registerScreen'),displayNameScreen=document.getElementById('displayNameScreen'),avatarScreen=document.getElementById('avatarScreen'),welcomeScreen=document.getElementById('welcomeScreen');
 let currentStep=1,curCode='RU';
 
 const langData={
-'RU':{h:['Добро пожаловать в Logos','Шифрование','Ghost Mode','Фантомные сообщения'],p:['Мессенджер нового поколения с максимальной конфиденциальностью','Ваши данные защищены сквозным шифрованием.','Станьте невидимым для всех пользователей.','Сообщения, которые исчезают после прочтения.'],next:'Далее',skip:'Пропустить',start:'Начать',regTitle:'Создайте имя пользователя',regSub:'Это ваш уникальный идентификатор в Logos. Без номера телефона, без почты.',regName:'Имя пользователя',regPass:'Пароль',regBtn:'Далее',regLegalBefore:'Регистрируясь, вы соглашаетесь с ',regTerms:'Условиями использования',regAnd:' и ',regPolicy:'Политикой конфиденциальности',regExtra:'Дополнительные параметры',displayTitle:'Как вас зовут?',displaySub:'Это имя увидят другие пользователи',displayPlaceholder:'Отображаемое имя',displayBtn:'Готово',welcomeTitle:'Добро пожаловать!',welcomeSub:'Ваш аккаунт успешно создан',labelName:'Ваше имя',labelUsername:'Ваш username',labelDate:'Дата регистрации',labelTheme:'Тема',labelLang:'Язык',betaBadge:'✅ Вы записались на beta-test',startChat:'Начать общение',extraTitle:'Дополнительные параметры',autoDeleteLabel:'Автоудаление аккаунта',proxyLabel:'Прокси/Tor сервер',extraSave:'Сохранить',termsTitle:'Условия использования',termsBody:'<h4>1.</h4><p>Условия.</p>',policyTitle:'Политика',policyBody:'<h4>1.</h4><p>Данные.</p>',termsClose:'Понятно'},
-'EN':{h:['Welcome to Logos','Encryption','Ghost Mode','Phantom Msg'],p:['Next gen','Protected','Invisible','Disappear'],next:'Next',skip:'Skip',start:'Start',regTitle:'Create username',regSub:'Your unique ID.',regName:'Username',regPass:'Password',regBtn:'Next',regLegalBefore:'By registering, you agree ',regTerms:'Terms',regAnd:' and ',regPolicy:'Privacy',regExtra:'Options',displayTitle:'Your name?',displaySub:'Others will see',displayPlaceholder:'Display name',displayBtn:'Done',welcomeTitle:'Welcome!',welcomeSub:'Account created',labelName:'Name',labelUsername:'Username',labelDate:'Date',labelTheme:'Theme',labelLang:'Language',betaBadge:'✅ Beta tester',startChat:'Start',extraTitle:'Options',autoDeleteLabel:'Auto-delete',proxyLabel:'Proxy/Tor',extraSave:'Save',termsTitle:'Terms',termsBody:'<h4>1.</h4>',policyTitle:'Privacy',policyBody:'<h4>1.</h4>',termsClose:'Got it'},
-'ZH':{h:['欢迎','加密','隐身','幻影'],p:['新一代','保护','不可见','消失'],next:'下一步',skip:'跳过',start:'开始',regTitle:'创建用户名',regSub:'唯一标识',regName:'用户名',regPass:'密码',regBtn:'下一步',regLegalBefore:'同意',regTerms:'条款',regAnd:'和',regPolicy:'隐私',regExtra:'选项',displayTitle:'名字？',displaySub:'其他人可见',displayPlaceholder:'名称',displayBtn:'完成',welcomeTitle:'欢迎！',welcomeSub:'已创建',labelName:'名字',labelUsername:'用户名',labelDate:'日期',labelTheme:'主题',labelLang:'语言',betaBadge:'✅ 测试',startChat:'开始',extraTitle:'选项',autoDeleteLabel:'自动删除',proxyLabel:'代理',extraSave:'保存',termsTitle:'条款',termsBody:'<h4>1.</h4>',policyTitle:'隐私',policyBody:'<h4>1.</h4>',termsClose:'好'},
-'ES':{h:['Bienvenido','Cifrado','Fantasma','Mensajes'],p:['Privacidad','Protegido','Invisible','Desaparecen'],next:'Sig',skip:'Omitir',start:'Comenzar',regTitle:'Crear usuario',regSub:'ID único',regName:'Usuario',regPass:'Contraseña',regBtn:'Sig',regLegalBefore:'Acepta ',regTerms:'Términos',regAnd:' y ',regPolicy:'Privacidad',regExtra:'Opciones',displayTitle:'¿Nombre?',displaySub:'Otros verán',displayPlaceholder:'Nombre',displayBtn:'Hecho',welcomeTitle:'¡Bienvenido!',welcomeSub:'Creado',labelName:'Nombre',labelUsername:'Usuario',labelDate:'Fecha',labelTheme:'Tema',labelLang:'Idioma',betaBadge:'✅ Beta',startChat:'Chat',extraTitle:'Opciones',autoDeleteLabel:'Auto-eliminar',proxyLabel:'Proxy',extraSave:'Guardar',termsTitle:'Términos',termsBody:'<h4>1.</h4>',policyTitle:'Privacidad',policyBody:'<h4>1.</h4>',termsClose:'OK'},
-'AR':{h:['مرحباً','تشفير','شبح','وهمية'],p:['خصوصية','محمي','غير مرئي','تختفي'],next:'التالي',skip:'تخطي',start:'ابدأ',regTitle:'اسم المستخدم',regSub:'معرف فريد',regName:'المستخدم',regPass:'كلمة المرور',regBtn:'التالي',regLegalBefore:'توافق على ',regTerms:'الشروط',regAnd:' و ',regPolicy:'الخصوصية',regExtra:'خيارات',displayTitle:'ما اسمك؟',displaySub:'سيراه الآخرون',displayPlaceholder:'اسم العرض',displayBtn:'تم',welcomeTitle:'أهلاً!',welcomeSub:'تم الإنشاء',labelName:'الاسم',labelUsername:'المستخدم',labelDate:'التاريخ',labelTheme:'المظهر',labelLang:'اللغة',betaBadge:'✅ مسجل',startChat:'ابدأ',extraTitle:'خيارات',autoDeleteLabel:'حذف تلقائي',proxyLabel:'وكيل',extraSave:'حفظ',termsTitle:'الشروط',termsBody:'<h4>۱.</h4>',policyTitle:'الخصوصية',policyBody:'<h4>۱.</h4>',termsClose:'فهمت'}
+'RU':{h:['Добро пожаловать в Logos','Шифрование','Ghost Mode','Фантомные сообщения'],p:['Мессенджер нового поколения с максимальной конфиденциальностью','Ваши данные защищены сквозным шифрованием.','Станьте невидимым для всех пользователей.','Сообщения, которые исчезают после прочтения.'],next:'Далее',skip:'Пропустить',start:'Начать',regTitle:'Создайте имя пользователя',regSub:'Это ваш уникальный идентификатор в Logos. Без номера телефона, без почты.',regName:'Имя пользователя',regPass:'Пароль',regBtn:'Далее',regLegalBefore:'Регистрируясь, вы соглашаетесь с ',regTerms:'Условиями использования',regAnd:' и ',regPolicy:'Политикой конфиденциальности',regExtra:'Дополнительные параметры',displayTitle:'Как вас зовут?',displaySub:'Это имя увидят другие пользователи',displayPlaceholder:'Отображаемое имя',displayBtn:'Далее',avatarTitle:'Выберите аватар',avatarSub:'Выберите цвет или загрузите своё фото/видео',avatarBtn:'Готово',welcomeTitle:'Добро пожаловать!',welcomeSub:'Ваш аккаунт успешно создан',labelName:'Ваше имя',labelUsername:'Ваш username',labelDate:'Дата регистрации',labelTheme:'Тема',labelLang:'Язык',betaBadge:'✅ Вы записались на beta-test',startChat:'Начать общение',logoutBtn:'Выйти',extraTitle:'Дополнительные параметры',autoDeleteLabel:'Автоудаление аккаунта',proxyLabel:'Прокси/Tor сервер',extraSave:'Сохранить',autoDeleteHint:'Аккаунт и переписка удалятся, если не заходить указанное время',proxyHint:'Свой сервер при блокировке',optNever:'Никогда',opt1m:'Через месяц',opt6m:'6 месяцев',opt1y:'Год',termsTitle:'Условия использования',termsBody:'<h4>1. Общие положения</h4><p>Настоящие условия регулируют использование мессенджера Logos.</p><h4>2. Конфиденциальность</h4><p>Logos использует сквозное шифрование.</p><h4>3. Ответственность</h4><p>Пользователь несёт полную ответственность.</p><h4>4. Блокировка</h4><p>Администрация оставляет за собой право блокировать аккаунты.</p>',policyTitle:'Политика конфиденциальности',policyBody:'<h4>1. Сбор данных</h4><p>Logos собирает минимум данных.</p><h4>2. Хранение</h4><p>Данные хранятся в зашифрованном виде.</p><h4>3. Передача</h4><p>Logos никогда не передаёт данные третьим лицам.</p><h4>4. Удаление</h4><p>Вы можете удалить аккаунт в любой момент.</p>',termsClose:'Понятно'},
+'EN':{h:['Welcome to Logos','Encryption','Ghost Mode','Phantom Messages'],p:['Next generation messenger with maximum privacy.','All your messages are protected.','Become invisible to all other users.','Messages that disappear after being read.'],next:'Next',skip:'Skip',start:'Start',regTitle:'Create a username',regSub:'Your unique ID. No phone, no email.',regName:'Username',regPass:'Password',regBtn:'Next',regLegalBefore:'By registering, you agree to the ',regTerms:'Terms',regAnd:' and ',regPolicy:'Privacy',regExtra:'Options',displayTitle:'What\'s your name?',displaySub:'Others will see this name',displayPlaceholder:'Display name',displayBtn:'Next',avatarTitle:'Choose avatar',avatarSub:'Pick a color or upload photo/video',avatarBtn:'Done',welcomeTitle:'Welcome!',welcomeSub:'Account created',labelName:'Name',labelUsername:'Username',labelDate:'Date',labelTheme:'Theme',labelLang:'Language',betaBadge:'✅ Beta tester',startChat:'Start',logoutBtn:'Logout',extraTitle:'Options',autoDeleteLabel:'Auto-delete',proxyLabel:'Proxy/Tor',extraSave:'Save',autoDeleteHint:'Deleted after inactivity',proxyHint:'Own server if blocked',optNever:'Never',opt1m:'1 month',opt6m:'6 months',opt1y:'1 year',termsTitle:'Terms',termsBody:'<h4>1.</h4>',policyTitle:'Privacy',policyBody:'<h4>1.</h4>',termsClose:'Got it'},
+'ZH':{h:['欢迎','加密','隐身','幻影'],p:['新一代','保护','不可见','消失'],next:'下一步',skip:'跳过',start:'开始',regTitle:'创建用户名',regSub:'唯一标识',regName:'用户名',regPass:'密码',regBtn:'下一步',regLegalBefore:'同意',regTerms:'条款',regAnd:'和',regPolicy:'隐私',regExtra:'选项',displayTitle:'名字？',displaySub:'其他人可见',displayPlaceholder:'名称',displayBtn:'下一步',avatarTitle:'选择头像',avatarSub:'选择颜色或上传照片/视频',avatarBtn:'完成',welcomeTitle:'欢迎！',welcomeSub:'已创建',labelName:'名字',labelUsername:'用户名',labelDate:'日期',labelTheme:'主题',labelLang:'语言',betaBadge:'✅ 测试',startChat:'开始',logoutBtn:'退出',extraTitle:'选项',autoDeleteLabel:'自动删除',proxyLabel:'代理',extraSave:'保存',autoDeleteHint:'不活动后删除',proxyHint:'封锁时用',optNever:'从不',opt1m:'1个月',opt6m:'6个月',opt1y:'1年',termsTitle:'条款',termsBody:'<h4>1.</h4>',policyTitle:'隐私',policyBody:'<h4>1.</h4>',termsClose:'好'},
+'ES':{h:['Bienvenido','Cifrado','Fantasma','Mensajes'],p:['Privacidad','Protegido','Invisible','Desaparecen'],next:'Sig',skip:'Omitir',start:'Comenzar',regTitle:'Crear usuario',regSub:'ID único',regName:'Usuario',regPass:'Contraseña',regBtn:'Sig',regLegalBefore:'Acepta ',regTerms:'Términos',regAnd:' y ',regPolicy:'Privacidad',regExtra:'Opciones',displayTitle:'¿Nombre?',displaySub:'Otros verán',displayPlaceholder:'Nombre',displayBtn:'Sig',avatarTitle:'Elige avatar',avatarSub:'Elige color o sube foto/video',avatarBtn:'Hecho',welcomeTitle:'¡Bienvenido!',welcomeSub:'Creado',labelName:'Nombre',labelUsername:'Usuario',labelDate:'Fecha',labelTheme:'Tema',labelLang:'Idioma',betaBadge:'✅ Beta',startChat:'Chat',logoutBtn:'Salir',extraTitle:'Opciones',autoDeleteLabel:'Auto-eliminar',proxyLabel:'Proxy',extraSave:'Guardar',autoDeleteHint:'Eliminar tras inactividad',proxyHint:'Servidor propio',optNever:'Nunca',opt1m:'1 mes',opt6m:'6 meses',opt1y:'1 año',termsTitle:'Términos',termsBody:'<h4>1.</h4>',policyTitle:'Privacidad',policyBody:'<h4>1.</h4>',termsClose:'OK'}
 };
 
-function setLang(code){
-    curCode=code;
-    document.getElementById('curLang').innerText=code;document.getElementById('curLang2').innerText=code;document.getElementById('curLang3').innerText=code;document.getElementById('curLang4').innerText=code;
-    if(code==='AR')document.body.classList.add('rtl');else document.body.classList.remove('rtl');
-    updateTexts();
-    document.querySelectorAll('.lang-option').forEach(el=>{el.classList.toggle('selected',el.id==='opt-'+code);const c=el.querySelector('.check');if(c)c.innerText=(el.id==='opt-'+code)?'✓':'';});
-    langModal.classList.remove('open');overlay.classList.remove('open');updateWelcomeThemeLang();
-}
-function updateTexts(){
-    const d=langData[curCode];
-    for(let i=1;i<=4;i++){document.getElementById('h'+i).innerText=d.h[i-1];document.getElementById('p'+i).innerText=d.p[i-1];}
-    document.getElementById('skipBtn').innerText=d.skip;btnText.innerText=(currentStep===4)?d.start:d.next;
-    document.getElementById('regTitle').innerText=d.regTitle;document.getElementById('regSub').innerText=d.regSub;
-    document.getElementById('username').placeholder=d.regName;document.getElementById('password').placeholder=d.regPass;document.getElementById('submitBtn').innerText=d.regBtn;
-    document.getElementById('legalText').innerHTML=d.regLegalBefore+'<a onclick="showTerms()">'+d.regTerms+'</a>'+d.regAnd+'<a onclick="showPolicy()">'+d.regPolicy+'</a>';
-    document.getElementById('extraText').innerText=d.regExtra;
-    document.getElementById('displayTitle').innerText=d.displayTitle;document.getElementById('displaySub').innerText=d.displaySub;
-    document.getElementById('displayNameInput').placeholder=d.displayPlaceholder;document.getElementById('displayNameBtn').innerText=d.displayBtn;
-    document.getElementById('welcomeTitle').innerText=d.welcomeTitle;document.getElementById('welcomeSub').innerText=d.welcomeSub;
-    document.getElementById('labelName').innerText=d.labelName;document.getElementById('labelUsername').innerText=d.labelUsername;document.getElementById('labelDate').innerText=d.labelDate;document.getElementById('labelTheme').innerText=d.labelTheme;document.getElementById('labelLang').innerText=d.labelLang;
-    document.getElementById('betaBadge').innerHTML=d.betaBadge;document.getElementById('startChatBtn').innerText=d.startChat;
-    document.getElementById('extraTitle').innerText=d.extraTitle;document.getElementById('autoDeleteLabel').innerText=d.autoDeleteLabel;document.getElementById('proxyLabel').innerText=d.proxyLabel;document.getElementById('extraSaveBtn').innerText=d.extraSave;termsCloseBtn.innerText=d.termsClose;
-}
+function setLang(code){curCode=code;['curLang','curLang2','curLang3','curLang4','curLang5'].forEach(id=>document.getElementById(id).innerText=code);updateTexts();document.querySelectorAll('.lang-option').forEach(el=>{el.classList.toggle('selected',el.id==='opt-'+code);const c=el.querySelector('.check');if(c)c.innerText=(el.id==='opt-'+code)?'✓':'';});langModal.classList.remove('open');overlay.classList.remove('open');updateWelcomeThemeLang();updateSubmitBtn();saveLang();}
+function updateTexts(){const d=langData[curCode];for(let i=1;i<=4;i++){document.getElementById('h'+i).innerText=d.h[i-1];document.getElementById('p'+i).innerText=d.p[i-1];}document.getElementById('skipBtn').innerText=d.skip;btnText.innerText=(currentStep===4)?d.start:d.next;document.getElementById('regTitle').innerText=d.regTitle;document.getElementById('regSub').innerText=d.regSub;document.getElementById('username').placeholder=d.regName;document.getElementById('password').placeholder=d.regPass;document.getElementById('legalText').innerHTML=d.regLegalBefore+'<a onclick="showTerms()">'+d.regTerms+'</a>'+d.regAnd+'<a onclick="showPolicy()">'+d.regPolicy+'</a>';document.getElementById('extraText').innerText=d.regExtra;document.getElementById('displayTitle').innerText=d.displayTitle;document.getElementById('displaySub').innerText=d.displaySub;document.getElementById('displayNameInput').placeholder=d.displayPlaceholder;document.getElementById('displayNameBtn').innerText=d.displayBtn;document.getElementById('avatarTitle').innerText=d.avatarTitle;document.getElementById('avatarSub').innerText=d.avatarSub;document.getElementById('avatarBtn').innerText=d.avatarBtn;document.getElementById('welcomeTitle').innerText=d.welcomeTitle;document.getElementById('welcomeSub').innerText=d.welcomeSub;document.getElementById('labelName').innerText=d.labelName;document.getElementById('labelUsername').innerText=d.labelUsername;document.getElementById('labelDate').innerText=d.labelDate;document.getElementById('labelTheme').innerText=d.labelTheme;document.getElementById('labelLang').innerText=d.labelLang;document.getElementById('betaBadge').innerHTML=d.betaBadge;document.getElementById('startChatBtn').innerText=d.startChat;document.getElementById('logoutBtn').innerText=d.logoutBtn;document.getElementById('extraTitle').innerText=d.extraTitle;document.getElementById('autoDeleteLabel').innerText=d.autoDeleteLabel;document.getElementById('proxyLabel').innerText=d.proxyLabel;document.getElementById('extraSaveBtn').innerText=d.extraSave;document.getElementById('autoDeleteHint').innerText=d.autoDeleteHint;document.getElementById('proxyHint').innerText=d.proxyHint;document.getElementById('optNever').innerText=d.optNever;document.getElementById('opt1m').innerText=d.opt1m;document.getElementById('opt6m').innerText=d.opt6m;document.getElementById('opt1y').innerText=d.opt1y;termsCloseBtn.innerText=d.termsClose;}
 function showTerms(){const d=langData[curCode];termsContent.innerHTML='<h3>'+d.termsTitle+'</h3>'+d.termsBody;termsModal.classList.add('open');overlay.classList.add('open');}
 function showPolicy(){const d=langData[curCode];termsContent.innerHTML='<h3>'+d.policyTitle+'</h3>'+d.policyBody;termsModal.classList.add('open');overlay.classList.add('open');}
 function closeTerms(){termsModal.classList.remove('open');overlay.classList.remove('open');}
@@ -782,30 +413,28 @@ function showRegister(){registerScreen.classList.add('active');}
 function hideRegister(){registerScreen.classList.remove('active');}
 function showDisplayName(){displayNameScreen.classList.add('active');}
 function hideDisplayName(){displayNameScreen.classList.remove('active');}
+function showAvatar(){avatarScreen.classList.add('active');}
+function hideAvatar(){avatarScreen.classList.remove('active');}
 
-nextBtn.onclick=()=>{
-    if(currentStep<4){
-        currentStep++;
-        slider.style.transform=`translateX(-${(currentStep-1)*25}%)`;
-        app.className=`app-screen s${currentStep}-active`;
-        document.getElementById('slide'+currentStep).classList.add('animate');
-        const colors=['','blue','green','purple','orange'];
-        document.getElementById('s'+currentStep).classList.add('done-'+colors[currentStep]);
-        pageNumber.innerText=currentStep+' / 4';
-        updateTexts();
-        if(currentStep===4)btnIcon.style.display='none';
-    }else{showRegister();}
-};
+function goToSlide(n){currentStep=n;slider.style.transform=`translateX(-${(n-1)*25}%)`;app.className='app-screen'+(n>1?` s${n}-active`:'');for(let i=1;i<=4;i++){document.getElementById('slide'+i).classList.remove('animate');}document.getElementById('slide'+n).classList.add('animate');const colors=['','blue','green','purple','orange'];for(let i=1;i<=4;i++){const step=document.getElementById('s'+i);step.className='step';if(i<=n)step.classList.add('done-'+colors[i]);}pageNumber.innerText=n+' / 4';btnIcon.style.display=(n===4)?'none':'';updateTexts();}
+
+nextBtn.onclick=()=>{if(currentStep<4){goToSlide(currentStep+1);}else{showRegister();}};
 document.getElementById('skipBtn').onclick=()=>showRegister();
-function toggleTheme(){document.body.classList.toggle('dark-mode');updateWelcomeThemeLang();}
-themeBtn1.onclick=toggleTheme;themeBtn2.onclick=toggleTheme;themeBtn3.onclick=toggleTheme;themeBtn4.onclick=toggleTheme;
+function toggleTheme(){document.body.classList.toggle('dark-mode');updateWelcomeThemeLang();saveTheme();}
+themeBtn1.onclick=toggleTheme;themeBtn2.onclick=toggleTheme;themeBtn3.onclick=toggleTheme;themeBtn4.onclick=toggleTheme;themeBtn5.onclick=toggleTheme;
 langBtn.onclick=()=>{langModal.classList.add('open');overlay.classList.add('open');};
 langBtn2.onclick=()=>{langModal.classList.add('open');overlay.classList.add('open');};
 langBtn3.onclick=()=>{langModal.classList.add('open');overlay.classList.add('open');};
 langBtn4.onclick=()=>{langModal.classList.add('open');overlay.classList.add('open');};
+langBtn5.onclick=()=>{langModal.classList.add('open');overlay.classList.add('open');};
 overlay.onclick=()=>{langModal.classList.remove('open');termsModal.classList.remove('open');extraModal.classList.remove('open');overlay.classList.remove('open');};
+
 window.onload=()=>{
-    setLang('RU');
+    loadTheme();
+    curCode=loadLang();
+    setLang(curCode);
+    loadAvatar();
+    if(!checkSession()){goToSlide(1);}
     const ad=localStorage.getItem('logos_autoDelete');if(ad)document.getElementById('autoDeleteSelect').value=ad;
     const pr=localStorage.getItem('logos_proxy');if(pr)document.getElementById('proxyInput').value=pr;
 };
