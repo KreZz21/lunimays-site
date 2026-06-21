@@ -196,6 +196,14 @@
         .chat-time { font-size: 13px; color: var(--text-gray); }
         .chat-msg { font-size: 14.5px; color: var(--text-gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+        /* РЕЗУЛЬТАТЫ ПОИСКА ПОЛЬЗОВАТЕЛЕЙ */
+        .search-results { padding: 0 12px 20px; }
+        .search-result-item { display: flex; align-items: center; padding: 12px 14px; gap: 14px; border-radius: 20px; margin-bottom: 4px; cursor: pointer; transition: all 0.25s ease; background: transparent; }
+        .search-result-item:active { background: var(--input-bg); }
+        .search-result-item .m-avatar { width: 44px; height: 44px; font-size: 16px; }
+        .search-result-item .chat-body .chat-name { font-size: 15px; }
+        .search-result-item .chat-body .chat-msg { font-size: 12px; color: var(--text-gray); }
+
         .empty-calls { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-bottom: 100px; }
         .empty-calls h2 { font-size: 19px; font-weight: 600; margin: 15px 0 5px; color: var(--text-gray); }
         .profile-content { padding: 16px 25px 120px; text-align: center; }
@@ -270,7 +278,7 @@
 <body>
 <div class="app-screen" id="app">
     <div class="overlay" id="overlay"></div>
-    <div class="lang-modal" id="langModal"><div style="width:40px;height:5px;background:#888;border-radius:10px;margin:0 auto 15px;"></div><div class="lang-option" id="opt-RU" onclick="setLang('RU')"><span><span class="flag">🇷🇺</span>Русский</span><span class="check"></span></div><div class="lang-option" id="opt-EN" onclick="setLang('EN')"><span><span class="flag">🇺🇸</span>English</span><span class="check"></span></div><div class="lang-option" id="opt-ZH" onclick="setLang('ZH')"><span><span class="flag">🇨🇳</span>中文</span><span class="check"></span></div><div class="lang-option" id="opt-ES" onclick="setLang('ES')"><span><span class="flag">🇪🇸</span>Español</span><span class="check"></span></div></div>
+    <div class="lang-modal" id="langModal"><div style="width:40px;height:5px;background:#888;border-radius:10px;margin:0 auto 15px;"></div><div class="lang-option" id="opt-RU"><span><span class="flag">🇷🇺</span>Русский</span><span class="check"></span></div><div class="lang-option" id="opt-EN"><span><span class="flag">🇺🇸</span>English</span><span class="check"></span></div><div class="lang-option" id="opt-ZH"><span><span class="flag">🇨🇳</span>中文</span><span class="check"></span></div><div class="lang-option" id="opt-ES"><span><span class="flag">🇪🇸</span>Español</span><span class="check"></span></div></div>
     <div class="terms-modal" id="termsModal"><div style="width:40px;height:5px;background:#888;border-radius:10px;margin:0 auto 15px;"></div><div class="terms-content" id="termsContent"></div><button class="terms-close" onclick="closeTerms()" id="termsCloseBtn">Понятно</button></div>
     <div class="extra-modal" id="extraModal"><div style="width:40px;height:5px;background:#888;border-radius:10px;margin:0 auto 15px;"></div><div class="extra-content"><h3 id="extraTitle">Дополнительные параметры</h3><div class="extra-option"><span id="autoDeleteLabel">Автоудаление аккаунта</span><select id="autoDeleteSelect"><option value="never" id="optNever">Никогда</option><option value="1month" id="opt1m">Через месяц</option><option value="6months" id="opt6m">6 месяцев</option><option value="1year" id="opt1y">Год</option></select></div><p style="font-size:11px;color:var(--text-gray);margin:2px 0 6px 0;" id="autoDeleteHint">Аккаунт и переписка удалятся, если не заходить указанное время</p><div class="extra-option"><span id="proxyLabel">Прокси/Tor сервер</span><input type="text" id="proxyInput" placeholder="socks5://127.0.0.1:9050"></div><p style="font-size:11px;color:var(--text-gray);margin:2px 0 6px 0;" id="proxyHint">Свой сервер при блокировке</p></div><button class="extra-close" onclick="saveExtra()" id="extraSaveBtn">Сохранить</button></div>
 
@@ -320,8 +328,9 @@
                     <div class="header-default" id="headerDefault"><h1>Чаты</h1><div class="edit-btn" onclick="enterSelectionModeFirst()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div></div>
                     <div class="header-selection" id="headerSelection"><div class="selection-left"><div class="action-btn" onclick="exitSelection()"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div><div class="selection-count" id="selCount">0</div></div><div class="selection-actions"><div class="action-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" stroke-width="2.2"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg></div><div class="action-btn delete"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.2"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg></div></div></div>
                 </div>
-                <div class="search-container"><div class="search-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Поиск сообщений или людей"></div></div>
+                <div class="search-container"><div class="search-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="searchInput" placeholder="Поиск сообщений или людей" oninput="handleSearch(this.value)"></div></div>
                 <div class="chat-list" id="chat-list-el"></div>
+                <div class="search-results" id="searchResults"></div>
             </div>
             <div class="m-screen"><div class="m-header"><h1>Вызовы</h1></div><div class="empty-calls"><svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#c7c7cc" stroke-width="1.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.7 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 .81.7A2 2 0 0 1 22 16.92z"/></svg><h2>Нет вызовов</h2></div></div>
             <div class="m-screen"><div class="m-header"><h1>Профиль</h1></div><div class="profile-content" id="profileContent"></div></div>
@@ -335,9 +344,7 @@
                 <div id="chat-active-avatar" class="header-avatar">N</div>
             </div>
             <div class="msg-container" id="msgBox">
-                <div class="date-divider">30 апреля</div>
-                <div class="bubble rec">Здравствуйте!<div class="m-time">18:40</div></div>
-                <div class="bubble sent">Привет! Как дела?<div class="m-time">18:41</div></div>
+                <div class="date-divider">Сегодня</div>
             </div>
             <div class="chat-input-bar">
                 <div class="emoji-btn"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></div>
@@ -351,7 +358,7 @@
 
         <div class="nav-island" id="nav-island">
             <div class="nav-item active" onclick="switchMsgTab(0, this)"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Чаты</span></div>
-            <div class="nav-item" onclick="switchMsgTab(1, this)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.7 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>Вызовы</span></div>
+            <div class="nav-item" onclick="switchMsgTab(1, this)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.7 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 .81.7A2 2 0 0 1 22 16.92z"/></svg><span>Вызовы</span></div>
             <div class="nav-item" onclick="switchMsgTab(2, this)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Профиль</span></div>
         </div>
     </div>
@@ -360,144 +367,1002 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
+// Блокируем поворот экрана
 screen.orientation.lock('portrait').catch(()=>{});
-const firebaseConfig={apiKey:"AIzaSyC5ffpuq0fK-PBS53Q2RHOi4w4-lmrBoFg",authDomain:"logos-c1b90.firebaseapp.com",projectId:"logos-c1b90",databaseURL:"https://logos-c1b90-default-rtdb.firebaseio.com",storageBucket:"logos-c1b90.firebasestorage.app",messagingSenderId:"430181345570",appId:"1:430181345570:web:5fd520b01aacd913b59d7b"};
-async function sha256(m){const b=new TextEncoder().encode(m);const h=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('');}
-firebase.initializeApp(firebaseConfig);const database=firebase.database();
 
-function saveTheme(){localStorage.setItem('logos_theme',document.body.classList.contains('dark-mode')?'dark':'light');}
-function loadTheme(){if(localStorage.getItem('logos_theme')==='dark'){document.body.classList.add('dark-mode');}else{document.body.classList.remove('dark-mode');}}
-function saveLang(){localStorage.setItem('logos_lang',curCode);}
-function loadLang(){return localStorage.getItem('logos_lang')||'RU';}
+// Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyC5ffpuq0fK-PBS53Q2RHOi4w4-lmrBoFg",
+    authDomain: "logos-c1b90.firebaseapp.com",
+    projectId: "logos-c1b90",
+    databaseURL: "https://logos-c1b90-default-rtdb.firebaseio.com",
+    storageBucket: "logos-c1b90.firebasestorage.app",
+    messagingSenderId: "430181345570",
+    appId: "1:430181345570:web:5fd520b01aacd913b59d7b"
+};
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
 
-const avatarBox=document.getElementById('avatarBox'),mediaLayer=document.getElementById('mediaLayer'),mainIcon=document.getElementById('mainIcon'),fileInput=document.getElementById('fileInput'),avatarPreview=document.getElementById('avatarPreview');
-const palette=[{c1:'#5d5fef',c2:'#3a3cb3'},{c1:'#ff7eb3',c2:'#ff758c'},{c1:'#00f2fe',c2:'#4facfe'},{c1:'#43e97b',c2:'#38f9d7'},{c1:'#fa709a',c2:'#fee140'},{c1:'#444444',c2:'#111111'}];
-const iconPaths=['M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z','M12 2l3.09 6.26L22 9.27l-5 4.87l1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87l6.91-1.01L12 2z','M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78l1.06-1.06a5.5 5.5 0 0 0 0-7.78z','M13 2L3 14h9l-1 8l10-12h-9l1-8z','M18 8a6 6 0 0 0-12 0c0 7 3 9 3 9h6s3-2 3-9 M13.73 21a2 2 0 0 1-3.46 0','M12 22s8-4 8-10V5l-8-3l-8 3v7c0 6 8 10 8 10z','M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z','M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0 M12 9v4 M12 16v.01','M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z','M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z M3 6h18','M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z','M12 2L2 7l10 5l10-5l-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5'];
-let avatarData={type:'gradient',gradient:['#5d5fef','#3a3cb3'],icon:iconPaths[0],image:'',video:''};
-
-function applyPulse(){avatarBox.classList.remove('pulse');void avatarBox.offsetWidth;avatarBox.classList.add('pulse');}
-function resetMedia(){mediaLayer.style.display='none';mediaLayer.innerHTML='';mainIcon.style.display='block';avatarData.image='';avatarData.video='';}
-fileInput.onchange=(e)=>{const file=e.target.files[0];if(!file)return;const url=URL.createObjectURL(file);resetMedia();mediaLayer.style.display='block';mainIcon.style.display='none';if(file.type.startsWith('video')){const v=document.createElement('video');v.src=url;v.muted=true;v.autoplay=true;v.loop=true;v.setAttribute('playsinline','');mediaLayer.appendChild(v);v.play();avatarData.type='video';avatarData.video=url;}else{const i=document.createElement('img');i.src=url;mediaLayer.appendChild(i);avatarData.type='image';avatarData.image=url;}applyPulse();};
-function setIcon(path){mediaLayer.style.display='none';mainIcon.style.display='block';mainIcon.innerHTML=`<path d="${path}"></path>`;avatarData.icon=path;applyPulse();}
-function setBg(c1,c2){mediaLayer.style.display='none';mainIcon.style.display='block';avatarPreview.style.background=`linear-gradient(135deg,${c1},${c2})`;avatarData.gradient=[c1,c2];applyPulse();}
-const colorRow=document.getElementById('colorPalette');palette.forEach(color=>{const dot=document.createElement('div');dot.className='color-dot';dot.style.background=`linear-gradient(135deg,${color.c1},${color.c2})`;dot.onclick=()=>setBg(color.c1,color.c2);colorRow.appendChild(dot);});
-const grid=document.getElementById('iconGrid');iconPaths.forEach(path=>{const item=document.createElement('div');item.className='icon-item';item.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`;item.onclick=()=>setIcon(path);grid.appendChild(item);});
-
-let tempPin="",pinInput="",pinConfirm=false;
-const pinDots=document.querySelectorAll('#pinScreen .pin-dot'),pinTitle=document.getElementById('pinTitle'),pinDotsContainer=document.getElementById('pinDots');
-function tap(n){if(pinInput.length<4){pinInput+=n;updatePinDots();if(pinInput.length===4)setTimeout(processPin,300);}}
-function del(){pinInput=pinInput.slice(0,-1);updatePinDots();}
-function updatePinDots(){pinDots.forEach((d,i)=>d.classList.toggle('active',i<pinInput.length));}
-function processPin(){if(!pinConfirm){tempPin=pinInput;pinInput="";pinConfirm=true;pinTitle.innerText=getMsg('pinConfirm');updatePinDots();}else{if(pinInput===tempPin){localStorage.setItem('logos_pin',tempPin);hidePin();showMessenger();}else{pinDotsContainer.classList.add('shake');setTimeout(()=>{pinDotsContainer.classList.remove('shake');pinInput="";updatePinDots();},400);}}}
-function skipPin(){localStorage.removeItem('logos_pin');hidePin();showMessenger();}
-
-let loginPinInput="";
-const loginPinDots=document.querySelectorAll('#loginPinScreen .pin-dot'),loginPinDotsContainer=document.getElementById('loginPinDots');
-function loginTap(n){if(loginPinInput.length<4){loginPinInput+=n;updateLoginPinDots();if(loginPinInput.length===4)setTimeout(checkLoginPin,300);}}
-function loginDel(){loginPinInput=loginPinInput.slice(0,-1);updateLoginPinDots();}
-function updateLoginPinDots(){loginPinDots.forEach((d,i)=>d.classList.toggle('active',i<loginPinInput.length));}
-function checkLoginPin(){const savedPin=localStorage.getItem('logos_pin');if(loginPinInput===savedPin){document.getElementById('loginPinScreen').classList.remove('active');showMessenger();}else{loginPinDotsContainer.classList.add('shake');setTimeout(()=>{loginPinDotsContainer.classList.remove('shake');loginPinInput="";updateLoginPinDots();},400);}}
-
-const chats=[{id:1,name:'Александр',msg:'Зажми для мультивыбора...',time:'18:41',color:'linear-gradient(135deg, #FF9A9E, #FAD0C4)',init:'А'},{id:2,name:'Мария',msg:'Все правки внесены, проверь.',time:'14:20',color:'linear-gradient(135deg, #a2d2ff, #5d5fef)',init:'М'}];
-let isSelectionMode=false,selectedCount=0,pressTimer;
-
-function renderChats(){
-    document.getElementById('chat-list-el').innerHTML=chats.map(c=>`<div class="chat-item" id="c-${c.id}" data-id="${c.id}"><div class="m-avatar" style="background:${c.color}">${c.init}</div><div class="chat-body"><div class="chat-row"><span class="chat-name">${c.name}</span><span class="chat-time">${c.time}</span></div><div class="chat-msg">${c.msg}</div></div></div>`).join('');
-    document.querySelectorAll('.chat-item').forEach(item=>{item.addEventListener('mousedown',()=>startPress(item));item.addEventListener('touchstart',()=>startPress(item));item.addEventListener('mouseup',endPress);item.addEventListener('touchend',endPress);item.addEventListener('mouseleave',endPress);item.addEventListener('click',()=>{if(isSelectionMode)toggleSelect(item);else{const c=chats.find(x=>x.id==parseInt(item.dataset.id));openChat(c);}});});
+// Хэш пароля
+async function sha256(m) {
+    const b = new TextEncoder().encode(m);
+    const h = await crypto.subtle.digest('SHA-256', b);
+    return Array.from(new Uint8Array(h)).map(x => x.toString(16).padStart(2, '0')).join('');
 }
 
-function startPress(el){if(isSelectionMode)return;pressTimer=setTimeout(()=>{isSelectionMode=true;enterSelectionMode(el);},500);}
-function endPress(){clearTimeout(pressTimer);}
-function enterSelectionMode(el){document.getElementById('headerDefault').style.opacity='0';document.getElementById('headerDefault').style.transform='translateY(-10px)';document.getElementById('headerSelection').classList.add('active');toggleSelect(el);if(window.navigator.vibrate)window.navigator.vibrate(40);}
-function toggleSelect(el){el.classList.toggle('selected');selectedCount=document.querySelectorAll('.chat-item.selected').length;document.getElementById('selCount').innerText=selectedCount;if(selectedCount<=0)exitSelection();}
-function exitSelection(){isSelectionMode=false;selectedCount=0;document.querySelectorAll('.chat-item').forEach(c=>c.classList.remove('selected'));document.getElementById('headerDefault').style.opacity='1';document.getElementById('headerDefault').style.transform='translateY(0)';document.getElementById('headerSelection').classList.remove('active');}
-function enterSelectionModeFirst(){if(document.querySelectorAll('.chat-item').length===0)return;isSelectionMode=true;const el=document.querySelector('.chat-item');enterSelectionMode(el);}
-
-function openChat(c){document.getElementById('chat-active-name').innerText=c.name;document.getElementById('chat-active-avatar').innerText=c.init;document.getElementById('chat-active-avatar').style.background=c.color;document.getElementById('chat-window').classList.add('active');document.getElementById('nav-island').classList.add('hidden');}
-function closeChat(){document.getElementById('chat-window').classList.remove('active');document.getElementById('nav-island').classList.remove('hidden');}
-
-function sendMsg(){const inp=document.getElementById('chatInput');if(inp.value.trim()==="")return;const time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});document.getElementById('msgBox').innerHTML+=`<div class="bubble sent">${inp.value}<div class="m-time">${time}</div></div>`;inp.value="";document.getElementById('micIcon').classList.replace('icon-hide','icon-show');document.getElementById('sendIcon').classList.replace('icon-show','icon-hide');document.getElementById('msgBox').scrollTop=document.getElementById('msgBox').scrollHeight;}
-document.getElementById('chatInput').addEventListener('input',function(){const mic=document.getElementById('micIcon');const send=document.getElementById('sendIcon');if(this.value.trim().length>0){mic.classList.replace('icon-show','icon-hide');send.classList.replace('icon-hide','icon-show');}else{mic.classList.replace('icon-hide','icon-show');send.classList.replace('icon-show','icon-hide');}});
-
-function updateProfile(){
-    const u=localStorage.getItem('logos_user'),n=localStorage.getItem('logos_display_name')||'—',b=localStorage.getItem('logos_bio')||'',d=localStorage.getItem('logos_createdAt');
-    document.getElementById('profileContent').innerHTML=`<div class="profile-avatar" style="background:linear-gradient(135deg,#5d5fef,#3a3cb3);"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg></div><div class="profile-name">${n}</div><div class="profile-username">@${u}</div><div class="profile-bio">${b}</div><div class="profile-row"><span class="profile-label">Дата регистрации</span><span class="profile-value">${d?new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'}):'—'}</span></div><div class="profile-row"><span class="profile-label">Тема</span><span class="profile-value">${document.body.classList.contains('dark-mode')?'🌙 Тёмная':'☀️ Светлая'}</span></div><div class="profile-row"><span class="profile-label">Язык</span><span class="profile-value">${curCode}</span></div><button class="profile-logout" onclick="logout()">Выйти из аккаунта</button>`;
+// Тема
+function saveTheme() {
+    localStorage.setItem('logos_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+}
+function loadTheme() {
+    if (localStorage.getItem('logos_theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+}
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    saveTheme();
 }
 
-function showMessenger(){
-    document.getElementById('onboardingScreen').style.display='none';
-    ['registerScreen','displayNameScreen','avatarScreen','pinScreen','loginPinScreen'].forEach(id=>document.getElementById(id).classList.remove('active'));
-    document.getElementById('messengerScreen').style.display='flex';
-    renderChats();updateProfile();
-}
+// Язык
+let curCode = 'RU';
+function saveLang() { localStorage.setItem('logos_lang', curCode); }
+function loadLang() { return localStorage.getItem('logos_lang') || 'RU'; }
 
-function switchMsgTab(i,el){if(isSelectionMode)exitSelection();document.getElementById('msgSlider').style.transform=`translateX(-${i*33.333}%)`;document.querySelectorAll('#nav-island .nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active');if(i===2)updateProfile();}
-
-const submitBtn=document.getElementById('submitBtn'),userInp=document.getElementById('username'),passInp=document.getElementById('password'),usernameError=document.getElementById('usernameError'),passwordError=document.getElementById('passwordError');
-const displayNameBtn=document.getElementById('displayNameBtn'),displayNameInput=document.getElementById('displayNameInput'),bioInput=document.getElementById('bioInput'),displayError=document.getElementById('displayError'),bioError=document.getElementById('bioError'),avatarBtn=document.getElementById('avatarBtn');
-let accountExists=false;
-
-function checkSession(){
-    const u=localStorage.getItem('logos_user'),n=localStorage.getItem('logos_display_name'),pin=localStorage.getItem('logos_pin');
-    if(u&&n){document.getElementById('onboardingScreen').style.display='none';if(pin){document.getElementById('loginPinScreen').classList.add('active');loginPinInput="";updateLoginPinDots();}else{showMessenger();}return true;}
-    return false;
-}
-function logout(){
-    ['logos_user','logos_display_name','logos_createdAt','logos_bio','logos_pin','logos_avatar'].forEach(k=>localStorage.removeItem(k));
-    document.getElementById('messengerScreen').style.display='none';document.getElementById('loginPinScreen').classList.remove('active');
-    document.getElementById('onboardingScreen').style.display='';['registerScreen','displayNameScreen','avatarScreen','pinScreen'].forEach(id=>document.getElementById(id).classList.remove('active'));
-    userInp.value='';passInp.value='';usernameError.innerHTML='';passwordError.innerHTML='';loginPinInput="";updateLoginPinDots();currentStep=1;goToSlide(1);
-}
-
-let checkTimeout;
-userInp.addEventListener('input',function(){usernameError.classList.remove('input-success','input-hint');const val=this.value.trim().toLowerCase();clearTimeout(checkTimeout);accountExists=false;updateSubmitBtn();if(val.length===0){usernameError.innerHTML='';return;}if(val.length<5){usernameError.innerHTML='⚠️ '+getMsg('minLength');return;}if(!/^[a-zA-Z0-9_]+$/.test(val)){usernameError.innerHTML='⚠️ '+getMsg('invalidChars');return;}usernameError.innerHTML='Проверка...';usernameError.classList.add('input-hint');checkTimeout=setTimeout(async()=>{try{const snap=await database.ref('users/'+val).once('value');if(snap.exists()){accountExists=true;usernameError.innerHTML='🔐 '+getMsg('accountExists');usernameError.classList.add('input-hint');passInp.placeholder=getMsg('enterPass');passInp.focus();}else{accountExists=false;usernameError.innerHTML='✅ '+getMsg('nameFree');usernameError.classList.add('input-success');passInp.placeholder=getMsg('createPass');}updateSubmitBtn();}catch(e){usernameError.innerHTML='';}},500);});
-passInp.addEventListener('input',()=>{passwordError.classList.remove('input-success');passwordError.innerHTML='';});
-function updateSubmitBtn(){submitBtn.innerText=accountExists?getMsg('loginBtn'):getMsg('registerBtn');}
-function getMsg(key){const m={minLength:{RU:'Минимум 5 символов',EN:'Minimum 5 characters',ZH:'最少5个字符',ES:'Mínimo 5 caracteres'},invalidChars:{RU:'Только латиница, цифры и _',EN:'Only latin, numbers and _',ZH:'仅拉丁字母、数字和_',ES:'Solo latín, números y _'},accountExists:{RU:'Аккаунт существует. Введите пароль',EN:'Account exists. Enter password',ZH:'账户存在。输入密码',ES:'Cuenta existe. Ingrese contraseña'},nameFree:{RU:'Имя свободно',EN:'Name available',ZH:'名称可用',ES:'Nombre disponible'},enterPass:{RU:'Введите пароль для входа',EN:'Enter password to login',ZH:'输入密码登录',ES:'Ingrese contraseña'},createPass:{RU:'Придумайте пароль',EN:'Create a password',ZH:'创建密码',ES:'Cree una contraseña'},loginBtn:{RU:'Войти',EN:'Login',ZH:'登录',ES:'Entrar'},registerBtn:{RU:'Зарегистрироваться',EN:'Register',ZH:'注册',ES:'Registrarse'},shortPass:{RU:'Минимум 6 символов',EN:'Minimum 6 characters',ZH:'最少6个字符',ES:'Mínimo 6 caracteres'},wrongPass:{RU:'Неверный пароль',EN:'Wrong password',ZH:'密码错误',ES:'Contraseña incorrecta'},dbError:{RU:'Ошибка соединения',EN:'Database error',ZH:'数据库错误',ES:'Error de conexión'},ipLimit:{RU:'⚠️ Достигнут лимит аккаунтов',EN:'⚠️ Account limit reached',ZH:'⚠️ 达到账户限制',ES:'⚠️ Límite de cuentas'},pinConfirm:{RU:'Подтвердите PIN',EN:'Confirm PIN',ZH:'确认PIN',ES:'Confirme PIN'}};return m[key]?.[curCode]||m[key]?.RU||'';}
-
-submitBtn.onclick=async function(){const user=userInp.value.trim().toLowerCase(),pass=passInp.value.trim();usernameError.classList.remove('input-success','input-hint');let err=false;if(user.length<5){usernameError.innerHTML='⚠️ '+getMsg('minLength');err=true;}else if(!/^[a-zA-Z0-9_]+$/.test(user)){usernameError.innerHTML='⚠️ '+getMsg('invalidChars');err=true;}if(pass.length<6){passwordError.innerHTML='⚠️ '+getMsg('shortPass');err=true;}if(err)return;submitBtn.innerText="...";submitBtn.disabled=true;try{const ref=database.ref('users/'+user),snap=await ref.once('value'),hash=await sha256(pass);if(snap.exists()){if(snap.val().password===hash){localStorage.setItem('logos_user',user);localStorage.setItem('logos_createdAt',snap.val().createdAt);hideRegister();if(snap.val().displayName){localStorage.setItem('logos_display_name',snap.val().displayName);localStorage.setItem('logos_bio',snap.val().bio||'');localStorage.setItem('logos_avatar',JSON.stringify(snap.val().avatar||avatarData));showMessenger();}else{showDisplayName();}}else{passwordError.innerHTML='⚠️ '+getMsg('wrongPass');passInp.value="";passInp.focus();}}else{const ip=await(await fetch('https://api.ipify.org?format=json')).json().then(d=>d.ip).catch(()=>'unknown');if(ip!=='unknown'){const ipSnap=await database.ref('ip_registry/'+ip.replace(/\./g,'_')).once('value');const count=ipSnap.exists()?ipSnap.val().count:0;if(count>=2){passwordError.innerHTML=getMsg('ipLimit');submitBtn.disabled=false;updateSubmitBtn();return;}await database.ref('ip_registry/'+ip.replace(/\./g,'_')).set({count:count+1,lastUsed:new Date().toISOString()});}const now=new Date().toISOString();await ref.set({password:hash,createdAt:now});localStorage.setItem('logos_user',user);localStorage.setItem('logos_createdAt',now);hideRegister();showDisplayName();}}catch(e){console.error(e);passwordError.innerHTML='⚠️ '+getMsg('dbError');}finally{updateSubmitBtn();submitBtn.disabled=false;}};
-passInp.addEventListener('keydown',e=>{if(e.key==='Enter')submitBtn.click();});
-
-displayNameBtn.addEventListener('click',function(){const name=displayNameInput.value.trim(),bio=bioInput.value.trim();if(name.length<1){displayError.innerHTML='⚠️ Введите имя';return;}if(name.length>30){displayError.innerHTML='⚠️ Максимум 30 символов';return;}if(bio.length>150){bioError.innerHTML='⚠️ Максимум 150 символов';return;}localStorage.setItem('logos_display_name',name);localStorage.setItem('logos_bio',bio);hideDisplayName();showAvatar();});
-avatarBtn.addEventListener('click',function(){localStorage.setItem('logos_avatar',JSON.stringify(avatarData));hideAvatar();showPin();});
-
-function showRegister(){document.getElementById('registerScreen').classList.add('active');}
-function hideRegister(){document.getElementById('registerScreen').classList.remove('active');}
-function showDisplayName(){document.getElementById('displayNameScreen').classList.add('active');}
-function hideDisplayName(){document.getElementById('displayNameScreen').classList.remove('active');}
-function showAvatar(){document.getElementById('avatarScreen').classList.add('active');}
-function hideAvatar(){document.getElementById('avatarScreen').classList.remove('active');}
-function showPin(){document.getElementById('pinScreen').classList.add('active');}
-function hidePin(){document.getElementById('pinScreen').classList.remove('active');}
-
-const nextBtn=document.getElementById('nextBtn'),btnText=document.getElementById('btnText'),btnIcon=document.getElementById('btnIcon'),onboardSlider=document.getElementById('onboardSlider'),app=document.getElementById('app'),pageNumber=document.getElementById('pageNumber'),langBtn=document.getElementById('langBtn'),langBtn2=document.getElementById('langBtn2'),langBtn3=document.getElementById('langBtn3'),langBtn5=document.getElementById('langBtn5'),langBtn6=document.getElementById('langBtn6'),langBtn7=document.getElementById('langBtn7'),langModal=document.getElementById('langModal'),overlay=document.getElementById('overlay'),termsModal=document.getElementById('termsModal'),extraModal=document.getElementById('extraModal'),termsContent=document.getElementById('termsContent'),termsCloseBtn=document.getElementById('termsCloseBtn'),themeBtn1=document.getElementById('themeBtn1'),themeBtn2=document.getElementById('themeBtn2'),themeBtn3=document.getElementById('themeBtn3'),themeBtn5=document.getElementById('themeBtn5'),themeBtn6=document.getElementById('themeBtn6'),themeBtn7=document.getElementById('themeBtn7');
-let currentStep=1,curCode='RU';
-
-const langData={
-'RU':{h:['Добро пожаловать в Logos','Шифрование','Ghost Mode','Фантомные сообщения'],p:['Мессенджер нового поколения с максимальной конфиденциальностью','Ваши данные защищены сквозным шифрованием.','Станьте невидимым для всех пользователей.','Сообщения, которые исчезают после прочтения.'],next:'Далее',skip:'Пропустить',start:'Начать',regTitle:'Создайте имя пользователя',regSub:'Это ваш уникальный идентификатор в Logos. Без номера телефона, без почты.',regName:'Имя пользователя',regPass:'Пароль',regBtn:'Далее',legalBefore:'Регистрируясь, вы соглашаетесь с ',terms:'Условиями',and:' и ',policy:'Политикой',regExtra:'Дополнительные параметры',displayTitle:'Как вас зовут?',displaySub:'Это имя увидят другие пользователи',displayPlaceholder:'Отображаемое имя',bioPlaceholder:'О себе (необязательно)',displayBtn:'Далее',avatarTitle:'Ваш аватар',avatarSub:'Настройте стиль профиля или загрузите живое видео',avatarBtn:'Далее',pinTitle:'Создайте PIN-код',pinSub:'4-значный код для защиты аккаунта',pinSkip:'Пропустить',pinConfirm:'Подтвердите PIN',termsTitle:'Условия',termsBody:'<h4>1.</h4>',policyTitle:'Политика',policyBody:'<h4>1.</h4>',termsClose:'Понятно'},
-'EN':{h:['Welcome to Logos','Encryption','Ghost Mode','Phantom Msg'],p:['Next gen messenger.','Messages protected.','Become invisible.','Messages disappear.'],next:'Next',skip:'Skip',start:'Start',regTitle:'Create username',regSub:'Your unique ID.',regName:'Username',regPass:'Password',regBtn:'Next',legalBefore:'By registering, you agree ',terms:'Terms',and:' and ',policy:'Privacy',regExtra:'Options',displayTitle:'Your name?',displaySub:'Others will see',displayPlaceholder:'Display name',bioPlaceholder:'About you',displayBtn:'Next',avatarTitle:'Your avatar',avatarSub:'Customize style or upload video',avatarBtn:'Next',pinTitle:'Create PIN',pinSub:'4-digit code',pinSkip:'Skip',pinConfirm:'Confirm PIN',termsTitle:'Terms',termsBody:'<h4>1.</h4>',policyTitle:'Privacy',policyBody:'<h4>1.</h4>',termsClose:'Got it'},
-'ZH':{h:['欢迎','加密','隐身','幻影'],p:['新一代','保护','不可见','消失'],next:'下一步',skip:'跳过',start:'开始',regTitle:'创建用户名',regSub:'唯一标识',regName:'用户名',regPass:'密码',regBtn:'下一步',legalBefore:'同意',terms:'条款',and:'和',policy:'隐私',regExtra:'选项',displayTitle:'名字？',displaySub:'其他人可见',displayPlaceholder:'名称',bioPlaceholder:'关于你',displayBtn:'下一步',avatarTitle:'头像',avatarSub:'自定义风格',avatarBtn:'下一步',pinTitle:'创建PIN',pinSub:'4位数字',pinSkip:'跳过',pinConfirm:'确认PIN',termsTitle:'条款',termsBody:'<h4>1.</h4>',policyTitle:'隐私',policyBody:'<h4>1.</h4>',termsClose:'好'},
-'ES':{h:['Bienvenido','Cifrado','Fantasma','Mensajes'],p:['Privacidad','Protegido','Invisible','Desaparecen'],next:'Sig',skip:'Omitir',start:'Comenzar',regTitle:'Crear usuario',regSub:'ID único',regName:'Usuario',regPass:'Contraseña',regBtn:'Sig',legalBefore:'Acepta ',terms:'Términos',and:' y ',policy:'Privacidad',regExtra:'Opciones',displayTitle:'¿Nombre?',displaySub:'Otros verán',displayPlaceholder:'Nombre',bioPlaceholder:'Sobre ti',displayBtn:'Sig',avatarTitle:'Tu avatar',avatarSub:'Personaliza estilo',avatarBtn:'Sig',pinTitle:'Crear PIN',pinSub:'4 dígitos',pinSkip:'Omitir',pinConfirm:'Confirmar PIN',termsTitle:'Términos',termsBody:'<h4>1.</h4>',policyTitle:'Privacidad',policyBody:'<h4>1.</h4>',termsClose:'OK'}
+const langData = {
+    'RU': {
+        h: ['Добро пожаловать в Logos', 'Шифрование', 'Ghost Mode', 'Фантомные сообщения'],
+        p: ['Мессенджер нового поколения с максимальной конфиденциальностью', 'Ваши данные защищены сквозным шифрованием.', 'Станьте невидимым для всех пользователей.', 'Сообщения, которые исчезают после прочтения.'],
+        next: 'Далее', skip: 'Пропустить', start: 'Начать',
+        regTitle: 'Создайте имя пользователя', regSub: 'Это ваш уникальный идентификатор в Logos. Без номера телефона, без почты.',
+        regName: 'Имя пользователя', regPass: 'Пароль', regBtn: 'Далее',
+        legalBefore: 'Регистрируясь, вы соглашаетесь с ', terms: 'Условиями', and: ' и ', policy: 'Политикой',
+        regExtra: 'Дополнительные параметры',
+        displayTitle: 'Как вас зовут?', displaySub: 'Это имя увидят другие пользователи',
+        displayPlaceholder: 'Отображаемое имя', bioPlaceholder: 'О себе (необязательно)', displayBtn: 'Далее',
+        avatarTitle: 'Ваш аватар', avatarSub: 'Настройте стиль профиля или загрузите живое видео', avatarBtn: 'Далее',
+        pinTitle: 'Создайте PIN-код', pinSub: '4-значный код для защиты аккаунта', pinSkip: 'Пропустить',
+        pinConfirm: 'Подтвердите PIN', termsTitle: 'Условия', termsBody: '<h4>1. Общие положения</h4><p>Используя Logos, вы соглашаетесь с условиями.</p>', policyTitle: 'Политика', policyBody: '<h4>1. Конфиденциальность</h4><p>Мы не собираем ваши данные.</p>', termsClose: 'Понятно'
+    },
+    'EN': {
+        h: ['Welcome to Logos', 'Encryption', 'Ghost Mode', 'Phantom Msg'],
+        p: ['Next gen messenger.', 'Messages protected.', 'Become invisible.', 'Messages disappear.'],
+        next: 'Next', skip: 'Skip', start: 'Start',
+        regTitle: 'Create username', regSub: 'Your unique ID.',
+        regName: 'Username', regPass: 'Password', regBtn: 'Next',
+        legalBefore: 'By registering, you agree ', terms: 'Terms', and: ' and ', policy: 'Privacy',
+        regExtra: 'Options',
+        displayTitle: 'Your name?', displaySub: 'Others will see',
+        displayPlaceholder: 'Display name', bioPlaceholder: 'About you', displayBtn: 'Next',
+        avatarTitle: 'Your avatar', avatarSub: 'Customize style or upload video', avatarBtn: 'Next',
+        pinTitle: 'Create PIN', pinSub: '4-digit code', pinSkip: 'Skip',
+        pinConfirm: 'Confirm PIN', termsTitle: 'Terms', termsBody: '<h4>1. General</h4><p>By using Logos you agree to terms.</p>', policyTitle: 'Privacy', policyBody: '<h4>1. Privacy</h4><p>We do not collect your data.</p>', termsClose: 'Got it'
+    },
+    'ZH': {
+        h: ['欢迎', '加密', '隐身', '幻影'],
+        p: ['新一代', '保护', '不可见', '消失'],
+        next: '下一步', skip: '跳过', start: '开始',
+        regTitle: '创建用户名', regSub: '唯一标识',
+        regName: '用户名', regPass: '密码', regBtn: '下一步',
+        legalBefore: '同意', terms: '条款', and: '和', policy: '隐私',
+        regExtra: '选项',
+        displayTitle: '名字？', displaySub: '其他人可见',
+        displayPlaceholder: '名称', bioPlaceholder: '关于你', displayBtn: '下一步',
+        avatarTitle: '头像', avatarSub: '自定义风格', avatarBtn: '下一步',
+        pinTitle: '创建PIN', pinSub: '4位数字', pinSkip: '跳过',
+        pinConfirm: '确认PIN', termsTitle: '条款', termsBody: '<h4>1. 一般</h4><p>使用即同意条款。</p>', policyTitle: '隐私', policyBody: '<h4>1. 隐私</h4><p>不收集数据。</p>', termsClose: '好'
+    },
+    'ES': {
+        h: ['Bienvenido', 'Cifrado', 'Fantasma', 'Mensajes'],
+        p: ['Privacidad', 'Protegido', 'Invisible', 'Desaparecen'],
+        next: 'Sig', skip: 'Omitir', start: 'Comenzar',
+        regTitle: 'Crear usuario', regSub: 'ID único',
+        regName: 'Usuario', regPass: 'Contraseña', regBtn: 'Sig',
+        legalBefore: 'Acepta ', terms: 'Términos', and: ' y ', policy: 'Privacidad',
+        regExtra: 'Opciones',
+        displayTitle: '¿Nombre?', displaySub: 'Otros verán',
+        displayPlaceholder: 'Nombre', bioPlaceholder: 'Sobre ti', displayBtn: 'Sig',
+        avatarTitle: 'Tu avatar', avatarSub: 'Personaliza estilo', avatarBtn: 'Sig',
+        pinTitle: 'Crear PIN', pinSub: '4 dígitos', pinSkip: 'Omitir',
+        pinConfirm: 'Confirmar PIN', termsTitle: 'Términos', termsBody: '<h4>1. General</h4><p>Al usar Logos aceptas términos.</p>', policyTitle: 'Privacidad', policyBody: '<h4>1. Privacidad</h4><p>No recopilamos datos.</p>', termsClose: 'OK'
+    }
 };
 
-function setLang(code){curCode=code;['curLang','curLang2','curLang3','curLang5','curLang6','curLang7'].forEach(id=>document.getElementById(id).innerText=code);updateTexts();document.querySelectorAll('.lang-option').forEach(el=>{el.classList.toggle('selected',el.id==='opt-'+code);const c=el.querySelector('.check');if(c)c.innerText=(el.id==='opt-'+code)?'✓':'';});langModal.classList.remove('open');overlay.classList.remove('open');saveLang();updateSubmitBtn();}
-function updateTexts(){const d=langData[curCode];for(let i=1;i<=4;i++){document.getElementById('h'+i).innerText=d.h[i-1];document.getElementById('p'+i).innerText=d.p[i-1];}document.getElementById('skipBtn').innerText=d.skip;btnText.innerText=(currentStep===4)?d.start:d.next;document.getElementById('regTitle').innerText=d.regTitle;document.getElementById('regSub').innerText=d.regSub;document.getElementById('username').placeholder=d.regName;document.getElementById('password').placeholder=d.regPass;document.getElementById('legalText').innerHTML=d.legalBefore+'<a onclick="showTerms()">'+d.terms+'</a>'+d.and+'<a onclick="showPolicy()">'+d.policy+'</a>';document.getElementById('extraText').innerText=d.regExtra;document.getElementById('displayTitle').innerText=d.displayTitle;document.getElementById('displaySub').innerText=d.displaySub;document.getElementById('displayNameInput').placeholder=d.displayPlaceholder;document.getElementById('bioInput').placeholder=d.bioPlaceholder;document.getElementById('displayNameBtn').innerText=d.displayBtn;document.getElementById('avatarTitle').innerText=d.avatarTitle;document.getElementById('avatarSub').innerText=d.avatarSub;document.getElementById('avatarBtn').innerText=d.avatarBtn;document.getElementById('pinTitle').innerText=d.pinTitle;document.getElementById('pinSub').innerText=d.pinSub;document.getElementById('pinSkip').innerText=d.pinSkip;termsCloseBtn.innerText=d.termsClose;}
-function showTerms(){const d=langData[curCode];termsContent.innerHTML='<h3>'+d.termsTitle+'</h3>'+d.termsBody;termsModal.classList.add('open');overlay.classList.add('open');}
-function showPolicy(){const d=langData[curCode];termsContent.innerHTML='<h3>'+d.policyTitle+'</h3>'+d.policyBody;termsModal.classList.add('open');overlay.classList.add('open');}
-function closeTerms(){termsModal.classList.remove('open');overlay.classList.remove('open');}
-function showExtra(){document.getElementById('extraModal').classList.add('open');document.getElementById('overlay').classList.add('open');}
-function saveExtra(){localStorage.setItem('logos_autoDelete',document.getElementById('autoDeleteSelect').value);localStorage.setItem('logos_proxy',document.getElementById('proxyInput').value.trim());document.getElementById('extraModal').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
+function getMsg(key) {
+    const m = {
+        minLength: { RU: 'Минимум 5 символов', EN: 'Minimum 5 characters', ZH: '最少5个字符', ES: 'Mínimo 5 caracteres' },
+        invalidChars: { RU: 'Только латиница, цифры и _', EN: 'Only latin, numbers and _', ZH: '仅拉丁字母、数字和_', ES: 'Solo latín, números y _' },
+        accountExists: { RU: 'Аккаунт существует. Введите пароль', EN: 'Account exists. Enter password', ZH: '账户存在。输入密码', ES: 'Cuenta existe. Ingrese contraseña' },
+        nameFree: { RU: 'Имя свободно', EN: 'Name available', ZH: '名称可用', ES: 'Nombre disponible' },
+        enterPass: { RU: 'Введите пароль для входа', EN: 'Enter password to login', ZH: '输入密码登录', ES: 'Ingrese contraseña' },
+        createPass: { RU: 'Придумайте пароль', EN: 'Create a password', ZH: '创建密码', ES: 'Cree una contraseña' },
+        loginBtn: { RU: 'Войти', EN: 'Login', ZH: '登录', ES: 'Entrar' },
+        registerBtn: { RU: 'Зарегистрироваться', EN: 'Register', ZH: '注册', ES: 'Registrarse' },
+        shortPass: { RU: 'Минимум 6 символов', EN: 'Minimum 6 characters', ZH: '最少6个字符', ES: 'Mínimo 6 caracteres' },
+        wrongPass: { RU: 'Неверный пароль', EN: 'Wrong password', ZH: '密码错误', ES: 'Contraseña incorrecta' },
+        dbError: { RU: 'Ошибка соединения', EN: 'Database error', ZH: '数据库错误', ES: 'Error de conexión' },
+        ipLimit: { RU: '⚠️ Достигнут лимит аккаунтов', EN: '⚠️ Account limit reached', ZH: '⚠️ 达到账户限制', ES: '⚠️ Límite de cuentas' },
+        pinConfirm: { RU: 'Подтвердите PIN', EN: 'Confirm PIN', ZH: '确认PIN', ES: 'Confirme PIN' }
+    };
+    return m[key]?.[curCode] || m[key]?.RU || '';
+}
 
-function goToSlide(n){currentStep=n;onboardSlider.style.transform=`translateX(-${(n-1)*25}%)`;app.className='app-screen'+(n>1?` s${n}-active`:'');for(let i=1;i<=4;i++)document.getElementById('slide'+i).classList.remove('animate');document.getElementById('slide'+n).classList.add('animate');const colors=['','blue','green','purple','orange'];for(let i=1;i<=4;i++){const step=document.getElementById('s'+i);step.className='step';if(i<=n)step.classList.add('done-'+colors[i]);}pageNumber.innerText=n+' / 4';btnIcon.style.display=(n===4)?'none':'';updateTexts();}
+function setLang(code) {
+    curCode = code;
+    ['curLang', 'curLang2', 'curLang3', 'curLang5', 'curLang6', 'curLang7'].forEach(id => {
+        document.getElementById(id).innerText = code;
+    });
+    updateTexts();
+    document.querySelectorAll('.lang-option').forEach(el => {
+        el.classList.toggle('selected', el.id === 'opt-' + code);
+        const c = el.querySelector('.check');
+        if (c) c.innerText = (el.id === 'opt-' + code) ? '✓' : '';
+    });
+    langModal.classList.remove('open');
+    overlay.classList.remove('open');
+    saveLang();
+    updateSubmitBtn();
+}
 
-nextBtn.onclick=()=>{if(currentStep<4){goToSlide(currentStep+1);}else{showRegister();}};
-document.getElementById('skipBtn').onclick=()=>showRegister();
-function toggleTheme(){document.body.classList.toggle('dark-mode');saveTheme();}
-themeBtn1.onclick=toggleTheme;themeBtn2.onclick=toggleTheme;themeBtn3.onclick=toggleTheme;themeBtn5.onclick=toggleTheme;themeBtn6.onclick=toggleTheme;themeBtn7.onclick=toggleTheme;
-langBtn.onclick=()=>{langModal.classList.add('open');overlay.classList.add('open');};langBtn2.onclick=()=>{langModal.classList.add('open');overlay.classList.add('open');};langBtn3.onclick=()=>{langModal.classList.add('open');overlay.classList.add('open');};langBtn5.onclick=()=>{langModal.classList.add('open');overlay.classList.add('open');};langBtn6.onclick=()=>{langModal.classList.add('open');overlay.classList.add('open');};langBtn7.onclick=()=>{langModal.classList.add('open');overlay.classList.add('open');};
-overlay.onclick=()=>{langModal.classList.remove('open');termsModal.classList.remove('open');extraModal.classList.remove('open');overlay.classList.remove('open');};
+function updateTexts() {
+    const d = langData[curCode];
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById('h' + i).innerText = d.h[i - 1];
+        document.getElementById('p' + i).innerText = d.p[i - 1];
+    }
+    document.getElementById('skipBtn').innerText = d.skip;
+    document.getElementById('btnText').innerText = (currentStep === 4) ? d.start : d.next;
+    document.getElementById('regTitle').innerText = d.regTitle;
+    document.getElementById('regSub').innerText = d.regSub;
+    document.getElementById('username').placeholder = d.regName;
+    document.getElementById('password').placeholder = d.regPass;
+    document.getElementById('legalText').innerHTML = d.legalBefore + '<a onclick="showTerms()">' + d.terms + '</a>' + d.and + '<a onclick="showPolicy()">' + d.policy + '</a>';
+    document.getElementById('extraText').innerText = d.regExtra;
+    document.getElementById('displayTitle').innerText = d.displayTitle;
+    document.getElementById('displaySub').innerText = d.displaySub;
+    document.getElementById('displayNameInput').placeholder = d.displayPlaceholder;
+    document.getElementById('bioInput').placeholder = d.bioPlaceholder;
+    document.getElementById('displayNameBtn').innerText = d.displayBtn;
+    document.getElementById('avatarTitle').innerText = d.avatarTitle;
+    document.getElementById('avatarSub').innerText = d.avatarSub;
+    document.getElementById('avatarBtn').innerText = d.avatarBtn;
+    document.getElementById('pinTitle').innerText = d.pinTitle;
+    document.getElementById('pinSub').innerText = d.pinSub;
+    document.getElementById('pinSkip').innerText = d.pinSkip;
+    document.getElementById('termsCloseBtn').innerText = d.termsClose;
+}
 
-window.onload=()=>{loadTheme();curCode=loadLang();setLang(curCode);if(!checkSession()){goToSlide(1);}const ad=localStorage.getItem('logos_autoDelete');if(ad)document.getElementById('autoDeleteSelect').value=ad;const pr=localStorage.getItem('logos_proxy');if(pr)document.getElementById('proxyInput').value=pr;const rColor=palette[Math.floor(Math.random()*palette.length)];const rIcon=iconPaths[Math.floor(Math.random()*iconPaths.length)];setBg(rColor.c1,rColor.c2);setIcon(rIcon);};
+// ===== АВАТАР =====
+const avatarBox = document.getElementById('avatarBox');
+const mediaLayer = document.getElementById('mediaLayer');
+const mainIcon = document.getElementById('mainIcon');
+const fileInput = document.getElementById('fileInput');
+const avatarPreview = document.getElementById('avatarPreview');
+const palette = [
+    { c1: '#5d5fef', c2: '#3a3cb3' },
+    { c1: '#ff7eb3', c2: '#ff758c' },
+    { c1: '#00f2fe', c2: '#4facfe' },
+    { c1: '#43e97b', c2: '#38f9d7' },
+    { c1: '#fa709a', c2: '#fee140' },
+    { c1: '#444444', c2: '#111111' }
+];
+const iconPaths = [
+    'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+    'M12 2l3.09 6.26L22 9.27l-5 4.87l1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87l6.91-1.01L12 2z',
+    'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78l1.06-1.06a5.5 5.5 0 0 0 0-7.78z',
+    'M13 2L3 14h9l-1 8l10-12h-9l1-8z',
+    'M18 8a6 6 0 0 0-12 0c0 7 3 9 3 9h6s3-2 3-9 M13.73 21a2 2 0 0 1-3.46 0',
+    'M12 22s8-4 8-10V5l-8-3l-8 3v7c0 6 8 10 8 10z',
+    'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z',
+    'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0 M12 9v4 M12 16v.01',
+    'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z',
+    'M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z M3 6h18',
+    'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z',
+    'M12 2L2 7l10 5l10-5l-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5'
+];
+let avatarData = { type: 'gradient', gradient: ['#5d5fef', '#3a3cb3'], icon: iconPaths[0], image: '', video: '' };
+
+function applyPulse() {
+    avatarBox.classList.remove('pulse');
+    void avatarBox.offsetWidth;
+    avatarBox.classList.add('pulse');
+}
+function resetMedia() {
+    mediaLayer.style.display = 'none';
+    mediaLayer.innerHTML = '';
+    mainIcon.style.display = 'block';
+    avatarData.image = '';
+    avatarData.video = '';
+}
+fileInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    resetMedia();
+    mediaLayer.style.display = 'block';
+    mainIcon.style.display = 'none';
+    if (file.type.startsWith('video')) {
+        const v = document.createElement('video');
+        v.src = url;
+        v.muted = true;
+        v.autoplay = true;
+        v.loop = true;
+        v.setAttribute('playsinline', '');
+        mediaLayer.appendChild(v);
+        v.play();
+        avatarData.type = 'video';
+        avatarData.video = url;
+    } else {
+        const i = document.createElement('img');
+        i.src = url;
+        mediaLayer.appendChild(i);
+        avatarData.type = 'image';
+        avatarData.image = url;
+    }
+    applyPulse();
+};
+function setIcon(path) {
+    mediaLayer.style.display = 'none';
+    mainIcon.style.display = 'block';
+    mainIcon.innerHTML = `<path d="${path}"></path>`;
+    avatarData.icon = path;
+    applyPulse();
+}
+function setBg(c1, c2) {
+    mediaLayer.style.display = 'none';
+    mainIcon.style.display = 'block';
+    avatarPreview.style.background = `linear-gradient(135deg,${c1},${c2})`;
+    avatarData.gradient = [c1, c2];
+    applyPulse();
+}
+const colorRow = document.getElementById('colorPalette');
+palette.forEach(color => {
+    const dot = document.createElement('div');
+    dot.className = 'color-dot';
+    dot.style.background = `linear-gradient(135deg,${color.c1},${color.c2})`;
+    dot.onclick = () => setBg(color.c1, color.c2);
+    colorRow.appendChild(dot);
+});
+const grid = document.getElementById('iconGrid');
+iconPaths.forEach(path => {
+    const item = document.createElement('div');
+    item.className = 'icon-item';
+    item.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`;
+    item.onclick = () => setIcon(path);
+    grid.appendChild(item);
+});
+
+// ===== PIN =====
+let tempPin = "", pinInput = "", pinConfirm = false;
+const pinDots = document.querySelectorAll('#pinScreen .pin-dot');
+const pinTitle = document.getElementById('pinTitle');
+const pinDotsContainer = document.getElementById('pinDots');
+
+function tap(n) {
+    if (pinInput.length < 4) {
+        pinInput += n;
+        updatePinDots();
+        if (pinInput.length === 4) setTimeout(processPin, 300);
+    }
+}
+function del() {
+    pinInput = pinInput.slice(0, -1);
+    updatePinDots();
+}
+function updatePinDots() {
+    pinDots.forEach((d, i) => d.classList.toggle('active', i < pinInput.length));
+}
+function processPin() {
+    if (!pinConfirm) {
+        tempPin = pinInput;
+        pinInput = "";
+        pinConfirm = true;
+        pinTitle.innerText = getMsg('pinConfirm');
+        updatePinDots();
+    } else {
+        if (pinInput === tempPin) {
+            localStorage.setItem('logos_pin', tempPin);
+            hidePin();
+            showMessenger();
+        } else {
+            pinDotsContainer.classList.add('shake');
+            setTimeout(() => {
+                pinDotsContainer.classList.remove('shake');
+                pinInput = "";
+                updatePinDots();
+            }, 400);
+        }
+    }
+}
+function skipPin() {
+    localStorage.removeItem('logos_pin');
+    hidePin();
+    showMessenger();
+}
+
+let loginPinInput = "";
+const loginPinDots = document.querySelectorAll('#loginPinScreen .pin-dot');
+const loginPinDotsContainer = document.getElementById('loginPinDots');
+
+function loginTap(n) {
+    if (loginPinInput.length < 4) {
+        loginPinInput += n;
+        updateLoginPinDots();
+        if (loginPinInput.length === 4) setTimeout(checkLoginPin, 300);
+    }
+}
+function loginDel() {
+    loginPinInput = loginPinInput.slice(0, -1);
+    updateLoginPinDots();
+}
+function updateLoginPinDots() {
+    loginPinDots.forEach((d, i) => d.classList.toggle('active', i < loginPinInput.length));
+}
+function checkLoginPin() {
+    const savedPin = localStorage.getItem('logos_pin');
+    if (loginPinInput === savedPin) {
+        document.getElementById('loginPinScreen').classList.remove('active');
+        showMessenger();
+    } else {
+        loginPinDotsContainer.classList.add('shake');
+        setTimeout(() => {
+            loginPinDotsContainer.classList.remove('shake');
+            loginPinInput = "";
+            updateLoginPinDots();
+        }, 400);
+    }
+}
+
+// ===== ЧАТЫ =====
+let chats = [];
+let isSelectionMode = false;
+let selectedCount = 0;
+let pressTimer;
+
+function loadChats() {
+    const currentUser = localStorage.getItem('logos_user');
+    if (!currentUser) return;
+    
+    database.ref('chats/' + currentUser).on('value', (snapshot) => {
+        const data = snapshot.val();
+        chats = [];
+        if (data) {
+            Object.keys(data).forEach(key => {
+                const chat = data[key];
+                chats.push({
+                    id: key,
+                    name: chat.displayName || key,
+                    msg: chat.lastMessage || 'Начать диалог',
+                    time: chat.lastTime || '',
+                    color: chat.color || '#5d5fef',
+                    init: chat.init || chat.displayName?.[0] || key[0] || '?',
+                    withUser: key
+                });
+            });
+        }
+        renderChats();
+    });
+}
+
+function renderChats() {
+    const list = document.getElementById('chat-list-el');
+    if (chats.length === 0) {
+        list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-gray);font-size:14px;">Нет чатов. Начните диалог с другим пользователем!</div>`;
+        return;
+    }
+    list.innerHTML = chats.map(c => `
+        <div class="chat-item" id="c-${c.id}" data-id="${c.id}">
+            <div class="m-avatar" style="background:${c.color}">${c.init}</div>
+            <div class="chat-body">
+                <div class="chat-row"><span class="chat-name">${c.name}</span><span class="chat-time">${c.time}</span></div>
+                <div class="chat-msg">${c.msg}</div>
+            </div>
+        </div>
+    `).join('');
+    
+    document.querySelectorAll('.chat-item').forEach(item => {
+        item.onclick = function(e) {
+            if (isSelectionMode) {
+                toggleSelect(this);
+            } else {
+                const chat = chats.find(c => c.id === this.dataset.id);
+                if (chat) openChat(chat);
+            }
+        };
+        item.onmousedown = function() {
+            if (!isSelectionMode) {
+                pressTimer = setTimeout(() => {
+                    isSelectionMode = true;
+                    enterSelectionMode(this);
+                }, 500);
+            }
+        };
+        item.onmouseup = function() { clearTimeout(pressTimer); };
+        item.onmouseleave = function() { clearTimeout(pressTimer); };
+        item.ontouchstart = function() {
+            if (!isSelectionMode) {
+                pressTimer = setTimeout(() => {
+                    isSelectionMode = true;
+                    enterSelectionMode(this);
+                }, 500);
+            }
+        };
+        item.ontouchend = function() { clearTimeout(pressTimer); };
+    });
+}
+
+function enterSelectionMode(el) {
+    document.getElementById('headerDefault').style.opacity = '0';
+    document.getElementById('headerDefault').style.transform = 'translateY(-10px)';
+    document.getElementById('headerSelection').classList.add('active');
+    toggleSelect(el);
+    if (window.navigator.vibrate) window.navigator.vibrate(40);
+}
+
+function toggleSelect(el) {
+    el.classList.toggle('selected');
+    selectedCount = document.querySelectorAll('.chat-item.selected').length;
+    document.getElementById('selCount').innerText = selectedCount;
+    if (selectedCount <= 0) exitSelection();
+}
+
+function exitSelection() {
+    isSelectionMode = false;
+    selectedCount = 0;
+    document.querySelectorAll('.chat-item').forEach(c => c.classList.remove('selected'));
+    document.getElementById('headerDefault').style.opacity = '1';
+    document.getElementById('headerDefault').style.transform = 'translateY(0)';
+    document.getElementById('headerSelection').classList.remove('active');
+}
+
+function enterSelectionModeFirst() {
+    if (document.querySelectorAll('.chat-item').length === 0) return;
+    isSelectionMode = true;
+    const el = document.querySelector('.chat-item');
+    enterSelectionMode(el);
+}
+
+// ===== ПОИСК =====
+function handleSearch(query) {
+    const resultsContainer = document.getElementById('searchResults');
+    const chatList = document.getElementById('chat-list-el');
+    
+    if (!query || query.trim().length < 2) {
+        resultsContainer.innerHTML = '';
+        chatList.style.display = 'block';
+        return;
+    }
+    
+    chatList.style.display = 'none';
+    const searchTerm = query.trim().toLowerCase();
+    
+    const currentUser = localStorage.getItem('logos_user');
+    database.ref('users').once('value').then((snapshot) => {
+        const users = snapshot.val();
+        const results = [];
+        
+        if (users) {
+            Object.keys(users).forEach(username => {
+                if (username === currentUser) return;
+                const userData = users[username];
+                const displayName = userData.displayName || username;
+                if (displayName.toLowerCase().includes(searchTerm) || username.toLowerCase().includes(searchTerm)) {
+                    results.push({
+                        username: username,
+                        displayName: displayName,
+                        bio: userData.bio || '',
+                        color: userData.avatar?.gradient ? 
+                            `linear-gradient(135deg,${userData.avatar.gradient[0]},${userData.avatar.gradient[1]})` : 
+                            '#5d5fef',
+                        init: displayName[0] || username[0] || '?'
+                    });
+                }
+            });
+        }
+        
+        if (results.length === 0) {
+            resultsContainer.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-gray);font-size:14px;">Пользователи не найдены</div>`;
+            return;
+        }
+        
+        resultsContainer.innerHTML = results.map(user => `
+            <div class="search-result-item" onclick="startChatWith('${user.username}')">
+                <div class="m-avatar" style="background:${user.color}">${user.init}</div>
+                <div class="chat-body">
+                    <div class="chat-row"><span class="chat-name">${user.displayName}</span></div>
+                    <div class="chat-msg">@${user.username} ${user.bio ? '· ' + user.bio : ''}</div>
+                </div>
+            </div>
+        `).join('');
+    }).catch(() => {
+        resultsContainer.innerHTML = `<div style="text-align:center;padding:20px;color:var(--red);font-size:14px;">Ошибка поиска</div>`;
+    });
+}
+
+// ===== НАЧАТЬ ЧАТ =====
+function startChatWith(username) {
+    const currentUser = localStorage.getItem('logos_user');
+    if (username === currentUser) return;
+    
+    database.ref('users/' + username).once('value').then((userSnap) => {
+        if (!userSnap.exists()) {
+            alert('Пользователь не найден');
+            return;
+        }
+        
+        const userData = userSnap.val();
+        
+        // Проверяем, есть ли уже чат
+        database.ref('chats/' + currentUser + '/' + username).once('value').then((chatSnap) => {
+            if (!chatSnap.exists()) {
+                // Создаем чат для текущего пользователя
+                const chatData = {
+                    displayName: userData.displayName || username,
+                    init: (userData.displayName || username)[0] || '?',
+                    color: userData.avatar?.gradient ? 
+                        `linear-gradient(135deg,${userData.avatar.gradient[0]},${userData.avatar.gradient[1]})` : 
+                        '#5d5fef',
+                    lastMessage: 'Начать диалог',
+                    lastTime: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),
+                    createdAt: new Date().toISOString()
+                };
+                database.ref('chats/' + currentUser + '/' + username).set(chatData);
+                
+                // Создаем зеркало чата для собеседника
+                database.ref('users/' + currentUser).once('value').then((mySnap) => {
+                    const myData = mySnap.val();
+                    const mirrorData = {
+                        displayName: myData.displayName || currentUser,
+                        init: (myData.displayName || currentUser)[0] || '?',
+                        color: '#5d5fef',
+                        lastMessage: 'Начать диалог',
+                        lastTime: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),
+                        createdAt: new Date().toISOString()
+                    };
+                    database.ref('chats/' + username + '/' + currentUser).set(mirrorData);
+                });
+            }
+            
+            // Очищаем поиск
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchResults').innerHTML = '';
+            document.getElementById('chat-list-el').style.display = 'block';
+            
+            // Открываем чат
+            setTimeout(() => {
+                const chat = chats.find(c => c.id === username);
+                if (chat) openChat(chat);
+            }, 500);
+        });
+    }).catch(() => {
+        alert('Ошибка при создании чата');
+    });
+}
+
+// ===== ОТКРЫТЬ ЧАТ =====
+function openChat(c) {
+    document.getElementById('chat-active-name').innerText = c.name;
+    document.getElementById('chat-active-avatar').innerText = c.init;
+    document.getElementById('chat-active-avatar').style.background = c.color;
+    document.getElementById('chat-window').classList.add('active');
+    document.getElementById('nav-island').classList.add('hidden');
+    
+    loadMessages(c.id);
+}
+
+function loadMessages(chatId) {
+    const currentUser = localStorage.getItem('logos_user');
+    const msgBox = document.getElementById('msgBox');
+    msgBox.innerHTML = '<div class="date-divider">Сегодня</div>';
+    
+    database.ref('messages/' + currentUser + '/' + chatId).orderByChild('timestamp').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            const messages = Object.values(data);
+            if (messages.length > 0) {
+                msgBox.innerHTML = messages.map(msg => 
+                    `<div class="bubble ${msg.sender === currentUser ? 'sent' : 'rec'}">${msg.text}<div class="m-time">${msg.time}</div></div>`
+                ).join('');
+            }
+            msgBox.scrollTop = msgBox.scrollHeight;
+        }
+    });
+}
+
+// ===== ОТПРАВКА СООБЩЕНИЯ =====
+function sendMsg() {
+    const inp = document.getElementById('chatInput');
+    if (inp.value.trim() === "") return;
+    
+    const currentUser = localStorage.getItem('logos_user');
+    const chatName = document.getElementById('chat-active-name').innerText;
+    const chat = chats.find(c => c.name === chatName);
+    if (!chat) return;
+    
+    const text = inp.value.trim();
+    const time = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    const timestamp = Date.now();
+    
+    const msgData = {
+        text: text,
+        sender: currentUser,
+        time: time,
+        timestamp: timestamp
+    };
+    
+    database.ref('messages/' + currentUser + '/' + chat.id).push(msgData);
+    database.ref('messages/' + chat.id + '/' + currentUser).push(msgData);
+    
+    database.ref('chats/' + currentUser + '/' + chat.id + '/lastMessage').set(text);
+    database.ref('chats/' + currentUser + '/' + chat.id + '/lastTime').set(time);
+    database.ref('chats/' + chat.id + '/' + currentUser + '/lastMessage').set(text);
+    database.ref('chats/' + chat.id + '/' + currentUser + '/lastTime').set(time);
+    
+    inp.value = "";
+    document.getElementById('micIcon').classList.replace('icon-hide', 'icon-show');
+    document.getElementById('sendIcon').classList.replace('icon-show', 'icon-hide');
+}
+
+document.getElementById('chatInput').addEventListener('input', function() {
+    const mic = document.getElementById('micIcon');
+    const send = document.getElementById('sendIcon');
+    if (this.value.trim().length > 0) {
+        mic.classList.replace('icon-show', 'icon-hide');
+        send.classList.replace('icon-hide', 'icon-show');
+    } else {
+        mic.classList.replace('icon-hide', 'icon-show');
+        send.classList.replace('icon-show', 'icon-hide');
+    }
+});
+
+function closeChat() {
+    document.getElementById('chat-window').classList.remove('active');
+    document.getElementById('nav-island').classList.remove('hidden');
+    const currentUser = localStorage.getItem('logos_user');
+    const chatName = document.getElementById('chat-active-name').innerText;
+    const chat = chats.find(c => c.name === chatName);
+    if (chat) {
+        database.ref('messages/' + currentUser + '/' + chat.id).off();
+    }
+}
+
+// ===== ПРОФИЛЬ =====
+function updateProfile() {
+    const u = localStorage.getItem('logos_user');
+    const n = localStorage.getItem('logos_display_name') || '—';
+    const b = localStorage.getItem('logos_bio') || '';
+    const d = localStorage.getItem('logos_createdAt');
+    document.getElementById('profileContent').innerHTML = `
+        <div class="profile-avatar" style="background:linear-gradient(135deg,#5d5fef,#3a3cb3);">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+        </div>
+        <div class="profile-name">${n}</div>
+        <div class="profile-username">@${u}</div>
+        <div class="profile-bio">${b}</div>
+        <div class="profile-row"><span class="profile-label">Дата регистрации</span><span class="profile-value">${d ? new Date(d).toLocaleDateString('ru-RU', {day:'numeric',month:'long',year:'numeric'}) : '—'}</span></div>
+        <div class="profile-row"><span class="profile-label">Тема</span><span class="profile-value">${document.body.classList.contains('dark-mode') ? '🌙 Тёмная' : '☀️ Светлая'}</span></div>
+        <div class="profile-row"><span class="profile-label">Язык</span><span class="profile-value">${curCode}</span></div>
+        <button class="profile-logout" onclick="logout()">Выйти из аккаунта</button>
+    `;
+}
+
+// ===== ОСНОВНЫЕ ФУНКЦИИ =====
+function showMessenger() {
+    document.getElementById('onboardingScreen').style.display = 'none';
+    ['registerScreen', 'displayNameScreen', 'avatarScreen', 'pinScreen', 'loginPinScreen'].forEach(id => {
+        document.getElementById(id).classList.remove('active');
+    });
+    document.getElementById('messengerScreen').style.display = 'flex';
+    loadChats();
+    updateProfile();
+}
+
+function switchMsgTab(i, el) {
+    if (isSelectionMode) exitSelection();
+    document.getElementById('msgSlider').style.transform = `translateX(-${i * 33.333}%)`;
+    document.querySelectorAll('#nav-island .nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    if (i === 2) updateProfile();
+}
+
+function checkSession() {
+    const u = localStorage.getItem('logos_user');
+    const n = localStorage.getItem('logos_display_name');
+    const pin = localStorage.getItem('logos_pin');
+    if (u && n) {
+        document.getElementById('onboardingScreen').style.display = 'none';
+        if (pin) {
+            document.getElementById('loginPinScreen').classList.add('active');
+            loginPinInput = "";
+            updateLoginPinDots();
+        } else {
+            showMessenger();
+        }
+        return true;
+    }
+    return false;
+}
+
+function logout() {
+    ['logos_user', 'logos_display_name', 'logos_createdAt', 'logos_bio', 'logos_pin', 'logos_avatar'].forEach(k => localStorage.removeItem(k));
+    document.getElementById('messengerScreen').style.display = 'none';
+    document.getElementById('loginPinScreen').classList.remove('active');
+    document.getElementById('onboardingScreen').style.display = '';
+    ['registerScreen', 'displayNameScreen', 'avatarScreen', 'pinScreen'].forEach(id => document.getElementById(id).classList.remove('active'));
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('usernameError').innerHTML = '';
+    document.getElementById('passwordError').innerHTML = '';
+    loginPinInput = "";
+    updateLoginPinDots();
+    currentStep = 1;
+    goToSlide(1);
+}
+
+function showRegister() { document.getElementById('registerScreen').classList.add('active'); }
+function hideRegister() { document.getElementById('registerScreen').classList.remove('active'); }
+function showDisplayName() { document.getElementById('displayNameScreen').classList.add('active'); }
+function hideDisplayName() { document.getElementById('displayNameScreen').classList.remove('active'); }
+function showAvatar() { document.getElementById('avatarScreen').classList.add('active'); }
+function hideAvatar() { document.getElementById('avatarScreen').classList.remove('active'); }
+function showPin() { document.getElementById('pinScreen').classList.add('active'); }
+function hidePin() { document.getElementById('pinScreen').classList.remove('active'); }
+
+function showTerms() {
+    const d = langData[curCode];
+    document.getElementById('termsContent').innerHTML = '<h3>' + d.termsTitle + '</h3>' + d.termsBody;
+    document.getElementById('termsModal').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+}
+function showPolicy() {
+    const d = langData[curCode];
+    document.getElementById('termsContent').innerHTML = '<h3>' + d.policyTitle + '</h3>' + d.policyBody;
+    document.getElementById('termsModal').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+}
+function closeTerms() {
+    document.getElementById('termsModal').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+}
+function showExtra() {
+    document.getElementById('extraModal').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+}
+function saveExtra() {
+    localStorage.setItem('logos_autoDelete', document.getElementById('autoDeleteSelect').value);
+    localStorage.setItem('logos_proxy', document.getElementById('proxyInput').value.trim());
+    document.getElementById('extraModal').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+}
+
+// ===== ОНБОРДИНГ =====
+let currentStep = 1;
+const nextBtn = document.getElementById('nextBtn');
+const btnText = document.getElementById('btnText');
+const btnIcon = document.getElementById('btnIcon');
+const onboardSlider = document.getElementById('onboardSlider');
+const app = document.getElementById('app');
+const pageNumber = document.getElementById('pageNumber');
+
+function goToSlide(n) {
+    currentStep = n;
+    onboardSlider.style.transform = `translateX(-${(n - 1) * 25}%)`;
+    app.className = 'app-screen' + (n > 1 ? ` s${n}-active` : '');
+    for (let i = 1; i <= 4; i++) document.getElementById('slide' + i).classList.remove('animate');
+    document.getElementById('slide' + n).classList.add('animate');
+    const colors = ['', 'blue', 'green', 'purple', 'orange'];
+    for (let i = 1; i <= 4; i++) {
+        const step = document.getElementById('s' + i);
+        step.className = 'step';
+        if (i <= n) step.classList.add('done-' + colors[i]);
+    }
+    pageNumber.innerText = n + ' / 4';
+    btnIcon.style.display = (n === 4) ? 'none' : '';
+    updateTexts();
+}
+
+nextBtn.onclick = () => {
+    if (currentStep < 4) {
+        goToSlide(currentStep + 1);
+    } else {
+        showRegister();
+    }
+};
+document.getElementById('skipBtn').onclick = () => showRegister();
+
+// ===== РЕГИСТРАЦИЯ =====
+const submitBtn = document.getElementById('submitBtn');
+const userInp = document.getElementById('username');
+const passInp = document.getElementById('password');
+const usernameError = document.getElementById('usernameError');
+const passwordError = document.getElementById('passwordError');
+let accountExists = false;
+let checkTimeout;
+
+function updateSubmitBtn() {
+    submitBtn.innerText = accountExists ? getMsg('loginBtn') : getMsg('registerBtn');
+}
+
+userInp.addEventListener('input', function() {
+    usernameError.classList.remove('input-success', 'input-hint');
+    const val = this.value.trim().toLowerCase();
+    clearTimeout(checkTimeout);
+    accountExists = false;
+    updateSubmitBtn();
+    if (val.length === 0) { usernameError.innerHTML = ''; return; }
+    if (val.length < 5) { usernameError.innerHTML = '⚠️ ' + getMsg('minLength'); return; }
+    if (!/^[a-zA-Z0-9_]+$/.test(val)) { usernameError.innerHTML = '⚠️ ' + getMsg('invalidChars'); return; }
+    usernameError.innerHTML = 'Проверка...';
+    usernameError.classList.add('input-hint');
+    checkTimeout = setTimeout(async () => {
+        try {
+            const snap = await database.ref('users/' + val).once('value');
+            if (snap.exists()) {
+                accountExists = true;
+                usernameError.innerHTML = '🔐 ' + getMsg('accountExists');
+                usernameError.classList.add('input-hint');
+                passInp.placeholder = getMsg('enterPass');
+                passInp.focus();
+            } else {
+                accountExists = false;
+                usernameError.innerHTML = '✅ ' + getMsg('nameFree');
+                usernameError.classList.add('input-success');
+                passInp.placeholder = getMsg('createPass');
+            }
+            updateSubmitBtn();
+        } catch (e) {
+            usernameError.innerHTML = '';
+        }
+    }, 500);
+});
+
+passInp.addEventListener('input', () => {
+    passwordError.classList.remove('input-success');
+    passwordError.innerHTML = '';
+});
+
+submitBtn.onclick = async function() {
+    const user = userInp.value.trim().toLowerCase();
+    const pass = passInp.value.trim();
+    usernameError.classList.remove('input-success', 'input-hint');
+    let err = false;
+    if (user.length < 5) { usernameError.innerHTML = '⚠️ ' + getMsg('minLength'); err = true; }
+    else if (!/^[a-zA-Z0-9_]+$/.test(user)) { usernameError.innerHTML = '⚠️ ' + getMsg('invalidChars'); err = true; }
+    if (pass.length < 6) { passwordError.innerHTML = '⚠️ ' + getMsg('shortPass'); err = true; }
+    if (err) return;
+    submitBtn.innerText = "...";
+    submitBtn.disabled = true;
+    try {
+        const ref = database.ref('users/' + user);
+        const snap = await ref.once('value');
+        const hash = await sha256(pass);
+        if (snap.exists()) {
+            if (snap.val().password === hash) {
+                localStorage.setItem('logos_user', user);
+                localStorage.setItem('logos_createdAt', snap.val().createdAt);
+                hideRegister();
+                if (snap.val().displayName) {
+                    localStorage.setItem('logos_display_name', snap.val().displayName);
+                    localStorage.setItem('logos_bio', snap.val().bio || '');
+                    localStorage.setItem('logos_avatar', JSON.stringify(snap.val().avatar || avatarData));
+                    showMessenger();
+                } else {
+                    showDisplayName();
+                }
+            } else {
+                passwordError.innerHTML = '⚠️ ' + getMsg('wrongPass');
+                passInp.value = "";
+                passInp.focus();
+            }
+        } else {
+            const ip = await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => d.ip).catch(() => 'unknown');
+            if (ip !== 'unknown') {
+                const ipSnap = await database.ref('ip_registry/' + ip.replace(/\./g, '_')).once('value');
+                const count = ipSnap.exists() ? ipSnap.val().count : 0;
+                if (count >= 2) {
+                    passwordError.innerHTML = getMsg('ipLimit');
+                    submitBtn.disabled = false;
+                    updateSubmitBtn();
+                    return;
+                }
+                await database.ref('ip_registry/' + ip.replace(/\./g, '_')).set({ count: count + 1, lastUsed: new Date().toISOString() });
+            }
+            const now = new Date().toISOString();
+            await ref.set({ password: hash, createdAt: now });
+            localStorage.setItem('logos_user', user);
+            localStorage.setItem('logos_createdAt', now);
+            hideRegister();
+            showDisplayName();
+        }
+    } catch (e) {
+        console.error(e);
+        passwordError.innerHTML = '⚠️ ' + getMsg('dbError');
+    } finally {
+        updateSubmitBtn();
+        submitBtn.disabled = false;
+    }
+};
+
+passInp.addEventListener('keydown', e => { if (e.key === 'Enter') submitBtn.click(); });
+
+// ===== DISPLAY NAME =====
+const displayNameBtn = document.getElementById('displayNameBtn');
+const displayNameInput = document.getElementById('displayNameInput');
+const bioInput = document.getElementById('bioInput');
+const displayError = document.getElementById('displayError');
+const bioError = document.getElementById('bioError');
+
+displayNameBtn.addEventListener('click', function() {
+    const name = displayNameInput.value.trim();
+    const bio = bioInput.value.trim();
+    if (name.length < 1) { displayError.innerHTML = '⚠️ Введите имя'; return; }
+    if (name.length > 30) { displayError.innerHTML = '⚠️ Максимум 30 символов'; return; }
+    if (bio.length > 150) { bioError.innerHTML = '⚠️ Максимум 150 символов'; return; }
+    localStorage.setItem('logos_display_name', name);
+    localStorage.setItem('logos_bio', bio);
+    hideDisplayName();
+    showAvatar();
+});
+
+// ===== АВАТАР =====
+const avatarBtn = document.getElementById('avatarBtn');
+avatarBtn.addEventListener('click', function() {
+    localStorage.setItem('logos_avatar', JSON.stringify(avatarData));
+    hideAvatar();
+    showPin();
+});
+
+// ===== ЯЗЫК И ТЕМА =====
+const langModal = document.getElementById('langModal');
+const overlay = document.getElementById('overlay');
+
+document.querySelectorAll('.lang-option').forEach(el => {
+    el.onclick = function() {
+        const code = this.id.replace('opt-', '');
+        setLang(code);
+    };
+});
+
+document.getElementById('langBtn').onclick = () => { langModal.classList.add('open'); overlay.classList.add('open'); };
+document.getElementById('langBtn2').onclick = () => { langModal.classList.add('open'); overlay.classList.add('open'); };
+document.getElementById('langBtn3').onclick = () => { langModal.classList.add('open'); overlay.classList.add('open'); };
+document.getElementById('langBtn5').onclick = () => { langModal.classList.add('open'); overlay.classList.add('open'); };
+document.getElementById('langBtn6').onclick = () => { langModal.classList.add('open'); overlay.classList.add('open'); };
+document.getElementById('langBtn7').onclick = () => { langModal.classList.add('open'); overlay.classList.add('open'); };
+
+overlay.onclick = () => {
+    langModal.classList.remove('open');
+    termsModal.classList.remove('open');
+    extraModal.classList.remove('open');
+    overlay.classList.remove('open');
+};
+
+document.getElementById('themeBtn1').onclick = toggleTheme;
+document.getElementById('themeBtn2').onclick = toggleTheme;
+document.getElementById('themeBtn3').onclick = toggleTheme;
+document.getElementById('themeBtn5').onclick = toggleTheme;
+document.getElementById('themeBtn6').onclick = toggleTheme;
+document.getElementById('themeBtn7').onclick = toggleTheme;
+
+// ===== ЗАПУСК =====
+window.onload = function() {
+    loadTheme();
+    curCode = loadLang();
+    setLang(curCode);
+    if (!checkSession()) {
+        goToSlide(1);
+    }
+    const ad = localStorage.getItem('logos_autoDelete');
+    if (ad) document.getElementById('autoDeleteSelect').value = ad;
+    const pr = localStorage.getItem('logos_proxy');
+    if (pr) document.getElementById('proxyInput').value = pr;
+    const rColor = palette[Math.floor(Math.random() * palette.length)];
+    const rIcon = iconPaths[Math.floor(Math.random() * iconPaths.length)];
+    setBg(rColor.c1, rColor.c2);
+    setIcon(rIcon);
+};
 </script>
 </body>
 </html>
